@@ -1,157 +1,487 @@
-%KDT:scale(theme=light,contrast=*)        # 이하 $scale 기본 조건은 light
+%KDT:scale(theme=light,contrast=*)
 
-# ---------- Static (항상 동일) ----------
+/* =========================
+   0) STATIC / PLATFORM
+   ========================= */
 $static.color.white -> #ffffff
 $static.color.black -> #000000
-$static.opacity.disabled -> 40%
-$static.font-family.system -> "ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Noto Sans, sans-serif"
-$static.font-weight.thin -> thin
-$static.font-weight.regular -> regular
-$static.font-weight.medium -> medium
-$static.font-weight.semibold -> bold        # (KDT weight 문법상 bold로 바인딩)
 
-# ---------- Color scales : Brand(Carrot), Gray ----------
-$scale.color.carrot-050 -> #FFF5F0
-$scale.color.carrot-100 -> #FFE2D2
-$scale.color.carrot-200 -> #FFD2B9
-$scale.color.carrot-300 -> #FFBC97
-$scale.color.carrot-400 -> #FFA877
-$scale.color.carrot-500 -> #FF9E66
-$scale.color.carrot-600 -> #ED7735
-$scale.color.carrot-700 -> #D9662B
-$scale.color.carrot-800 -> #B65022
-$scale.color.carrot-900 -> #8A3C1B
-$scale.color.carrot-1000 -> #532410
+$static.dimension.safe-area-top -> 0px
+$static.dimension.safe-area-bottom -> 0px
+$semantic.platform.safe-area.top    -> $static.dimension.safe-area-top
+$semantic.platform.safe-area.bottom -> $static.dimension.safe-area-bottom
+$semantic.platform.safe-area.top    ?? env(constant/env)는 런타임에서 해석
 
-$scale.color.gray-050 -> #FCFCFD
-$scale.color.gray-100 -> #F5F7FA
-$scale.color.gray-200 -> #ECEFF3
-$scale.color.gray-300 -> #E2E6EB
-$scale.color.gray-400 -> #CBD2DB
-$scale.color.gray-500 -> #A7B0BA
-$scale.color.gray-600 -> #8C96A1
-$scale.color.gray-700 -> #6E7781
-$scale.color.gray-800 -> #4A525A
-$scale.color.gray-900 -> #2F353B
-$scale.color.gray-1000 -> #121417
+/* iOS 폰트 스케일 한계 */
+$static.font-scaling.multiplier.default -> 1
+$static.font-scaling.limit.font-size.min -> 0.8
+$static.font-scaling.limit.font-size.max -> 1.5
+$static.font-scaling.limit.line-height.min -> 0.8
+$static.font-scaling.limit.line-height.max -> 1.5
+$scale(platform=ios).font-scaling.limit.font-size.max -> 1.35
+$scale(platform=ios).font-scaling.limit.line-height.max -> 1.35
+$scale(platform=ios,font-scaling=enabled).font-scaling.multiplier -> 0.9412
 
-# ---------- Color scales (DARK override) ----------
-$scale(theme=dark).color.carrot-050 -> #2C140A
-$scale(theme=dark).color.carrot-100 -> #3A1B0E
-$scale(theme=dark).color.carrot-200 -> #4A2413
-$scale(theme=dark).color.carrot-300 -> #5E2F1A
-$scale(theme=dark).color.carrot-400 -> #7A3D22
-$scale(theme=dark).color.carrot-500 -> #ED7735
-$scale(theme=dark).color.carrot-600 -> #F08A4C
-$scale(theme=dark).color.carrot-700 -> #F59C64
-$scale(theme=dark).color.carrot-800 -> #FFB181
-$scale(theme=dark).color.carrot-900 -> #FFC49F
-$scale(theme=dark).color.carrot-1000 -> #FFE1CC
+/* =========================
+   1) DIMENSION / RADIUS / DURATION / TIMING
+   ========================= */
+/* spacing scale (px) */
+$scale.dimension.x0-5  -> 2px
+$scale.dimension.x1    -> 4px
+$scale.dimension.x1-5  -> 6px
+$scale.dimension.x2    -> 8px
+$scale.dimension.x2-5  -> 10px
+$scale.dimension.x3    -> 12px
+$scale.dimension.x3-5  -> 14px
+$scale.dimension.x4    -> 16px
+$scale.dimension.x4-5  -> 18px
+$scale.dimension.x5    -> 20px
+$scale.dimension.x6    -> 24px
+$scale.dimension.x7    -> 28px
+$scale.dimension.x8    -> 32px
+$scale.dimension.x9    -> 36px
+$scale.dimension.x10   -> 40px
+$scale.dimension.x12   -> 48px
+$scale.dimension.x13   -> 52px
+$scale.dimension.x14   -> 56px
+$scale.dimension.x16   -> 64px
 
-$scale(theme=dark).color.gray-050 -> #0B0F14
-$scale(theme=dark).color.gray-100 -> #0F1319
-$scale(theme=dark).color.gray-200 -> #131922
-$scale(theme=dark).color.gray-300 -> #18202A
-$scale(theme=dark).color.gray-400 -> #202A36
-$scale(theme=dark).color.gray-500 -> #2C3947
-$scale(theme=dark).color.gray-600 -> #3B4A5A
-$scale(theme=dark).color.gray-700 -> #4B5C6E
-$scale(theme=dark).color.gray-800 -> #63788D
-$scale(theme=dark).color.gray-900 -> #A0B3C3
-$scale(theme=dark).color.gray-1000 -> #E6EDF3
+/* radius */
+$scale.radius.r0-5 -> 2px
+$scale.radius.r1   -> 4px
+$scale.radius.r1-5 -> 6px
+$scale.radius.r2   -> 8px
+$scale.radius.r2-5 -> 10px
+$scale.radius.r3   -> 12px
+$scale.radius.r3-5 -> 14px
+$scale.radius.r4   -> 16px
+$scale.radius.r5   -> 20px
+$scale.radius.r6   -> 24px
+$scale.radius.full -> 9999px
 
-# ---------- Opacity scale ----------
-$scale.opacity.overlay-1 -> 30%
-$scale.opacity.overlay-2 -> 45%
-$scale.opacity.focus-ring -> 55%
+/* duration */
+$scale.duration.d1 -> 50ms
+$scale.duration.d2 -> 100ms
+$scale.duration.d3 -> 150ms
+$scale.duration.d4 -> 200ms
+$scale.duration.d5 -> 250ms
+$scale.duration.d6 -> 300ms
 
-# ---------- Typography scale ----------
-$scale.font-size.100 -> 12pt
-$scale.font-size.150 -> 13pt
-$scale.font-size.200 -> 14pt
-$scale.font-size.300 -> 16pt
-$scale.font-size.400 -> 18pt
-$scale.font-size.500 -> 20pt
-$scale.font-size.600 -> 24pt
-$scale.font-size.700 -> 28pt
-$scale.font-size.800 -> 32pt
+/* timing function */
+$scale.timing.linear             -> cubic-bezier(0,0,1,1)
+$scale.timing.easing             -> cubic-bezier(.35,0,.35,1)
+$scale.timing.enter              -> cubic-bezier(0,0,.15,1)
+$scale.timing.exit               -> cubic-bezier(.35,0,1,1)
+$scale.timing.enter-expressive   -> cubic-bezier(.03,.4,.1,1)
+$scale.timing.exit-expressive    -> cubic-bezier(.35,0,.95,.55)
 
-$scale.line-height.1 -> 120%
-$scale.line-height.2 -> 140%
-$scale.line-height.3 -> 150%
-$scale.line-height.4 -> 160%
+/* =========================
+   2) TYPOGRAPHY SCALE
+   ========================= */
+$scale.font-weight.regular  -> regular
+$scale.font-weight.medium   -> medium
+$scale.font-weight.bold     -> bold
+$static.font-family.system  -> "ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Noto Sans, sans-serif"
 
-# ---------- Semantics : Surface / Text / Border ----------
-$semantic.color.background          -> $scale.color.gray-050
-$semantic.color.surface             -> $scale.color.gray-100
-$semantic.color.surface-muted       -> $scale.color.gray-050
-$semantic.color.text                -> $scale.color.gray-1000
-$semantic.color.text-muted          -> $scale.color.gray-700
-$semantic.color.border              -> $scale.color.gray-300
-$semantic.color.accent              -> $scale.color.carrot-600
-$semantic.color.accent-contrast     -> $static.color.white
-$semantic.color.link                -> $scale.color.carrot-600
-$semantic.color.focus-ring          -> $scale.color.carrot-400
+/* static steps (px 기반) */
+$scale.font-size.t1-static  -> 11px
+$scale.font-size.t2-static  -> 12px
+$scale.font-size.t3-static  -> 13px
+$scale.font-size.t4-static  -> 14px
+$scale.font-size.t5-static  -> 16px
+$scale.font-size.t6-static  -> 18px
+$scale.font-size.t7-static  -> 20px
+$scale.font-size.t8-static  -> 22px
+$scale.font-size.t9-static  -> 24px
+$scale.font-size.t10-static -> 26px
 
-# DARK에 대한 의미 치환(팔레트 참조만 교체)
-$semantic.color.background          -> $scale(theme=dark).color.gray-100
-$semantic.color.surface             -> $scale(theme=dark).color.gray-200
-$semantic.color.surface-muted       -> $scale(theme=dark).color.gray-100
-$semantic.color.text                -> $scale(theme=dark).color.gray-1000
-$semantic.color.text-muted          -> $scale(theme=dark).color.gray-800
-$semantic.color.border              -> $scale(theme=dark).color.gray-400
-$semantic.color.accent              -> $scale(theme=dark).color.carrot-500
-$semantic.color.accent-contrast     -> $static.color.black
-$semantic.color.link                -> $scale(theme=dark).color.carrot-500
-$semantic.color.focus-ring          -> $scale(theme=dark).color.carrot-600
+$scale.line-height.t1-static  -> 15px
+$scale.line-height.t2-static  -> 16px
+$scale.line-height.t3-static  -> 18px
+$scale.line-height.t4-static  -> 19px
+$scale.line-height.t5-static  -> 22px
+$scale.line-height.t6-static  -> 24px
+$scale.line-height.t7-static  -> 27px
+$scale.line-height.t8-static  -> 30px
+$scale.line-height.t9-static  -> 32px
+$scale.line-height.t10-static -> 35px
 
-# ---------- Semantics : Components ----------
-# Button / Primary
-$semantic.component.button.primary.bg           -> $semantic.color.accent
-$semantic.component.button.primary.fg           -> $semantic.color.accent-contrast
-$semantic.component.button.primary.bg:hover     -> $scale.color.carrot-700
-$semantic.component.button.primary.bd:focus     -> $semantic.color.focus-ring
-$semantic.component.button.primary.bg:disabled  -> $scale.color.gray-300
-$semantic.component.button.primary.fg:disabled  -> $semantic.color.text-muted
+/* clamp 계수(런타임 계산용) */
+$static.typography.limit.font-size.min   -> 0.8
+$static.typography.limit.font-size.max   -> 1.5
+$static.typography.limit.line-height.min -> 0.8
+$static.typography.limit.line-height.max -> 1.5
 
-# Button / Ghost
-$semantic.component.button.ghost.fg             -> $semantic.color.link
-$semantic.component.button.ghost.bg:hover       -> $scale.opacity.overlay-1
-$semantic.component.button.ghost.fg:disabled    -> $semantic.color.text-muted
+/* =========================
+   3) PALETTES (LIGHT / DARK)
+   ========================= */
+/* ---- BLUE ---- */
+$scale(theme=light).color.blue-100  -> #eff6ff
+$scale(theme=light).color.blue-200  -> #e2edfc
+$scale(theme=light).color.blue-300  -> #cbdffa
+$scale(theme=light).color.blue-400  -> #aacefd
+$scale(theme=light).color.blue-500  -> #85b8fd
+$scale(theme=light).color.blue-600  -> #5e98fe
+$scale(theme=light).color.blue-700  -> #217cf9
+$scale(theme=light).color.blue-800  -> #135fcd
+$scale(theme=light).color.blue-900  -> #0b4596
+$scale(theme=light).color.blue-1000 -> #032451
 
-# Field (Input)
-$semantic.component.field.bg                    -> $semantic.color.surface
-$semantic.component.field.bd                    -> $semantic.color.border
-$semantic.component.field.fg                    -> $semantic.color.text
-$semantic.component.field.bd:focus              -> $semantic.color.focus-ring
-$semantic.component.field.bg:disabled           -> $semantic.color.surface-muted
-$semantic.component.field.placeholder           -> $semantic.color.text-muted
+$scale(theme=dark).color.blue-100  -> #202742
+$scale(theme=dark).color.blue-200  -> #1e3352
+$scale(theme=dark).color.blue-300  -> #1a4275
+$scale(theme=dark).color.blue-400  -> #0f559e
+$scale(theme=dark).color.blue-500  -> #1964d8
+$scale(theme=dark).color.blue-600  -> #1e82eb
+$scale(theme=dark).color.blue-700  -> #41a2f9
+$scale(theme=dark).color.blue-800  -> #83bcf9
+$scale(theme=dark).color.blue-900  -> #b9d7fb
+$scale(theme=dark).color.blue-1000 -> #e5f0fe
 
-# Overlay (Dialog/Popover)
-$semantic.component.overlay.scrim               -> $static.color.black
-$semantic.component.overlay.scrim-opacity       -> $scale.opacity.overlay-2
-$semantic.component.overlay.surface             -> $semantic.color.surface
+/* ---- CARROT (brand) ---- */
+$scale(theme=light).color.carrot-100  -> #fff2ec
+$scale(theme=light).color.carrot-200  -> #ffe8db
+$scale(theme=light).color.carrot-300  -> #ffd5c0
+$scale(theme=light).color.carrot-400  -> #ffb999
+$scale(theme=light).color.carrot-500  -> #ff9364
+$scale(theme=light).color.carrot-600  -> #ff6600
+$scale(theme=light).color.carrot-700  -> #e14d00
+$scale(theme=light).color.carrot-800  -> #b93901
+$scale(theme=light).color.carrot-900  -> #862b00
+$scale(theme=light).color.carrot-1000 -> #471601
 
-# ---------- Semantics : Typography ----------
-$semantic.typography.body ?? 기본 본문 텍스트
-$semantic.typography.body -> $static.font-family.system
-$semantic.typography.body -> $scale.font-size.200
-$semantic.typography.body -> $scale.line-height.3
-$semantic.typography.body -> $static.font-weight.regular
-$semantic.typography.body -> $semantic.color.text
+$scale(theme=dark).color.carrot-100  -> #31241f
+$scale(theme=dark).color.carrot-200  -> #4b291c
+$scale(theme=dark).color.carrot-300  -> #6b311c
+$scale(theme=dark).color.carrot-400  -> #923600
+$scale(theme=dark).color.carrot-500  -> #bd4201
+$scale(theme=dark).color.carrot-600  -> #e65200
+$scale(theme=dark).color.carrot-700  -> #ff6600
+$scale(theme=dark).color.carrot-800  -> #ff9e65
+$scale(theme=dark).color.carrot-900  -> #eecebc
+$scale(theme=dark).color.carrot-1000 -> #f4eeea
 
-$semantic.typography.h1 ?? 페이지 타이틀
-$semantic.typography.h1 -> $static.font-family.system
-$semantic.typography.h1 -> $scale.font-size.700
-$semantic.typography.h1 -> $scale.line-height.2
-$semantic.typography.h1 -> $static.font-weight.semibold
-$semantic.typography.h1 -> $semantic.color.text
+/* ---- GRAY ---- */
+$scale(theme=light).color.gray-00   -> #ffffff
+$scale(theme=light).color.gray-100  -> #f7f8f9
+$scale(theme=light).color.gray-200  -> #f3f4f5
+$scale(theme=light).color.gray-300  -> #eeeff1
+$scale(theme=light).color.gray-400  -> #dcdee3
+$scale(theme=light).color.gray-500  -> #d1d3d8
+$scale(theme=light).color.gray-600  -> #b0b3ba
+$scale(theme=light).color.gray-700  -> #868b94
+$scale(theme=light).color.gray-800  -> #555d6d
+$scale(theme=light).color.gray-900  -> #2a3038
+$scale(theme=light).color.gray-1000 -> #1a1c20
 
-$semantic.typography.h2 -> $static.font-family.system
-$semantic.typography.h2 -> $scale.font-size.600
-$semantic.typography.h2 -> $scale.line-height.2
-$semantic.typography.h2 -> $static.font-weight.medium
-$semantic.typography.h2 -> $semantic.color.text
+$scale(theme=dark).color.gray-00   -> #000000
+$scale(theme=dark).color.gray-100  -> #16171b
+$scale(theme=dark).color.gray-200  -> #1d2025
+$scale(theme=dark).color.gray-300  -> #2b2e35
+$scale(theme=dark).color.gray-400  -> #393d46
+$scale(theme=dark).color.gray-500  -> #5b606a
+$scale(theme=dark).color.gray-600  -> #868b94
+$scale(theme=dark).color.gray-700  -> #b0b3ba
+$scale(theme=dark).color.gray-800  -> #dcdee3
+$scale(theme=dark).color.gray-900  -> #e9eaec
+$scale(theme=dark).color.gray-1000 -> #f3f4f5
 
-# ---------- Deprecations (예시) ----------
-%KDT:deprecate($scale.color.gray-050)     # 더 이상 사용하지 말 것
+/* ---- GREEN ---- */
+$scale(theme=light).color.green-100  -> #edfaf6
+$scale(theme=light).color.green-200  -> #d9f6e9
+$scale(theme=light).color.green-300  -> #b9e9d2
+$scale(theme=light).color.green-400  -> #7ddcb3
+$scale(theme=light).color.green-500  -> #42c593
+$scale(theme=light).color.green-600  -> #10ab7d
+$scale(theme=light).color.green-700  -> #079171
+$scale(theme=light).color.green-800  -> #00745f
+$scale(theme=light).color.green-900  -> #075445
+$scale(theme=light).color.green-1000 -> #0a2b24
+
+$scale(theme=dark).color.green-100  -> #202926
+$scale(theme=dark).color.green-200  -> #20362e
+$scale(theme=dark).color.green-300  -> #20493b
+$scale(theme=dark).color.green-400  -> #19604c
+$scale(theme=dark).color.green-500  -> #117956
+$scale(theme=dark).color.green-600  -> #1b946d
+$scale(theme=dark).color.green-700  -> #22b27f
+$scale(theme=dark).color.green-800  -> #35ce9a
+$scale(theme=dark).color.green-900  -> #93e5c0
+$scale(theme=dark).color.green-1000 -> #d4f6ef
+
+/* ---- PURPLE ---- */
+$scale(theme=light).color.purple-100  -> #f5f3fe
+$scale(theme=light).color.purple-200  -> #efeafe
+$scale(theme=light).color.purple-300  -> #e1d8ff
+$scale(theme=light).color.purple-400  -> #d0c0ff
+$scale(theme=light).color.purple-500  -> #b8a1ff
+$scale(theme=light).color.purple-600  -> #9f84fb
+$scale(theme=light).color.purple-700  -> #8969ea
+$scale(theme=light).color.purple-800  -> #6d50cb
+$scale(theme=light).color.purple-900  -> #50379b
+$scale(theme=light).color.purple-1000 -> #29175d
+
+$scale(theme=dark).color.purple-100  -> #28213b
+$scale(theme=dark).color.purple-200  -> #3b2873
+$scale(theme=dark).color.purple-300  -> #443081
+$scale(theme=dark).color.purple-400  -> #5a3bb1
+$scale(theme=dark).color.purple-500  -> #764fd9
+$scale(theme=dark).color.purple-600  -> #8e6bee
+$scale(theme=dark).color.purple-700  -> #a78df0
+$scale(theme=dark).color.purple-800  -> #beadf2
+$scale(theme=dark).color.purple-900  -> #d9cefa
+$scale(theme=dark).color.purple-1000 -> #f0edfc
+
+/* ---- RED ---- */
+$scale(theme=light).color.red-100  -> #fdf0f0
+$scale(theme=light).color.red-200  -> #fde7e7
+$scale(theme=light).color.red-300  -> #fed4d2
+$scale(theme=light).color.red-400  -> #feb7b3
+$scale(theme=light).color.red-500  -> #fe928d
+$scale(theme=light).color.red-600  -> #fc6a66
+$scale(theme=light).color.red-700  -> #fa342c
+$scale(theme=light).color.red-800  -> #ca1d13
+$scale(theme=light).color.red-900  -> #921708
+$scale(theme=light).color.red-1000 -> #4a1209
+
+$scale(theme=dark).color.red-100  -> #322323
+$scale(theme=dark).color.red-200  -> #4f2624
+$scale(theme=dark).color.red-300  -> #742826
+$scale(theme=dark).color.red-400  -> #a12621
+$scale(theme=dark).color.red-500  -> #ca2319
+$scale(theme=dark).color.red-600  -> #f73526
+$scale(theme=dark).color.red-700  -> #ff6e60
+$scale(theme=dark).color.red-800  -> #ffa299
+$scale(theme=dark).color.red-900  -> #f8c5c3
+$scale(theme=dark).color.red-1000 -> #fdf2f2
+
+/* ---- YELLOW ---- */
+$scale(theme=light).color.yellow-100  -> #fff7de
+$scale(theme=light).color.yellow-200  -> #fdefb9
+$scale(theme=light).color.yellow-300  -> #fbdc65
+$scale(theme=light).color.yellow-400  -> #e9c647
+$scale(theme=light).color.yellow-500  -> #d4ab28
+$scale(theme=light).color.yellow-600  -> #c49725
+$scale(theme=light).color.yellow-700  -> #9b7821
+$scale(theme=light).color.yellow-800  -> #755b22
+$scale(theme=light).color.yellow-900  -> #4f3e1f
+$scale(theme=light).color.yellow-1000 -> #2c2512
+
+$scale(theme=dark).color.yellow-100  -> #302819
+$scale(theme=dark).color.yellow-200  -> #413218
+$scale(theme=dark).color.yellow-300  -> #543e15
+$scale(theme=dark).color.yellow-400  -> #714e15
+$scale(theme=dark).color.yellow-500  -> #91601b
+$scale(theme=dark).color.yellow-600  -> #b6720d
+$scale(theme=dark).color.yellow-700  -> #ca901c
+$scale(theme=dark).color.yellow-800  -> #dab156
+$scale(theme=dark).color.yellow-900  -> #e5d49b
+$scale(theme=dark).color.yellow-1000 -> #f7f0cd
+
+/* ---- STATIC ALPHAS ---- */
+$static.color.black-alpha-100   -> #00000007
+$static.color.black-alpha-200   -> #0000000c
+$static.color.black-alpha-300   -> #00000010
+$static.color.black-alpha-400   -> #00000021
+$static.color.black-alpha-500   -> #0000002c
+$static.color.black-alpha-600   -> #0000004c
+$static.color.black-alpha-700   -> #00000074
+$static.color.black-alpha-800   -> #000000a2
+$static.color.black-alpha-900   -> #000000d0
+$static.color.black-alpha-1000  -> #000000e3
+$static.color.white-alpha-50    -> #ffffff0d
+$static.color.white-alpha-100   -> #ffffff17
+$static.color.white-alpha-200   -> #ffffff20
+$static.color.white-alpha-300   -> #ffffff2e
+$static.color.white-alpha-400   -> #ffffff3d
+$static.color.white-alpha-500   -> #ffffff60
+$static.color.white-alpha-600   -> #ffffff8b
+$static.color.white-alpha-700   -> #ffffffb3
+$static.color.white-alpha-800   -> #ffffffde
+$static.color.white-alpha-900   -> #ffffffea
+$static.color.white-alpha-1000  -> #fffffff4
+
+/* =========================
+   4) SEMANTIC (FG/BG/STROKE 등)
+   ========================= */
+/* ---- LIGHT ---- */
+$semantic.color.fg.neutral                -> $scale(theme=light).color.gray-1000
+$semantic.color.fg.placeholder            -> $scale(theme=light).color.gray-600
+$semantic.color.fg.disabled               -> $scale(theme=light).color.gray-500
+$semantic.color.fg.brand                  -> $scale(theme=light).color.carrot-600
+$semantic.color.fg.informative            -> $scale(theme=light).color.blue-700
+$semantic.color.fg.critical               -> $scale(theme=light).color.red-700
+$semantic.color.fg.positive               -> $scale(theme=light).color.green-700
+$semantic.color.fg.warning                -> $scale(theme=light).color.yellow-700
+$semantic.color.fg.brand-contrast         -> $scale(theme=light).color.carrot-700
+$semantic.color.fg.critical-contrast      -> $scale(theme=light).color.red-900
+$semantic.color.fg.informative-contrast   -> $scale(theme=light).color.blue-900
+$semantic.color.fg.neutral-muted          -> $scale(theme=light).color.gray-800
+$semantic.color.fg.neutral-subtle         -> $scale(theme=light).color.gray-700
+$semantic.color.fg.neutral-inverted       -> $scale(theme=light).color.gray-00
+$semantic.color.fg.positive-contrast      -> $scale(theme=light).color.green-900
+$semantic.color.fg.warning-contrast       -> $scale(theme=light).color.yellow-900
+
+$semantic.color.bg.overlay                -> $static.color.black-alpha-700
+$semantic.color.bg.disabled               -> $scale(theme=light).color.gray-200
+$semantic.color.bg.brand.weak             -> $scale(theme=light).color.carrot-100
+$semantic.color.bg.brand.solid            -> $scale(theme=light).color.carrot-600
+$semantic.color.bg.brand.solid:pressed    -> $scale(theme=light).color.carrot-700
+$semantic.color.bg.brand.weak:pressed     -> $scale(theme=light).color.carrot-200
+$semantic.color.bg.critical.weak          -> $scale(theme=light).color.red-100
+$semantic.color.bg.critical.solid         -> $scale(theme=light).color.red-700
+$semantic.color.bg.critical.solid:pressed -> $scale(theme=light).color.red-800
+$semantic.color.bg.critical.weak:pressed  -> $scale(theme=light).color.red-200
+$semantic.color.bg.informative.weak       -> $scale(theme=light).color.blue-100
+$semantic.color.bg.informative.solid      -> $scale(theme=light).color.blue-700
+$semantic.color.bg.informative.solid:pressed -> $scale(theme=light).color.blue-800
+$semantic.color.bg.informative.weak:pressed  -> $scale(theme=light).color.blue-200
+$semantic.color.bg.layer.basement         -> $scale(theme=light).color.gray-200
+$semantic.color.bg.layer.default          -> $scale(theme=light).color.gray-00
+$semantic.color.bg.layer.fill             -> $scale(theme=light).color.gray-100
+$semantic.color.bg.layer.floating         -> $scale(theme=light).color.gray-00
+$semantic.color.bg.layer.default:pressed  -> $scale(theme=light).color.gray-100
+$semantic.color.bg.layer.floating:pressed -> $scale(theme=light).color.gray-100
+$semantic.color.bg.magic.weak             -> #f9f2ee
+$semantic.color.bg.neutral.weak           -> $scale(theme=light).color.gray-200
+$semantic.color.bg.neutral.inverted       -> $scale(theme=light).color.gray-900
+$semantic.color.bg.neutral.solid          -> $scale(theme=light).color.gray-1000
+$semantic.color.bg.neutral.inverted:pressed -> $scale(theme=light).color.gray-800
+$semantic.color.bg.neutral.solid-muted    -> $scale(theme=light).color.gray-800
+$semantic.color.bg.neutral.solid-muted:pressed -> $scale(theme=light).color.gray-900
+$semantic.color.bg.neutral.weak:pressed   -> $scale(theme=light).color.gray-300
+$semantic.color.bg.overlay-muted          -> $static.color.black-alpha-500
+$semantic.color.bg.positive.weak          -> $scale(theme=light).color.green-100
+$semantic.color.bg.positive.solid         -> $scale(theme=light).color.green-700
+$semantic.color.bg.positive.solid:pressed -> $scale(theme=light).color.green-800
+$semantic.color.bg.positive.weak:pressed  -> $scale(theme=light).color.green-200
+$semantic.color.bg.warning.weak           -> $scale(theme=light).color.yellow-100
+$semantic.color.bg.warning.solid          -> $scale(theme=light).color.yellow-300
+$semantic.color.bg.warning.solid:pressed  -> $scale(theme=light).color.yellow-400
+$semantic.color.bg.warning.weak:pressed   -> $scale(theme=light).color.yellow-200
+
+$semantic.color.stroke.brand.weak         -> $scale(theme=light).color.carrot-300
+$semantic.color.stroke.brand.solid        -> $scale(theme=light).color.carrot-700
+$semantic.color.stroke.critical.weak      -> $scale(theme=light).color.red-300
+$semantic.color.stroke.critical.solid     -> $scale(theme=light).color.red-700
+$semantic.color.stroke.informative.weak   -> $scale(theme=light).color.blue-300
+$semantic.color.stroke.informative.solid  -> $scale(theme=light).color.blue-700
+$semantic.color.stroke.neutral.contrast   -> $scale(theme=light).color.gray-1000
+$semantic.color.stroke.neutral.solid      -> $scale(theme=light).color.gray-800
+$semantic.color.stroke.neutral.weak       -> $scale(theme=light).color.gray-400
+$semantic.color.stroke.neutral.muted      -> $static.color.black-alpha-300
+$semantic.color.stroke.neutral.subtle     -> $static.color.black-alpha-200
+$semantic.color.stroke.positive.weak      -> $scale(theme=light).color.green-300
+$semantic.color.stroke.positive.solid     -> $scale(theme=light).color.green-700
+$semantic.color.stroke.warning.weak       -> $scale(theme=light).color.yellow-300
+$semantic.color.stroke.warning.solid      -> $scale(theme=light).color.yellow-700
+
+/* ---- DARK ---- */
+$semantic.color.fg.neutral                -> $scale(theme=dark).color.gray-1000
+$semantic.color.fg.placeholder            -> $scale(theme=dark).color.gray-600
+$semantic.color.fg.disabled               -> $scale(theme=dark).color.gray-500
+$semantic.color.fg.brand                  -> $scale(theme=dark).color.carrot-700
+$semantic.color.fg.informative            -> $scale(theme=dark).color.blue-700
+$semantic.color.fg.critical               -> $scale(theme=dark).color.red-700
+$semantic.color.fg.positive               -> $scale(theme=dark).color.green-700
+$semantic.color.fg.warning                -> $scale(theme=dark).color.yellow-700
+$semantic.color.fg.brand-contrast         -> $scale(theme=dark).color.carrot-700
+$semantic.color.fg.critical-contrast      -> $scale(theme=dark).color.red-900
+$semantic.color.fg.informative-contrast   -> $scale(theme=dark).color.blue-900
+$semantic.color.fg.neutral-muted          -> $scale(theme=dark).color.gray-800
+$semantic.color.fg.neutral-subtle         -> $scale(theme=dark).color.gray-700
+$semantic.color.fg.neutral-inverted       -> $scale(theme=dark).color.gray-100
+$semantic.color.fg.positive-contrast      -> $scale(theme=dark).color.green-900
+$semantic.color.fg.warning-contrast       -> $scale(theme=dark).color.yellow-900
+
+$semantic.color.bg.overlay                -> $static.color.black-alpha-700
+$semantic.color.bg.disabled               -> $scale(theme=dark).color.gray-300
+$semantic.color.bg.brand.weak             -> $scale(theme=dark).color.carrot-100
+$semantic.color.bg.brand.solid            -> $scale(theme=dark).color.carrot-700
+$semantic.color.bg.brand.solid:pressed    -> $scale(theme=dark).color.carrot-800
+$semantic.color.bg.brand.weak:pressed     -> $scale(theme=dark).color.carrot-200
+$semantic.color.bg.critical.weak          -> $scale(theme=dark).color.red-100
+$semantic.color.bg.critical.solid         -> $scale(theme=dark).color.red-600
+$semantic.color.bg.critical.solid:pressed -> $scale(theme=dark).color.red-700
+$semantic.color.bg.critical.weak:pressed  -> $scale(theme=dark).color.red-200
+$semantic.color.bg.informative.weak       -> $scale(theme=dark).color.blue-100
+$semantic.color.bg.informative.solid      -> $scale(theme=dark).color.blue-600
+$semantic.color.bg.informative.solid:pressed -> $scale(theme=dark).color.blue-700
+$semantic.color.bg.informative.weak:pressed  -> $scale(theme=dark).color.blue-200
+$semantic.color.bg.layer.basement         -> $scale(theme=dark).color.gray-00
+$semantic.color.bg.layer.default          -> $scale(theme=dark).color.gray-100
+$semantic.color.bg.layer.fill             -> $scale(theme=dark).color.gray-200
+$semantic.color.bg.layer.floating         -> $scale(theme=dark).color.gray-200
+$semantic.color.bg.layer.default:pressed  -> $scale(theme=dark).color.gray-300
+$semantic.color.bg.layer.floating:pressed -> $scale(theme=dark).color.gray-300
+$semantic.color.bg.magic.weak             -> #201f1f
+$semantic.color.bg.neutral.weak           -> $scale(theme=dark).color.gray-300
+$semantic.color.bg.neutral.inverted       -> $scale(theme=dark).color.gray-1000
+$semantic.color.bg.neutral.solid          -> $scale(theme=dark).color.gray-300
+$semantic.color.bg.neutral.inverted:pressed -> $scale(theme=dark).color.gray-800
+$semantic.color.bg.neutral.solid-muted    -> $scale(theme=dark).color.gray-400
+$semantic.color.bg.neutral.solid-muted:pressed -> $scale(theme=dark).color.gray-500
+$semantic.color.bg.neutral.weak:pressed   -> $scale(theme=dark).color.gray-400
+$semantic.color.bg.overlay-muted          -> $static.color.black-alpha-500
+$semantic.color.bg.positive.weak          -> $scale(theme=dark).color.green-100
+$semantic.color.bg.positive.solid         -> $scale(theme=dark).color.green-500
+$semantic.color.bg.positive.solid:pressed -> $scale(theme=dark).color.green-600
+$semantic.color.bg.positive.weak:pressed  -> $scale(theme=dark).color.green-200
+$semantic.color.bg.warning.weak           -> $scale(theme=dark).color.yellow-100
+$semantic.color.bg.warning.solid          -> $scale(theme=dark).color.yellow-800
+$semantic.color.bg.warning.solid:pressed  -> $scale(theme=dark).color.yellow-900
+$semantic.color.bg.warning.weak:pressed   -> $scale(theme=dark).color.yellow-200
+
+$semantic.color.stroke.brand.weak         -> $scale(theme=dark).color.carrot-300
+$semantic.color.stroke.brand.solid        -> $scale(theme=dark).color.carrot-700
+$semantic.color.stroke.critical.weak      -> $scale(theme=dark).color.red-300
+$semantic.color.stroke.critical.solid     -> $scale(theme=dark).color.red-700
+$semantic.color.stroke.informative.weak   -> $scale(theme=dark).color.blue-300
+$semantic.color.stroke.informative.solid  -> $scale(theme=dark).color.blue-700
+$semantic.color.stroke.neutral.contrast   -> $scale(theme=dark).color.gray-1000
+$semantic.color.stroke.neutral.solid      -> $scale(theme=dark).color.gray-800
+$semantic.color.stroke.neutral.weak       -> $scale(theme=dark).color.gray-400
+$semantic.color.stroke.neutral.muted      -> $static.color.white-alpha-100
+$semantic.color.stroke.neutral.subtle     -> $static.color.white-alpha-50
+$semantic.color.stroke.positive.weak      -> $scale(theme=dark).color.green-300
+$semantic.color.stroke.positive.solid     -> $scale(theme=dark).color.green-700
+$semantic.color.stroke.warning.weak       -> $scale(theme=dark).color.yellow-300
+$semantic.color.stroke.warning.solid      -> $scale(theme=dark).color.yellow-700
+
+/* =========================
+   5) SEMANTIC – TYPOGRAPHY PRESETS
+   ========================= */
+$semantic.typography.body.font-family -> $static.font-family.system
+$semantic.typography.body.font-size   -> $scale.font-size.t5-static
+$semantic.typography.body.line-height -> $scale.line-height.t5-static
+$semantic.typography.body.font-weight -> $scale.font-weight.regular
+$semantic.typography.body.color       -> $semantic.color.fg.neutral
+
+$semantic.typography.caption.font-family -> $static.font-family.system
+$semantic.typography.caption.font-size   -> $scale.font-size.t3-static
+$semantic.typography.caption.line-height -> $scale.line-height.t3-static
+$semantic.typography.caption.font-weight -> $scale.font-weight.medium
+$semantic.typography.caption.color       -> $semantic.color.fg.neutral-subtle
+
+$semantic.typography.h1.font-family -> $static.font-family.system
+$semantic.typography.h1.font-size   -> $scale.font-size.t9-static
+$semantic.typography.h1.line-height -> $scale.line-height.t9-static
+$semantic.typography.h1.font-weight -> $scale.font-weight.bold
+$semantic.typography.h1.color       -> $semantic.color.fg.neutral
+
+/* =========================
+   6) COMPONENT HOOKS (예시)
+   ========================= */
+$semantic.component.button.primary.bg             -> $semantic.color.bg.brand.solid
+$semantic.component.button.primary.bg:hover       -> $scale(theme=light).color.carrot-700
+$semantic.component.button.primary.bg:hover       -> $scale(theme=dark).color.carrot-800
+$semantic.component.button.primary.fg             -> $static.color.white
+$semantic.component.button.primary.fg:dark        -> $static.color.white
+
+$semantic.component.field.bg                      -> $semantic.color.bg.layer.fill
+$semantic.component.field.bd                      -> $semantic.color.stroke.neutral.weak
+$semantic.component.field.fg                      -> $semantic.color.fg.neutral
+$semantic.component.field.placeholder             -> $semantic.color.fg.placeholder
+$semantic.component.field.bd:focus                -> $semantic.color.stroke.brand.solid
+$semantic.component.overlay.scrim                 -> $static.color.black
+$semantic.component.overlay.scrim-opacity         -> 45%

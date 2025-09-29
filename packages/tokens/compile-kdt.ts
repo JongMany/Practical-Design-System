@@ -154,10 +154,31 @@ for (const [full, rec] of Object.entries(scale)) {
   };
 }
 
-// semantic → we’ll output to “semantic.*” so Style Dictionary -> CSS vars easily
+// semantic → we'll output to "semantic.*" so Style Dictionary -> CSS vars easily
 const semOut: any = {};
 for (const [name, s] of Object.entries(semantic)) {
-  semOut[name] = { value: s.refs.map((r) => r.token) }; // keep list of refs; CSS stage will resolve to var()
+  // 첫 번째 참조만 사용 (대부분의 semantic 토큰은 하나의 참조만 가짐)
+  if (s.refs.length > 0 && s.refs[0]) {
+    const ref = s.refs[0].token;
+    // 참조를 CSS 변수 형태로 변환
+    // $scale.color.gray-1000 -> --ds-color-gray-1000
+    // $static.color.white -> --ds-color-white
+    // $scale(theme=light).color.gray-1000 -> --ds-color-gray-1000
+    let cssVarRef = ref
+      .replace(/^\$scale\([^)]*\)\./, "--ds-") // $scale(theme=light). -> --ds-
+      .replace(/^\$scale\./, "--ds-") // $scale. -> --ds-
+      .replace(/^\$static\./, "--ds-") // $static. -> --ds-
+      .replace(/^\$semantic\./, "--ds-semantic-") // $semantic. -> --ds-semantic-
+      .replace(/\./g, "-") // . -> -
+      .replace(/\([^)]*\)/g, ""); // (theme=light) 같은 조건 제거
+
+    // $scale-color-gray-1000 -> --ds-color-gray-1000
+    if (cssVarRef.startsWith("$")) {
+      cssVarRef = "--ds-" + cssVarRef.substring(1).replace(/-/g, "-");
+    }
+
+    semOut[name] = { value: `var(${cssVarRef})` };
+  }
 }
 out.semantic = semOut;
 

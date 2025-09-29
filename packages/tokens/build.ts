@@ -24,6 +24,22 @@ StyleDictionary.registerTransform({
   transform: (prop) => nameTransform(prop.path),
 });
 
+// 참조 해결 transform 등록
+StyleDictionary.registerTransform({
+  name: "ds/resolve-reference",
+  type: "value",
+  transform: (prop, options) => {
+    const value = prop.value;
+    if (typeof value === "string" && value.startsWith("$")) {
+      // 참조를 실제 값으로 해결
+      const refPath = value.replace("$", "").split(".");
+      const resolvedValue = options.dictionary.getReference(value);
+      return resolvedValue || value;
+    }
+    return value;
+  },
+});
+
 // CSS 변수 포맷터 등록 (light + dark 테마 모두 포함)
 StyleDictionary.registerFormat({
   name: "ds/css-variables",
@@ -137,7 +153,12 @@ const sd = new StyleDictionary({
   platforms: {
     // CSS 변수 파일 생성 (모든 어댑터의 공통 기반)
     css: {
-      transforms: ["attribute/cti", "name/kebab", "ds/name/css"],
+      transforms: [
+        "attribute/cti",
+        "name/kebab",
+        "ds/name/css",
+        "ds/resolve-reference",
+      ],
       buildPath: OUT + "/",
       files: [
         { destination: "tokens.css", format: "ds/css-variables" },
