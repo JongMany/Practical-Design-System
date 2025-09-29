@@ -1,5 +1,6 @@
 import * as React from "react";
 import { useAriaPress } from "@acme/react-a11y";
+import { composeEventHandlers } from "./utils/composeEventHandlers";
 
 export type ButtonProps = React.PropsWithChildren<{
   disabled?: boolean;
@@ -14,6 +15,8 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       <button
         {...rest}
         {...press} // a11y props/handlers 주입
+        onClick={composeEventHandlers(press.onClick, press.onClick)}
+        onKeyDown={composeEventHandlers(press.onKeyDown, press.onKeyDown)}
         ref={ref}
         type="button"
         data-focus-visible="" // focus ring 표시용
