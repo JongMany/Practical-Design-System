@@ -2,6 +2,7 @@ import React from "react";
 import { Slot } from "../utils/Slot";
 import { composeEventHandlers } from "../utils/composeEventHandlers";
 import { useAriaIds, useAriaPress } from "@acme/react-a11y";
+import { createContext } from "../context/createContext";
 
 type CardAction = "none" | "button" | "link";
 
@@ -40,12 +41,8 @@ type CardContextValue = {
   titleId: string;
   descId: string;
 };
-const CardContext = React.createContext<CardContextValue | null>(null);
-function useCardCtx() {
-  const ctx = React.useContext(CardContext);
-  if (!ctx) throw new Error("Card.* must be used within <Card.Root>");
-  return ctx;
-}
+
+const [CardProvider, useCardContext] = createContext<CardContextValue>("Card");
 
 export const CardRoot = React.forwardRef<any, CardProps>(
   (
@@ -129,7 +126,7 @@ export const CardRoot = React.forwardRef<any, CardProps>(
       elementType === "button" && isButton ? { type: "button" } : {};
 
     return (
-      <CardContext.Provider value={{ titleId, descId }}>
+      <CardProvider titleId={titleId} descId={descId}>
         {React.createElement(
           elementType,
           {
@@ -177,7 +174,7 @@ export const CardRoot = React.forwardRef<any, CardProps>(
           },
           children
         )}
-      </CardContext.Provider>
+      </CardProvider>
     );
   }
 );
@@ -206,7 +203,7 @@ export const CardTitle = React.forwardRef<
   HTMLElement,
   React.HTMLAttributes<HTMLElement> & PolymorphicProp<any>
 >(({ as, asChild, id, ...rest }, ref) => {
-  const { titleId } = useCardCtx();
+  const { titleId } = useCardContext("Card.Title");
   const Comp: any = asChild ? Slot : (as ?? "h3");
   return <Comp ref={ref} id={id ?? titleId} {...rest} />;
 });
@@ -216,7 +213,7 @@ export const CardDescription = React.forwardRef<
   HTMLElement,
   React.HTMLAttributes<HTMLElement> & PolymorphicProp<any>
 >(({ as, asChild, id, ...rest }, ref) => {
-  const { descId } = useCardCtx();
+  const { descId } = useCardContext("Card.Description");
   const Comp: any = asChild ? Slot : (as ?? "p");
   return <Comp ref={ref} id={id ?? descId} {...rest} />;
 });
