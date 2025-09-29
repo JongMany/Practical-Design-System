@@ -1,0 +1,157 @@
+%KDT:scale(theme=light,contrast=*)        # 이하 $scale 기본 조건은 light
+
+# ---------- Static (항상 동일) ----------
+$static.color.white -> #ffffff
+$static.color.black -> #000000
+$static.opacity.disabled -> 40%
+$static.font-family.system -> "ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Noto Sans, sans-serif"
+$static.font-weight.thin -> thin
+$static.font-weight.regular -> regular
+$static.font-weight.medium -> medium
+$static.font-weight.semibold -> bold        # (KDT weight 문법상 bold로 바인딩)
+
+# ---------- Color scales : Brand(Carrot), Gray ----------
+$scale.color.carrot-050 -> #FFF5F0
+$scale.color.carrot-100 -> #FFE2D2
+$scale.color.carrot-200 -> #FFD2B9
+$scale.color.carrot-300 -> #FFBC97
+$scale.color.carrot-400 -> #FFA877
+$scale.color.carrot-500 -> #FF9E66
+$scale.color.carrot-600 -> #ED7735
+$scale.color.carrot-700 -> #D9662B
+$scale.color.carrot-800 -> #B65022
+$scale.color.carrot-900 -> #8A3C1B
+$scale.color.carrot-1000 -> #532410
+
+$scale.color.gray-050 -> #FCFCFD
+$scale.color.gray-100 -> #F5F7FA
+$scale.color.gray-200 -> #ECEFF3
+$scale.color.gray-300 -> #E2E6EB
+$scale.color.gray-400 -> #CBD2DB
+$scale.color.gray-500 -> #A7B0BA
+$scale.color.gray-600 -> #8C96A1
+$scale.color.gray-700 -> #6E7781
+$scale.color.gray-800 -> #4A525A
+$scale.color.gray-900 -> #2F353B
+$scale.color.gray-1000 -> #121417
+
+# ---------- Color scales (DARK override) ----------
+$scale(theme=dark).color.carrot-050 -> #2C140A
+$scale(theme=dark).color.carrot-100 -> #3A1B0E
+$scale(theme=dark).color.carrot-200 -> #4A2413
+$scale(theme=dark).color.carrot-300 -> #5E2F1A
+$scale(theme=dark).color.carrot-400 -> #7A3D22
+$scale(theme=dark).color.carrot-500 -> #ED7735
+$scale(theme=dark).color.carrot-600 -> #F08A4C
+$scale(theme=dark).color.carrot-700 -> #F59C64
+$scale(theme=dark).color.carrot-800 -> #FFB181
+$scale(theme=dark).color.carrot-900 -> #FFC49F
+$scale(theme=dark).color.carrot-1000 -> #FFE1CC
+
+$scale(theme=dark).color.gray-050 -> #0B0F14
+$scale(theme=dark).color.gray-100 -> #0F1319
+$scale(theme=dark).color.gray-200 -> #131922
+$scale(theme=dark).color.gray-300 -> #18202A
+$scale(theme=dark).color.gray-400 -> #202A36
+$scale(theme=dark).color.gray-500 -> #2C3947
+$scale(theme=dark).color.gray-600 -> #3B4A5A
+$scale(theme=dark).color.gray-700 -> #4B5C6E
+$scale(theme=dark).color.gray-800 -> #63788D
+$scale(theme=dark).color.gray-900 -> #A0B3C3
+$scale(theme=dark).color.gray-1000 -> #E6EDF3
+
+# ---------- Opacity scale ----------
+$scale.opacity.overlay-1 -> 30%
+$scale.opacity.overlay-2 -> 45%
+$scale.opacity.focus-ring -> 55%
+
+# ---------- Typography scale ----------
+$scale.font-size.100 -> 12pt
+$scale.font-size.150 -> 13pt
+$scale.font-size.200 -> 14pt
+$scale.font-size.300 -> 16pt
+$scale.font-size.400 -> 18pt
+$scale.font-size.500 -> 20pt
+$scale.font-size.600 -> 24pt
+$scale.font-size.700 -> 28pt
+$scale.font-size.800 -> 32pt
+
+$scale.line-height.1 -> 120%
+$scale.line-height.2 -> 140%
+$scale.line-height.3 -> 150%
+$scale.line-height.4 -> 160%
+
+# ---------- Semantics : Surface / Text / Border ----------
+$semantic.color.background          -> $scale.color.gray-050
+$semantic.color.surface             -> $scale.color.gray-100
+$semantic.color.surface-muted       -> $scale.color.gray-050
+$semantic.color.text                -> $scale.color.gray-1000
+$semantic.color.text-muted          -> $scale.color.gray-700
+$semantic.color.border              -> $scale.color.gray-300
+$semantic.color.accent              -> $scale.color.carrot-600
+$semantic.color.accent-contrast     -> $static.color.white
+$semantic.color.link                -> $scale.color.carrot-600
+$semantic.color.focus-ring          -> $scale.color.carrot-400
+
+# DARK에 대한 의미 치환(팔레트 참조만 교체)
+$semantic.color.background          -> $scale(theme=dark).color.gray-100
+$semantic.color.surface             -> $scale(theme=dark).color.gray-200
+$semantic.color.surface-muted       -> $scale(theme=dark).color.gray-100
+$semantic.color.text                -> $scale(theme=dark).color.gray-1000
+$semantic.color.text-muted          -> $scale(theme=dark).color.gray-800
+$semantic.color.border              -> $scale(theme=dark).color.gray-400
+$semantic.color.accent              -> $scale(theme=dark).color.carrot-500
+$semantic.color.accent-contrast     -> $static.color.black
+$semantic.color.link                -> $scale(theme=dark).color.carrot-500
+$semantic.color.focus-ring          -> $scale(theme=dark).color.carrot-600
+
+# ---------- Semantics : Components ----------
+# Button / Primary
+$semantic.component.button.primary.bg           -> $semantic.color.accent
+$semantic.component.button.primary.fg           -> $semantic.color.accent-contrast
+$semantic.component.button.primary.bg:hover     -> $scale.color.carrot-700
+$semantic.component.button.primary.bd:focus     -> $semantic.color.focus-ring
+$semantic.component.button.primary.bg:disabled  -> $scale.color.gray-300
+$semantic.component.button.primary.fg:disabled  -> $semantic.color.text-muted
+
+# Button / Ghost
+$semantic.component.button.ghost.fg             -> $semantic.color.link
+$semantic.component.button.ghost.bg:hover       -> $scale.opacity.overlay-1
+$semantic.component.button.ghost.fg:disabled    -> $semantic.color.text-muted
+
+# Field (Input)
+$semantic.component.field.bg                    -> $semantic.color.surface
+$semantic.component.field.bd                    -> $semantic.color.border
+$semantic.component.field.fg                    -> $semantic.color.text
+$semantic.component.field.bd:focus              -> $semantic.color.focus-ring
+$semantic.component.field.bg:disabled           -> $semantic.color.surface-muted
+$semantic.component.field.placeholder           -> $semantic.color.text-muted
+
+# Overlay (Dialog/Popover)
+$semantic.component.overlay.scrim               -> $static.color.black
+$semantic.component.overlay.scrim-opacity       -> $scale.opacity.overlay-2
+$semantic.component.overlay.surface             -> $semantic.color.surface
+
+# ---------- Semantics : Typography ----------
+$semantic.typography.body ?? 기본 본문 텍스트
+$semantic.typography.body -> $static.font-family.system
+$semantic.typography.body -> $scale.font-size.200
+$semantic.typography.body -> $scale.line-height.3
+$semantic.typography.body -> $static.font-weight.regular
+$semantic.typography.body -> $semantic.color.text
+
+$semantic.typography.h1 ?? 페이지 타이틀
+$semantic.typography.h1 -> $static.font-family.system
+$semantic.typography.h1 -> $scale.font-size.700
+$semantic.typography.h1 -> $scale.line-height.2
+$semantic.typography.h1 -> $static.font-weight.semibold
+$semantic.typography.h1 -> $semantic.color.text
+
+$semantic.typography.h2 -> $static.font-family.system
+$semantic.typography.h2 -> $scale.font-size.600
+$semantic.typography.h2 -> $scale.line-height.2
+$semantic.typography.h2 -> $static.font-weight.medium
+$semantic.typography.h2 -> $semantic.color.text
+
+# ---------- Deprecations (예시) ----------
+%KDT:deprecate($scale.color.gray-050)     # 더 이상 사용하지 말 것

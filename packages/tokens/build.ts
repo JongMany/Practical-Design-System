@@ -27,10 +27,22 @@ StyleDictionary.registerTransform({
 // CSS 변수 포맷터 등록 (:root { --ds-*: value; } 형태)
 StyleDictionary.registerFormat({
   name: "ds/css-variables",
-  format: ({ dictionary }) =>
-    `:root{\n${dictionary.allTokens
-      .map((p) => `  --${p.name}: ${p.value};`)
-      .join("\n")}\n}\n`,
+  format: ({ dictionary }) => {
+    const formatValue = (value: any): string => {
+      if (typeof value === "object" && value !== null) {
+        // light/dark 객체인 경우 light 값 사용
+        if (value.light !== undefined) {
+          return value.light;
+        }
+        return JSON.stringify(value);
+      }
+      return String(value);
+    };
+
+    return `:root{\n${dictionary.allTokens
+      .map((p) => `  --${p.name}: ${formatValue(p.value)};`)
+      .join("\n")}\n}\n`;
+  },
 });
 
 // ES 모듈 포맷터 등록
