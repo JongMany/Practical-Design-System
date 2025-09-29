@@ -61,6 +61,12 @@ importers:
         specifier: 5.9.2
         version: 5.9.2
 
+  packages/core:
+    devDependencies:
+      tsup:
+        specifier: ^8.2.4
+        version: 8.5.0(postcss@8.4.31)(tsx@4.20.6)(typescript@5.9.2)
+
   packages/eslint-config:
     devDependencies:
       '@eslint/js':
@@ -96,6 +102,8 @@ importers:
       typescript-eslint:
         specifier: ^8.40.0
         version: 8.40.0(eslint@9.34.0)(typescript@5.9.2)
+
+  packages/themes: {}
 
   packages/tokens:
     devDependencies:
