@@ -1,0 +1,22 @@
+@theme {
+  /* Colors */
+  --color-brand: var(--ds-color-semantic-accent-brand);
+  --color-surface: var(--ds-color-semantic-bg-surface);
+
+  /* Border Radius */
+  --radius-control: var(--ds-radius-semantic-control);
+
+  /* Spacing */
+  --spacing-control-x: var(--ds-space-semantic-control-padding-x);
+  --spacing-control-y: var(--ds-space-semantic-control-padding-y);
+}
+
+/* Component styles using @apply directive */
+.ds-btn {
+  @apply px-[var(--spacing-control-x)] py-[var(--spacing-control-y)] rounded-[var(--radius-control)] bg-[var(--color-brand)] text-white;
+
+  &[aria-disabled="true"],
+  &[data-disabled] {
+    @apply opacity-50 pointer-events-none;
+  }
+}

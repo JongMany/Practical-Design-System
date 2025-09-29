@@ -1,12 +1,28 @@
 {
   "name": "@acme/adapter-tailwind",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Tailwind CSS v4 adapter for design system",
+  "main": "theme.css",
+  "exports": {
+    ".": "./theme.css",
+    "./theme": "./theme.css",
+    "./preset": "./preset.cjs"
+  },
+  "files": [
+    "theme.css",
+    "preset.cjs"
+  ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
+  "keywords": [
+    "tailwind",
+    "design-system",
+    "css"
+  ],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "peerDependencies": {
+    "tailwindcss": "^4.0.0"
+  }
 }
