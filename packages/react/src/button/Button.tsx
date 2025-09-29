@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useAriaPress } from "@acme/react-a11y";
-import { composeEventHandlers } from "./utils/composeEventHandlers";
+import { composeEventHandlers } from "../utils/composeEventHandlers";
 
 export type ButtonProps = React.PropsWithChildren<{
   disabled?: boolean;

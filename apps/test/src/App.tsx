@@ -1,4 +1,4 @@
-import { Button } from "@acme/react";
+import { Button, Card } from "@acme/react";
 import "./App.css";
 
 function App() {
@@ -248,6 +248,165 @@ function App() {
               </p>
               <button className="ds-btn ds-btn-ghost">Learn More</button>
             </div>
+          </div>
+        </section>
+
+        {/* React Card Components */}
+        <section className="demo-section">
+          <h2>React Card Components</h2>
+
+          {/* Basic Card */}
+          <div className="card-showcase">
+            <h3>Basic Card</h3>
+            <Card.Root>
+              <Card.Header>
+                <Card.Title>기본 카드</Card.Title>
+                <Card.Description>
+                  이것은 기본적인 카드 컴포넌트입니다.
+                </Card.Description>
+              </Card.Header>
+              <Card.Body>
+                <p>카드의 본문 내용이 여기에 들어갑니다.</p>
+              </Card.Body>
+              <Card.Footer>
+                <Button onPress={() => console.log("Card action clicked")}>
+                  액션 버튼
+                </Button>
+              </Card.Footer>
+            </Card.Root>
+          </div>
+
+          {/* Interactive Button Card */}
+          <div className="card-showcase">
+            <h3>Interactive Button Card</h3>
+            <Card.Root
+              action="button"
+              onPress={(e: { type: "keyboard" | "click" }) =>
+                console.log("Card pressed:", e.type)
+              }
+            >
+              <Card.Header>
+                <Card.Title>클릭 가능한 카드</Card.Title>
+                <Card.Description>
+                  이 카드는 버튼처럼 동작합니다.
+                </Card.Description>
+              </Card.Header>
+              <Card.Body>
+                <p>카드를 클릭하거나 키보드로 활성화할 수 있습니다.</p>
+              </Card.Body>
+            </Card.Root>
+          </div>
+
+          {/* Toggle Card */}
+          <div className="card-showcase">
+            <h3>Toggle Card</h3>
+            <Card.Root
+              action="button"
+              pressed={false}
+              onPress={(e: { type: "keyboard" | "click" }) =>
+                console.log("Toggle card pressed:", e.type)
+              }
+            >
+              <Card.Header>
+                <Card.Title>토글 카드</Card.Title>
+                <Card.Description>
+                  선택 상태를 표시할 수 있는 카드입니다.
+                </Card.Description>
+              </Card.Header>
+              <Card.Body>
+                <p>aria-pressed 속성으로 선택 상태를 관리합니다.</p>
+              </Card.Body>
+            </Card.Root>
+          </div>
+
+          {/* Disabled Card */}
+          <div className="card-showcase">
+            <h3>Disabled Card</h3>
+            <Card.Root
+              action="button"
+              disabled
+              onPress={(_e: { type: "keyboard" | "click" }) =>
+                console.log("This won't fire")
+              }
+            >
+              <Card.Header>
+                <Card.Title>비활성화된 카드</Card.Title>
+                <Card.Description>
+                  이 카드는 비활성화되어 있습니다.
+                </Card.Description>
+              </Card.Header>
+              <Card.Body>
+                <p>클릭해도 반응하지 않습니다.</p>
+              </Card.Body>
+            </Card.Root>
+          </div>
+
+          {/* Card with Media */}
+          <div className="card-showcase">
+            <h3>Card with Media</h3>
+            <Card.Root>
+              <Card.Media>
+                <div
+                  style={{
+                    height: "200px",
+                    background:
+                      "linear-gradient(45deg, var(--ds-color-carrot-500), var(--ds-color-carrot-700))",
+                    borderRadius: "var(--ds-radius-2, 12px)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "white",
+                    fontSize: "1.5rem",
+                    fontWeight: "bold",
+                  }}
+                >
+                  미디어 영역
+                </div>
+              </Card.Media>
+              <Card.Header>
+                <Card.Title>미디어가 있는 카드</Card.Title>
+                <Card.Description>
+                  이미지나 비디오를 포함할 수 있습니다.
+                </Card.Description>
+              </Card.Header>
+              <Card.Body>
+                <p>미디어 콘텐츠와 함께 사용되는 카드입니다.</p>
+              </Card.Body>
+            </Card.Root>
+          </div>
+
+          {/* Polymorphic Card */}
+          <div className="card-showcase">
+            <h3>Polymorphic Card (as="article")</h3>
+            <Card.Root as="article">
+              <Card.Header>
+                <Card.Title as="h2">시맨틱 카드</Card.Title>
+                <Card.Description>
+                  article 요소로 렌더링되는 카드입니다.
+                </Card.Description>
+              </Card.Header>
+              <Card.Body>
+                <p>시맨틱 HTML을 사용하여 접근성을 향상시킵니다.</p>
+              </Card.Body>
+            </Card.Root>
+          </div>
+
+          {/* AsChild Card */}
+          <div className="card-showcase">
+            <h3>AsChild Card</h3>
+            <Card.Root asChild>
+              <a href="#" style={{ textDecoration: "none", color: "inherit" }}>
+                <Card.Header>
+                  <Card.Title>링크로 동작하는 카드</Card.Title>
+                  <Card.Description>
+                    asChild prop을 사용하여 기존 요소를 확장합니다.
+                  </Card.Description>
+                </Card.Header>
+                <Card.Body>
+                  <p>이 카드는 링크 요소로 렌더링됩니다.</p>
+                </Card.Body>
+              </a>
+            </Card.Root>
           </div>
         </section>
       </main>

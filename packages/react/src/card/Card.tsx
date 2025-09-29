@@ -29,7 +29,7 @@ type CardBaseProps = {
   externalHandlersFirst?: boolean;
 } & React.HTMLAttributes<HTMLElement>;
 
-export type CardProps<C extends React.ElementType = "div"> =
+export type CardProps<C extends React.ElementType = React.ElementType> =
   React.PropsWithChildren<CardBaseProps & PolymorphicProp<C>> &
     Omit<
       React.ComponentPropsWithoutRef<C>,
@@ -47,7 +47,7 @@ function useCardCtx() {
   return ctx;
 }
 
-export const CardRoot = React.forwardRef<HTMLElement, CardProps>(
+export const CardRoot = React.forwardRef<any, CardProps>(
   (
     {
       as,
@@ -217,6 +217,7 @@ CardFooter.displayName = "Card.Footer";
 
 // 네임스페이스 export (선호 시)
 export const Card = Object.assign(CardRoot, {
+  Root: CardRoot,
   Header: CardHeader,
   Media: CardMedia,
   Title: CardTitle,
