@@ -11,7 +11,7 @@ type ReactPressHandlers = Omit<PressHandlers, "onKeyDown" | "onClick"> & {
 
 export function useAriaPress(opts: {
   disabled?: boolean;
-  onPress?: (type: "keyboard" | "mouse") => void;
+  onPress?: (e: { type: "click" | "keyboard" }) => void;
 }): ReactPressHandlers {
   const handlers = React.useMemo(() => createAriaPress(opts), [opts]);
 

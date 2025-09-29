@@ -24,7 +24,8 @@
   "dependencies": {
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "@acme/core": "workspace:*"
+    "@acme/core": "workspace:*",
+    "@acme/react-a11y": "workspace:*"
   },
   "devDependencies": {
     "@types/react": "19.1.0",

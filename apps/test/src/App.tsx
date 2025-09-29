@@ -20,6 +20,15 @@ function App() {
       </header>
 
       <main className="app-main">
+        {/* Button Component */}
+        <section className="demo-section">
+          <h2>Button Component</h2>
+          <div className="button-showcase">
+            <Button onPress={() => console.log("React button clicked")}>
+              버튼 컴포넌트
+            </Button>
+          </div>
+        </section>
         {/* Color Palette */}
         <section className="demo-section">
           <h2>Color Palette</h2>

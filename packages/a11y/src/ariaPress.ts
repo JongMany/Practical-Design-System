@@ -7,7 +7,7 @@ export type PressHandlers = {
 };
 export function createAriaPress(opts: {
   disabled?: boolean;
-  onPress?: (type: "keyboard" | "mouse") => void;
+  onPress?: (e: { type: "click" | "keyboard" }) => void;
 }): PressHandlers {
   const { disabled, onPress } = opts;
   return {
@@ -18,11 +18,11 @@ export function createAriaPress(opts: {
       if (disabled) return;
       if (e.key === "Enter" || e.key === " ") {
         e.preventDefault();
-        onPress?.("keyboard");
+        onPress?.({ type: "keyboard" });
       }
     },
     onClick() {
-      if (!disabled) onPress?.("mouse");
+      if (!disabled) onPress?.({ type: "click" });
     },
   };
 }

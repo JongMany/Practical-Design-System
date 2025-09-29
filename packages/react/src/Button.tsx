@@ -1,5 +1,5 @@
 import * as React from "react";
-import { getButtonHandlers } from "@acme/core";
+import { useAriaPress } from "@acme/react-a11y";
 
 export type ButtonProps = React.PropsWithChildren<{
   disabled?: boolean;
@@ -8,21 +8,15 @@ export type ButtonProps = React.PropsWithChildren<{
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ disabled, onPress, children, ...rest }, ref) => {
-    const handlers = React.useMemo(
-      () => getButtonHandlers({ disabled, onPress }),
-      [disabled, onPress]
-    );
+    const press = useAriaPress({ disabled, onPress });
 
     return (
       <button
         {...rest}
+        {...press} // a11y props/handlers 주입
         ref={ref}
-        role={handlers.role}
-        aria-disabled={handlers["aria-disabled"]}
-        tabIndex={handlers.tabIndex}
-        onClick={() => handlers.onClick?.()}
-        onKeyDown={(e) => handlers.onKeyDown?.(e as unknown as KeyboardEvent)}
-        /* 스타일은 어댑터/전역 CSS 변수로 */
+        type="button"
+        data-focus-visible="" // focus ring 표시용
         style={{
           paddingInline: "var(--ds-space-control-padding-x)",
           paddingBlock: "var(--ds-space-control-padding-y)",
@@ -36,4 +30,5 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     );
   }
 );
+
 Button.displayName = "Button";
