@@ -1,0 +1,13 @@
+:root {
+  --ds-focus-ring-color: var(--ds-semantic-focus-ring-color, #3b82f6);
+  --ds-focus-ring-width: var(--ds-semantic-focus-ring-width, 2px);
+  --ds-focus-ring-offset: var(--ds-semantic-focus-ring-offset, 2px);
+}
+
+[data-focus-visible] {
+  outline: none;
+  box-shadow:
+    0 0 0 var(--ds-focus-ring-offset) transparent,
+    0 0 0 calc(var(--ds-focus-ring-width) + var(--ds-focus-ring-offset))
+      var(--ds-focus-ring-color);
+}

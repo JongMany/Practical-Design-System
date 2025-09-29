@@ -9,3 +9,4 @@ export * from "./focusTrap";
 export * from "./hideOthers";
 export * from "./ids";
 export * from "./rovingTabIndex";
+export * from "./createAriaIds";

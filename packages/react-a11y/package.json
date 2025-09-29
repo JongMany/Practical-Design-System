@@ -1,0 +1,50 @@
+{
+  "name": "@acme/react-a11y",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "types": "./dist/index.d.ts"
+    },
+    "./tokens/focus.css": "./src/tokens/focus.css",
+    "./patterns/dialog": {
+      "import": "./dist/patterns/dialog/index.mjs",
+      "types": "./dist/patterns/dialog/index.d.ts"
+    },
+    "./core/keyboard": {
+      "import": "./dist/core/keyboard/index.mjs",
+      "types": "./dist/core/keyboard/index.d.ts"
+    },
+    "./core/focus": {
+      "import": "./dist/core/focus/index.mjs",
+      "types": "./dist/core/focus/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --experimental-dts --clean",
+    "dev": "tsup src/index.ts --format esm --experimental-dts --watch"
+  },
+  "sideEffects": [
+    "./src/tokens/focus.css"
+  ],
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "@acme/a11y": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/react": "19.1.0",
+    "@types/react-dom": "19.1.1",
+    "tsup": "^8.2.4",
+    "@microsoft/api-extractor": "^7.6.0",
+    "@repo/typescript-config": "workspace:*"
+  },
+  "peerDependencies": {
+    "react": ">=18"
+  }
+}
