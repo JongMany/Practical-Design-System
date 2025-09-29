@@ -1,16 +1,29 @@
 {
-  "name": "tokens",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "name": "@acme/tokens",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Tokens for the Practical Design System",
+  "exports": {
+    ".": {
+      "import": "./dist/tokens.mjs",
+      "require": "./dist/tokens.cjs",
+      "types": "./dist/tokens.d.ts"
+    },
+    "./css": "./dist/tokens.css",
+    "./json": "./dist/tokens.json",
+    "./scss": "./dist/_tokens.scss"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsx build.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/node": "^22.15.3",
     "style-dictionary": "^5.0.4",
-    "tsx": "^4.20.6"
+    "tsx": "^4.20.6",
+    "typescript": "5.9.2",
+    "@repo/typescript-config": "workspace:*"
   }
 }
