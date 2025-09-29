@@ -10,6 +10,8 @@
       "types": "./dist/tokens.d.ts"
     },
     "./css": "./dist/tokens.css",
+    "./css/light": "./dist/light.css",
+    "./css/dark": "./dist/dark.css",
     "./json": "./dist/tokens.json",
     "./scss": "./dist/_tokens.scss"
   },

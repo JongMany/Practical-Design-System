@@ -24,13 +24,41 @@ StyleDictionary.registerTransform({
   transform: (prop) => nameTransform(prop.path),
 });
 
-// CSS 변수 포맷터 등록 (:root { --ds-*: value; } 형태)
+// CSS 변수 포맷터 등록 (light + dark 테마 모두 포함)
 StyleDictionary.registerFormat({
   name: "ds/css-variables",
   format: ({ dictionary }) => {
+    const formatValue = (value: any, theme: "light" | "dark"): string => {
+      if (typeof value === "object" && value !== null) {
+        if (value[theme] !== undefined) {
+          return value[theme];
+        }
+        if (value.light !== undefined) {
+          return value.light; // fallback to light
+        }
+        return JSON.stringify(value);
+      }
+      return String(value);
+    };
+
+    const lightTokens = dictionary.allTokens
+      .map((p) => `  --${p.name}: ${formatValue(p.value, "light")};`)
+      .join("\n");
+
+    const darkTokens = dictionary.allTokens
+      .map((p) => `  --${p.name}: ${formatValue(p.value, "dark")};`)
+      .join("\n");
+
+    return `:root{\n${lightTokens}\n}\n\n:root[data-theme="dark"]{\n${darkTokens}\n}\n`;
+  },
+});
+
+// Light 테마 CSS 포맷터
+StyleDictionary.registerFormat({
+  name: "ds/css-light",
+  format: ({ dictionary }) => {
     const formatValue = (value: any): string => {
       if (typeof value === "object" && value !== null) {
-        // light/dark 객체인 경우 light 값 사용
         if (value.light !== undefined) {
           return value.light;
         }
@@ -40,6 +68,29 @@ StyleDictionary.registerFormat({
     };
 
     return `:root{\n${dictionary.allTokens
+      .map((p) => `  --${p.name}: ${formatValue(p.value)};`)
+      .join("\n")}\n}\n`;
+  },
+});
+
+// Dark 테마 CSS 포맷터
+StyleDictionary.registerFormat({
+  name: "ds/css-dark",
+  format: ({ dictionary }) => {
+    const formatValue = (value: any): string => {
+      if (typeof value === "object" && value !== null) {
+        if (value.dark !== undefined) {
+          return value.dark;
+        }
+        if (value.light !== undefined) {
+          return value.light; // fallback to light
+        }
+        return JSON.stringify(value);
+      }
+      return String(value);
+    };
+
+    return `:root[data-theme="dark"]{\n${dictionary.allTokens
       .map((p) => `  --${p.name}: ${formatValue(p.value)};`)
       .join("\n")}\n}\n`;
   },
@@ -88,7 +139,11 @@ const sd = new StyleDictionary({
     css: {
       transforms: ["attribute/cti", "name/kebab", "ds/name/css"],
       buildPath: OUT + "/",
-      files: [{ destination: "tokens.css", format: "ds/css-variables" }],
+      files: [
+        { destination: "tokens.css", format: "ds/css-variables" },
+        { destination: "light.css", format: "ds/css-light" },
+        { destination: "dark.css", format: "ds/css-dark" },
+      ],
     },
     // JSON 형태로 토큰 내보내기
     json: {
