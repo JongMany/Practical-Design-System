@@ -1,5 +1,5 @@
 {
-  "name": "@acme/core",
+  "name": "@acme/a11y",
   "version": "0.1.0",
   "description": "",
   "type": "module",
@@ -18,14 +18,14 @@
   "scripts": {
     "build": "tsup src/index.ts --format esm,cjs --experimental-dts --clean"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "devDependencies": {
     "tsup": "^8.2.4",
     "@types/node": "^22.15.3",
     "typescript": "5.9.2",
     "@repo/typescript-config": "workspace:*",
     "@microsoft/api-extractor": "^7.6.0"
-  }
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
 }
