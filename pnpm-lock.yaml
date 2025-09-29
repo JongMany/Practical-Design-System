@@ -127,6 +127,12 @@ importers:
         specifier: ^19.1.0
         version: 19.1.0(react@19.1.0)
     devDependencies:
+      '@microsoft/api-extractor':
+        specifier: ^7.6.0
+        version: 7.52.13(@types/node@22.15.3)
+      '@repo/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript-config
       '@types/react':
         specifier: 19.1.0
         version: 19.1.0

@@ -1,21 +1,33 @@
 {
-  "name": "react",
-  "version": "1.0.0",
+  "name": "@acme/react",
+  "version": "0.1.0",
   "description": "",
-  "main": "index.js",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "types": "./dist/index.d.ts"
+    }
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsup src/index.ts --format esm,cjs --experimental-dts --clean --loader .tsx=tsx"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "@acme/core": "workspace:*"
   },
   "devDependencies": {
     "@types/react": "19.1.0",
     "@types/react-dom": "19.1.1",
-    "tsup": "^8.2.4"
+    "tsup": "^8.2.4",
+    "@microsoft/api-extractor": "^7.6.0",
+    "@repo/typescript-config": "workspace:*"
+  },
+  "peerDependencies": {
+    "react": ">=18"
   }
 }
