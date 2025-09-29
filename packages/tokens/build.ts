@@ -3,7 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 // 토큰 소스 파일과 출력 디렉토리 설정
-const SRC = path.join(process.cwd(), "tokens.json");
+const SRC = path.join(process.cwd(), "src", "tokens.json");
 const OUT = path.join(process.cwd(), "dist");
 fs.mkdirSync(OUT, { recursive: true });
 
@@ -33,6 +33,41 @@ StyleDictionary.registerFormat({
       .join("\n")}\n}\n`,
 });
 
+// ES 모듈 포맷터 등록
+StyleDictionary.registerFormat({
+  name: "ds/esm",
+  format: ({ dictionary }) => {
+    const tokens = dictionary.allTokens.reduce(
+      (acc, token) => {
+        const path = token.path.join(".");
+        acc[path] = token.value;
+        return acc;
+      },
+      {} as Record<string, any>
+    );
+
+    return `export const tokens = ${JSON.stringify(tokens, null, 2)};
+export default tokens;`;
+  },
+});
+
+// CommonJS 모듈 포맷터 등록
+StyleDictionary.registerFormat({
+  name: "ds/cjs",
+  format: ({ dictionary }) => {
+    const tokens = dictionary.allTokens.reduce(
+      (acc, token) => {
+        const path = token.path.join(".");
+        acc[path] = token.value;
+        return acc;
+      },
+      {} as Record<string, any>
+    );
+
+    return `module.exports = ${JSON.stringify(tokens, null, 2)};`;
+  },
+});
+
 // StyleDictionary 설정 및 빌드
 const sd = new StyleDictionary({
   source: [SRC],
@@ -49,15 +84,25 @@ const sd = new StyleDictionary({
       buildPath: OUT + "/",
       files: [{ destination: "tokens.json", format: "json" }],
     },
-    // TypeScript/JavaScript 모듈로 내보내기
-    ts: {
-      transforms: ["attribute/cti", "name/kebab", "ds/name/css"],
+    // ES 모듈로 내보내기
+    esm: {
+      transforms: ["attribute/cti", "name/kebab"],
       buildPath: OUT + "/",
       files: [
         {
-          destination: "tokens.mts",
-          format: "javascript/module",
-          options: { outputReferences: true },
+          destination: "tokens.mjs",
+          format: "ds/esm",
+        },
+      ],
+    },
+    // CommonJS 모듈로 내보내기
+    cjs: {
+      transforms: ["attribute/cti", "name/kebab"],
+      buildPath: OUT + "/",
+      files: [
+        {
+          destination: "tokens.cjs",
+          format: "ds/cjs",
         },
       ],
     },
@@ -79,8 +124,35 @@ const sd = new StyleDictionary({
 sd.buildAllPlatforms();
 
 // TypeScript 타입 정의 파일 생성
-fs.writeFileSync(
-  path.join(OUT, "tokens.d.ts"),
-  `export const tokens: Record<string,string>;
-export default tokens;`
-);
+const generateTypeDefinitions = () => {
+  // 토큰 소스 파일을 직접 읽어서 타입 정의 생성
+  const tokensSource = JSON.parse(fs.readFileSync(SRC, "utf-8"));
+
+  const flattenTokens = (obj: any, prefix = ""): string[] => {
+    const keys: string[] = [];
+    for (const [key, value] of Object.entries(obj)) {
+      const fullKey = prefix ? `${prefix}.${key}` : key;
+      if (typeof value === "object" && value !== null && "value" in value) {
+        keys.push(fullKey);
+      } else if (typeof value === "object" && value !== null) {
+        keys.push(...flattenTokens(value, fullKey));
+      }
+    }
+    return keys;
+  };
+
+  const tokenKeys = flattenTokens(tokensSource);
+
+  const typeDefinition = `export interface Tokens {
+${tokenKeys.map((key) => `  "${key}": string;`).join("\n")}
+}
+
+export const tokens: Tokens;
+export default tokens;`;
+
+  return typeDefinition;
+};
+
+// TypeScript 타입 정의 파일 생성
+const typeDefinition = generateTypeDefinitions();
+fs.writeFileSync(path.join(OUT, "tokens.d.ts"), typeDefinition);
