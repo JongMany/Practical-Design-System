@@ -4,13 +4,28 @@ import { composeEventHandlers } from "../utils/composeEventHandlers";
 import { useAriaIds, useAriaPress } from "@acme/react-a11y";
 import { createContext } from "../context/createContext";
 
+/**
+ * Card 컴포넌트의 인터랙션 모드를 정의합니다.
+ * - "none": 정적 카드 (클릭 불가)
+ * - "button": 버튼처럼 동작하는 카드 (키보드/마우스 지원)
+ * - "link": 링크처럼 동작하는 카드 (키보드/마우스 지원)
+ */
 type CardAction = "none" | "button" | "link";
 
+/**
+ * 다형성 컴포넌트를 위한 props 타입
+ * - as: 렌더링할 HTML 요소나 React 컴포넌트 지정
+ * - asChild: true일 때 자식 요소를 직접 렌더링 (Slot 패턴)
+ */
 type PolymorphicProp<C extends React.ElementType> = {
   as?: C;
   asChild?: boolean;
 };
 
+/**
+ * Card 컴포넌트의 기본 props 타입
+ * 인터랙션, 접근성, 이벤트 핸들링 관련 속성들을 포함합니다.
+ */
 type CardBaseProps = {
   /** 카드가 인터랙티브(클릭/키보드 활성)한지 */
   action?: CardAction;
@@ -30,6 +45,10 @@ type CardBaseProps = {
   externalHandlersFirst?: boolean;
 } & React.HTMLAttributes<HTMLElement>;
 
+/**
+ * Card 컴포넌트의 전체 props 타입
+ * 다형성 지원과 함께 HTML 속성들을 상속받습니다.
+ */
 export type CardProps<C extends React.ElementType = React.ElementType> =
   React.PropsWithChildren<CardBaseProps & PolymorphicProp<C>> &
     Omit<
@@ -37,13 +56,31 @@ export type CardProps<C extends React.ElementType = React.ElementType> =
       keyof CardBaseProps | "children" | "as" | "asChild"
     >;
 
+/**
+ * Card Context에서 공유되는 값들
+ * 접근성을 위한 ID들을 하위 컴포넌트들과 공유합니다.
+ */
 type CardContextValue = {
   titleId: string;
   descId: string;
 };
 
+/**
+ * Card 컴포넌트의 Context 생성
+ * 향상된 createContext 유틸리티를 사용하여 타입 안전성과 성능을 개선합니다.
+ */
 const [CardProvider, useCardContext] = createContext<CardContextValue>("Card");
 
+/**
+ * Card 컴포넌트의 루트 요소
+ *
+ * 주요 기능:
+ * - 다형성 지원 (as, asChild props)
+ * - 인터랙션 모드 지원 (none, button, link)
+ * - 접근성 자동 처리 (ARIA 속성, 키보드 네비게이션)
+ * - 이벤트 핸들러 조합 (내부/외부 핸들러 통합)
+ * - Context를 통한 ID 공유
+ */
 export const CardRoot = React.forwardRef<any, CardProps>(
   (
     {
@@ -63,7 +100,8 @@ export const CardRoot = React.forwardRef<any, CardProps>(
     },
     ref
   ) => {
-    // asChild일 때 자식이 하나인지 검증
+    // asChild 모드일 때 자식 요소 검증
+    // Slot 패턴을 사용할 때는 정확히 하나의 React 요소가 필요합니다
     if (asChild) {
       if (!React.isValidElement(children)) {
         throw new Error(
@@ -72,28 +110,37 @@ export const CardRoot = React.forwardRef<any, CardProps>(
       }
     }
 
+    // 렌더링할 요소 타입 결정
+    // asChild가 true면 Slot 컴포넌트를, 아니면 지정된 요소나 기본 div를 사용
     const elementType = asChild ? Slot : (as ?? "div");
+
+    // 접근성을 위한 고유 ID 생성
+    // 외부에서 제공된 ID가 있으면 우선 사용, 없으면 자동 생성
     const { label: autoTitleId, desc: autoDescId } = useAriaIds("card");
     const titleId = ariaLabelledbyProp || autoTitleId;
     const descId = ariaDescribedbyProp || autoDescId;
 
-    // a11y press (button 모드일 때 키보드/마우스 일원화)
+    // 접근성 지원을 위한 키보드/마우스 이벤트 통합
+    // useAriaPress 훅을 사용하여 키보드와 마우스 이벤트를 일관되게 처리
     const press = useAriaPress({
       disabled: disabled || action === "none",
       onPress: onPress ? (t) => onPress(t) : undefined,
     });
 
-    // 역할/ARIA 계산
+    // ARIA 역할 및 인터랙션 상태 계산
+    // action prop에 따라 적절한 ARIA 역할을 자동 설정
     const isButton = action === "button";
     const isLink = action === "link";
     const role =
       rest.role ?? (isButton ? "button" : isLink ? "link" : undefined);
 
-    // Card 컴포넌트의 내부 기본 동작
+    // Card 컴포넌트의 내부 기본 동작 정의
+    // 인터랙티브 모드일 때만 내부 핸들러를 생성 (포커스 관리, 애니메이션 등)
     const internalOnClick =
       isButton || isLink
         ? (e: React.MouseEvent) => {
             // Card의 기본 클릭 동작 (예: 포커스 관리, 애니메이션 등)
+            // 향후 확장 가능한 내부 로직
           }
         : undefined;
 
@@ -101,15 +148,20 @@ export const CardRoot = React.forwardRef<any, CardProps>(
       isButton || isLink
         ? (e: React.KeyboardEvent) => {
             // Card의 기본 키보드 동작
+            // 향후 확장 가능한 내부 로직
           }
         : undefined;
 
-    // 외부 onPress를 처리하는 핸들러
+    // 외부 onPress 이벤트를 처리하는 핸들러
+    // useAriaPress를 다시 호출하여 외부 핸들러와 내부 핸들러를 분리
     const pressHandlers = useAriaPress({
       disabled: disabled || action === "none",
       onPress: onPress ? (t) => onPress(t) : undefined,
     });
 
+    // 이벤트 핸들러 조합
+    // 내부 핸들러와 외부 핸들러를 composeEventHandlers로 통합
+    // externalHandlersFirst 옵션으로 실행 순서 제어 가능
     const handleClick = composeEventHandlers(
       internalOnClick,
       pressHandlers.onClick,
@@ -121,35 +173,48 @@ export const CardRoot = React.forwardRef<any, CardProps>(
       { externalFirst: !!externalHandlersFirst }
     );
 
-    // 네이티브 button 기본 submit 방지
+    // 네이티브 button 요소의 기본 submit 동작 방지
+    // button 요소로 렌더링될 때 type="button"을 명시적으로 설정
     const typeProp =
       elementType === "button" && isButton ? { type: "button" } : {};
 
+    // Context Provider로 ID들을 하위 컴포넌트들과 공유
+    // CardTitle, CardDescription 등이 이 ID들을 사용하여 접근성 연결
     return (
       <CardProvider titleId={titleId} descId={descId}>
         {React.createElement(
           elementType,
           {
+            // 기본 HTML 속성들 전달
             ...rest,
+            // 인터랙티브 모드일 때만 press 관련 속성들 추가
             ...(isButton || isLink ? press : {}),
             ref,
+            // button 요소의 기본 submit 방지
             ...typeProp,
+            // ARIA 역할 설정
             role,
+            // 접근성 속성들
             "aria-disabled": disabled || undefined,
             "aria-pressed":
               isButton && typeof pressed === "boolean" ? pressed : undefined,
             "aria-labelledby": titleId,
             "aria-describedby": descId,
+            // 키보드 네비게이션을 위한 tabIndex 설정
             tabIndex:
               rest.tabIndex ??
               (isButton || isLink ? press.tabIndex : undefined),
+            // 조합된 이벤트 핸들러들
             onClick: handleClick,
             onKeyDown: handleKeyDown,
+            // 포커스 표시를 위한 데이터 속성
             "data-focus-visible": "",
-            // asChild일 때는 기본 스타일을 적용하지 않음 (레이아웃 깨짐 방지)
+            // 조건부 스타일 적용
+            // asChild일 때는 display: block 추가 (레이아웃 깨짐 방지)
+            // 일반 모드일 때는 기본 스타일만 적용
             style: asChild
               ? {
-                  display: "block",
+                  display: "block", // asChild일 때만 추가
                   outline: "none",
                   borderRadius: "var(--ds-radius-2, 12px)",
                   background: "var(--ds-semantic-color-bg-layer-default)",
@@ -180,7 +245,14 @@ export const CardRoot = React.forwardRef<any, CardProps>(
 );
 CardRoot.displayName = "Card.Root";
 
-// 슬롯들: aria-labelledby / describedby에 연결
+/* -------------------------------------------------------------------------------------------------
+ * Card 하위 컴포넌트들
+ * -----------------------------------------------------------------------------------------------*/
+
+/**
+ * Card의 헤더 영역
+ * 다형성 지원으로 다양한 요소로 렌더링 가능
+ */
 export const CardHeader = React.forwardRef<
   HTMLElement,
   React.HTMLAttributes<HTMLElement> & PolymorphicProp<any>
@@ -190,6 +262,10 @@ export const CardHeader = React.forwardRef<
 });
 CardHeader.displayName = "Card.Header";
 
+/**
+ * Card의 미디어 영역 (이미지, 비디오 등)
+ * 다형성 지원으로 다양한 요소로 렌더링 가능
+ */
 export const CardMedia = React.forwardRef<
   HTMLElement,
   React.HTMLAttributes<HTMLElement> & PolymorphicProp<any>
@@ -199,6 +275,11 @@ export const CardMedia = React.forwardRef<
 });
 CardMedia.displayName = "Card.Media";
 
+/**
+ * Card의 제목
+ * Context에서 제공되는 titleId를 자동으로 연결하여 접근성 지원
+ * Card.Root의 aria-labelledby와 자동 연결됨
+ */
 export const CardTitle = React.forwardRef<
   HTMLElement,
   React.HTMLAttributes<HTMLElement> & PolymorphicProp<any>
@@ -209,6 +290,11 @@ export const CardTitle = React.forwardRef<
 });
 CardTitle.displayName = "Card.Title";
 
+/**
+ * Card의 설명
+ * Context에서 제공되는 descId를 자동으로 연결하여 접근성 지원
+ * Card.Root의 aria-describedby와 자동 연결됨
+ */
 export const CardDescription = React.forwardRef<
   HTMLElement,
   React.HTMLAttributes<HTMLElement> & PolymorphicProp<any>
@@ -219,6 +305,10 @@ export const CardDescription = React.forwardRef<
 });
 CardDescription.displayName = "Card.Description";
 
+/**
+ * Card의 본문 영역
+ * 다형성 지원으로 다양한 요소로 렌더링 가능
+ */
 export const CardBody = React.forwardRef<
   HTMLElement,
   React.HTMLAttributes<HTMLElement> & PolymorphicProp<any>
@@ -228,6 +318,10 @@ export const CardBody = React.forwardRef<
 });
 CardBody.displayName = "Card.Body";
 
+/**
+ * Card의 푸터 영역
+ * 다형성 지원으로 다양한 요소로 렌더링 가능
+ */
 export const CardFooter = React.forwardRef<
   HTMLElement,
   React.HTMLAttributes<HTMLElement> & PolymorphicProp<any>
@@ -237,7 +331,24 @@ export const CardFooter = React.forwardRef<
 });
 CardFooter.displayName = "Card.Footer";
 
-// 네임스페이스 export (선호 시)
+/* -------------------------------------------------------------------------------------------------
+ * 네임스페이스 export
+ * -----------------------------------------------------------------------------------------------*/
+
+/**
+ * Card 컴포넌트의 네임스페이스 export
+ *
+ * 사용법:
+ * ```tsx
+ * <Card.Root>
+ *   <Card.Header>
+ *     <Card.Title>제목</Card.Title>
+ *   </Card.Header>
+ *   <Card.Body>내용</Card.Body>
+ *   <Card.Footer>푸터</Card.Footer>
+ * </Card.Root>
+ * ```
+ */
 export const Card = Object.assign(CardRoot, {
   Root: CardRoot,
   Header: CardHeader,
