@@ -75,7 +75,7 @@ export const CardRoot = React.forwardRef<any, CardProps>(
       }
     }
 
-    const Comp: any = asChild ? Slot : (as ?? "div");
+    const elementType = asChild ? Slot : (as ?? "div");
     const { label: autoTitleId, desc: autoDescId } = useAriaIds("card");
     const titleId = ariaLabelledbyProp || autoTitleId;
     const descId = ariaDescribedbyProp || autoDescId;
@@ -125,31 +125,32 @@ export const CardRoot = React.forwardRef<any, CardProps>(
     );
 
     // 네이티브 button 기본 submit 방지
-    const typeProp = Comp === "button" && isButton ? { type: "button" } : {};
+    const typeProp =
+      elementType === "button" && isButton ? { type: "button" } : {};
 
     return (
       <CardContext.Provider value={{ titleId, descId }}>
-        <Comp
-          {...rest}
-          {...(isButton || isLink ? press : {})}
-          ref={ref as any}
-          {...typeProp}
-          role={role}
-          aria-disabled={disabled || undefined}
-          aria-pressed={
-            isButton && typeof pressed === "boolean" ? pressed : undefined
-          }
-          aria-labelledby={titleId}
-          aria-describedby={descId}
-          tabIndex={
-            rest.tabIndex ?? (isButton || isLink ? press.tabIndex : undefined)
-          }
-          onClick={handleClick}
-          onKeyDown={handleKeyDown}
-          data-focus-visible=""
-          // asChild일 때는 기본 스타일을 적용하지 않음 (레이아웃 깨짐 방지)
-          style={
-            asChild
+        {React.createElement(
+          elementType,
+          {
+            ...rest,
+            ...(isButton || isLink ? press : {}),
+            ref,
+            ...typeProp,
+            role,
+            "aria-disabled": disabled || undefined,
+            "aria-pressed":
+              isButton && typeof pressed === "boolean" ? pressed : undefined,
+            "aria-labelledby": titleId,
+            "aria-describedby": descId,
+            tabIndex:
+              rest.tabIndex ??
+              (isButton || isLink ? press.tabIndex : undefined),
+            onClick: handleClick,
+            onKeyDown: handleKeyDown,
+            "data-focus-visible": "",
+            // asChild일 때는 기본 스타일을 적용하지 않음 (레이아웃 깨짐 방지)
+            style: asChild
               ? {
                   display: "block",
                   outline: "none",
@@ -172,11 +173,10 @@ export const CardRoot = React.forwardRef<any, CardProps>(
                   cursor:
                     (isButton || isLink) && !disabled ? "pointer" : "default",
                   ...rest.style,
-                }
-          }
-        >
-          {children}
-        </Comp>
+                },
+          },
+          children
+        )}
       </CardContext.Provider>
     );
   }
