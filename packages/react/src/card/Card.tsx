@@ -66,6 +66,15 @@ export const CardRoot = React.forwardRef<any, CardProps>(
     },
     ref
   ) => {
+    // asChild일 때 자식이 하나인지 검증
+    if (asChild) {
+      if (!React.isValidElement(children)) {
+        throw new Error(
+          "Card.Root with asChild must have exactly one valid React element as children"
+        );
+      }
+    }
+
     const Comp: any = asChild ? Slot : (as ?? "div");
     const { label: autoTitleId, desc: autoDescId } = useAriaIds("card");
     const titleId = ariaLabelledbyProp || autoTitleId;
@@ -138,17 +147,33 @@ export const CardRoot = React.forwardRef<any, CardProps>(
           onClick={handleClick}
           onKeyDown={handleKeyDown}
           data-focus-visible=""
-          // 시맨틱 토큰 소비(예시) – 스타일은 어댑터에서 덮어써도 됨
-          style={{
-            outline: "none",
-            borderRadius: "var(--ds-radius-2, 12px)",
-            background: "var(--ds-semantic-color-bg-layer-default)",
-            color: "var(--ds-semantic-color-fg-neutral)",
-            boxShadow: "var(--ds-shadow-card, 0 1px 3px rgba(0,0,0,.06))",
-            padding: "var(--ds-space-5, 20px)",
-            cursor: (isButton || isLink) && !disabled ? "pointer" : "default",
-            ...rest.style,
-          }}
+          // asChild일 때는 기본 스타일을 적용하지 않음 (레이아웃 깨짐 방지)
+          style={
+            asChild
+              ? {
+                  display: "block",
+                  outline: "none",
+                  borderRadius: "var(--ds-radius-2, 12px)",
+                  background: "var(--ds-semantic-color-bg-layer-default)",
+                  color: "var(--ds-semantic-color-fg-neutral)",
+                  boxShadow: "var(--ds-shadow-card, 0 1px 3px rgba(0,0,0,.06))",
+                  padding: "var(--ds-space-5, 20px)",
+                  cursor:
+                    (isButton || isLink) && !disabled ? "pointer" : "default",
+                  ...rest.style,
+                }
+              : {
+                  outline: "none",
+                  borderRadius: "var(--ds-radius-2, 12px)",
+                  background: "var(--ds-semantic-color-bg-layer-default)",
+                  color: "var(--ds-semantic-color-fg-neutral)",
+                  boxShadow: "var(--ds-shadow-card, 0 1px 3px rgba(0,0,0,.06))",
+                  padding: "var(--ds-space-5, 20px)",
+                  cursor:
+                    (isButton || isLink) && !disabled ? "pointer" : "default",
+                  ...rest.style,
+                }
+          }
         >
           {children}
         </Comp>
