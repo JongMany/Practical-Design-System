@@ -1,0 +1,11 @@
+{
+  "name": "@acme/themes",
+  "version": "0.1.0",
+  "description": "",
+  "exports": {
+    "./dark": "./src/dark.css"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

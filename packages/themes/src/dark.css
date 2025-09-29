@@ -1,0 +1,4 @@
+:root[data-theme="dark"] {
+  --ds-color-fg-default: #e2e8f0;
+  --ds-color-bg-surface: #0b1220;
+}
