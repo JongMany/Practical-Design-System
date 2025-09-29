@@ -1,3 +1,418 @@
 @import "tailwindcss";
 
 @import "@acme/adapter-tailwind/theme";
+
+/* Import design tokens (includes both light and dark themes) */
+@import "@acme/tokens/css";
+
+/* App styles using design tokens */
+.app {
+  min-height: 100vh;
+  background-color: var(--ds-semantic-color-bg-layer-default);
+  color: var(--ds-semantic-color-fg-neutral);
+  font-family: var(--ds-font-family-system);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid var(--ds-semantic-color-stroke-neutral-weak);
+  background-color: var(--ds-semantic-color-bg-layer-default);
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: var(--ds-font-size-t8-static);
+  font-weight: var(--ds-font-weight-bold);
+  color: var(--ds-semantic-color-fg-neutral);
+}
+
+.theme-toggle {
+  background-color: var(--ds-semantic-component-button-primary-bg);
+  color: var(--ds-semantic-component-button-primary-fg);
+  border: none;
+  border-radius: var(--ds-radius-r1);
+  padding: 0.75rem 1.5rem;
+  font-size: var(--ds-font-size-t5-static);
+  font-weight: var(--ds-font-weight-bold);
+  cursor: pointer;
+  transition: background-color 0.2s;
+  min-height: 44px;
+}
+
+.theme-toggle:hover {
+  background-color: var(--ds-semantic-component-button-primary-bg-hover);
+}
+
+.app-main {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.demo-section {
+  margin-bottom: 3rem;
+}
+
+.demo-section h2 {
+  font-size: var(--ds-font-size-t7-static);
+  font-weight: var(--ds-font-weight-medium);
+  margin-bottom: 1rem;
+  color: var(--ds-semantic-color-fg-neutral);
+}
+
+.color-grid {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.color-swatch {
+  width: 60px;
+  height: 60px;
+  border-radius: var(--ds-radius-r1);
+  border: 1px solid var(--ds-semantic-color-stroke-neutral-weak);
+}
+
+.button-group {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.ds-btn {
+  border: none;
+  border-radius: var(--ds-radius-r1);
+  padding: 0.75rem 1.5rem;
+  font-size: var(--ds-font-size-t5-static);
+  font-weight: var(--ds-font-weight-bold);
+  cursor: pointer;
+  transition: all 0.2s;
+  min-height: 44px;
+}
+
+.ds-btn-primary {
+  background-color: var(--ds-semantic-component-button-primary-bg);
+  color: var(--ds-semantic-component-button-primary-fg);
+}
+
+.ds-btn-primary:hover {
+  background-color: var(--ds-semantic-component-button-primary-bg-hover);
+}
+
+.ds-btn-ghost {
+  background-color: transparent;
+  color: var(--ds-semantic-color-fg-neutral);
+  border: 1px solid var(--ds-semantic-color-stroke-neutral-weak);
+}
+
+.ds-btn-ghost:hover {
+  background-color: var(--ds-semantic-color-bg-layer-fill);
+}
+
+.typography-h1 {
+  font-size: var(--ds-semantic-typography-h1-font-size);
+  font-weight: var(--ds-font-weight-bold);
+  line-height: var(--ds-semantic-typography-h1-line-height);
+  color: var(--ds-semantic-color-fg-neutral);
+  margin-bottom: 1rem;
+}
+
+.typography-h2 {
+  font-size: var(--ds-font-size-t8-static);
+  font-weight: var(--ds-font-weight-medium);
+  line-height: var(--ds-line-height-t8-static);
+  color: var(--ds-semantic-color-fg-neutral);
+  margin-bottom: 1rem;
+}
+
+.typography-h3 {
+  font-size: var(--ds-font-size-t7-static);
+  font-weight: var(--ds-font-weight-medium);
+  line-height: var(--ds-line-height-t7-static);
+  color: var(--ds-semantic-color-fg-neutral);
+  margin-bottom: 0.5rem;
+}
+
+.typography-body {
+  font-size: var(--ds-semantic-typography-body-font-size);
+  line-height: var(--ds-semantic-typography-body-line-height);
+  color: var(--ds-semantic-color-fg-neutral);
+  margin-bottom: 1rem;
+}
+
+.typography-caption {
+  font-size: var(--ds-semantic-typography-caption-font-size);
+  line-height: var(--ds-semantic-typography-caption-line-height);
+  color: var(--ds-semantic-color-fg-placeholder);
+  margin-bottom: 0.5rem;
+}
+
+/* Color Showcase */
+.color-showcase {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.color-group h3 {
+  font-size: var(--ds-font-size-t6-static);
+  font-weight: var(--ds-font-weight-medium);
+  margin-bottom: 1rem;
+  color: var(--ds-semantic-color-fg-neutral);
+}
+
+.color-scale {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.color-swatch {
+  width: 60px;
+  height: 60px;
+  border-radius: var(--ds-radius-r1);
+  border: 1px solid var(--ds-semantic-color-stroke-neutral-weak);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.color-swatch:hover {
+  transform: scale(1.05);
+}
+
+.color-label {
+  font-size: var(--ds-font-size-t1-static);
+  font-weight: var(--ds-font-weight-medium);
+  color: var(--ds-semantic-color-bg-layer-default);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.semantic-colors {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.semantic-swatch {
+  padding: 1rem;
+  border-radius: var(--ds-radius-r1);
+  color: var(--ds-semantic-color-bg-layer-default);
+  font-weight: var(--ds-font-weight-medium);
+  min-width: 80px;
+  text-align: center;
+}
+
+/* Typography Showcase */
+.typography-showcase {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.typography-item {
+  border-bottom: 1px solid var(--ds-semantic-color-stroke-neutral-weak);
+  padding-bottom: 1rem;
+}
+
+.typography-item:last-child {
+  border-bottom: none;
+}
+
+.typography-caption {
+  font-size: var(--ds-semantic-typography-caption-font-size);
+  line-height: var(--ds-semantic-typography-caption-line-height);
+  color: var(--ds-semantic-color-fg-placeholder);
+  margin-bottom: 0.5rem;
+}
+
+.typography-item code {
+  font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
+  font-size: var(--ds-font-size-t2-static);
+  background-color: var(--ds-semantic-color-bg-layer-fill);
+  color: var(--ds-semantic-color-fg-placeholder);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  display: block;
+  margin-top: 0.5rem;
+}
+
+/* Button Showcase */
+.button-showcase {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.ds-btn-secondary {
+  background-color: var(--ds-semantic-color-bg-neutral-weak);
+  color: var(--ds-semantic-color-fg-neutral);
+  border: 1px solid var(--ds-semantic-color-stroke-neutral-weak);
+}
+
+.ds-btn-secondary:hover {
+  background-color: var(--ds-semantic-color-bg-neutral-weak-pressed);
+}
+
+.ds-btn-outline {
+  background-color: transparent;
+  color: var(--ds-semantic-color-fg-brand);
+  border: 1px solid var(--ds-semantic-color-fg-brand);
+}
+
+.ds-btn-outline:hover {
+  background-color: var(--ds-semantic-color-fg-brand);
+  color: var(--ds-semantic-color-bg-layer-default);
+}
+
+.ds-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Form Elements */
+.form-showcase {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  font-size: var(--ds-semantic-typography-body-font-size);
+  font-weight: var(--ds-font-weight-medium);
+  color: var(--ds-semantic-color-fg-neutral);
+}
+
+.ds-input,
+.ds-textarea {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--ds-semantic-color-stroke-neutral-weak);
+  border-radius: var(--ds-radius-r1);
+  background-color: var(--ds-semantic-color-bg-layer-default);
+  color: var(--ds-semantic-color-fg-neutral);
+  font-size: var(--ds-semantic-typography-body-font-size);
+  font-family: var(--ds-font-family-system);
+  transition: border-color 0.2s;
+}
+
+.ds-input:focus,
+.ds-textarea:focus {
+  outline: none;
+  border-color: var(--ds-semantic-color-fg-brand);
+  box-shadow: 0 0 0 2px var(--ds-semantic-color-fg-brand);
+}
+
+.ds-input::placeholder,
+.ds-textarea::placeholder {
+  color: var(--ds-semantic-color-fg-placeholder);
+}
+
+.ds-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-size: var(--ds-semantic-typography-body-font-size);
+  color: var(--ds-semantic-color-fg-neutral);
+}
+
+.ds-checkbox input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  appearance: none;
+  border: 2px solid var(--ds-semantic-color-stroke-neutral-weak);
+  border-radius: 4px;
+  background-color: var(--ds-semantic-color-bg-layer-default);
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.ds-checkbox input[type="checkbox"]:hover {
+  border-color: var(--ds-semantic-color-fg-brand);
+  transform: scale(1.05);
+}
+
+/* Light 테마에서 체크박스 */
+:root .ds-checkbox input[type="checkbox"]:checked {
+  background-color: var(--ds-semantic-color-fg-brand);
+  border-color: var(--ds-semantic-color-fg-brand);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+:root .ds-checkbox input[type="checkbox"]:checked::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 5px;
+  width: 6px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+/* Dark 테마에서 체크박스 */
+:root[data-theme="dark"] .ds-checkbox input[type="checkbox"]:checked {
+  background-color: var(--ds-semantic-color-fg-brand);
+  border-color: var(--ds-semantic-color-fg-brand);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+:root[data-theme="dark"] .ds-checkbox input[type="checkbox"]:checked::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 5px;
+  width: 6px;
+  height: 10px;
+  border: solid black;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+/* Cards */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.ds-card {
+  background-color: var(--ds-semantic-color-bg-layer-default);
+  border: 1px solid var(--ds-semantic-color-stroke-neutral-weak);
+  border-radius: var(--ds-radius-r1);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.ds-card h3 {
+  font-size: var(--ds-font-size-t6-static);
+  font-weight: var(--ds-font-weight-bold);
+  color: var(--ds-semantic-color-fg-neutral);
+  margin: 0;
+}
+
+.ds-card p {
+  font-size: var(--ds-semantic-typography-body-font-size);
+  line-height: var(--ds-semantic-typography-body-line-height);
+  color: var(--ds-semantic-color-fg-placeholder);
+  margin: 0;
+  flex: 1;
+}
