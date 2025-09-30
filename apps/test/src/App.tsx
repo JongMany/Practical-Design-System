@@ -281,9 +281,7 @@ function App() {
             <h3>Interactive Button Card</h3>
             <Card.Root
               action="button"
-              onPress={(e: { type: "keyboard" | "click" }) =>
-                console.log("Card pressed:", e.type)
-              }
+              onPress={(e) => console.log("Card pressed:", e.type)}
             >
               <Card.Header>
                 <Card.Title>클릭 가능한 카드</Card.Title>
@@ -303,9 +301,7 @@ function App() {
             <Card.Root
               action="button"
               pressed={false}
-              onPress={(e: { type: "keyboard" | "click" }) =>
-                console.log("Toggle card pressed:", e.type)
-              }
+              onPress={(e) => console.log("Toggle card pressed:", e.type)}
             >
               <Card.Header>
                 <Card.Title>토글 카드</Card.Title>
@@ -325,9 +321,7 @@ function App() {
             <Card.Root
               action="button"
               disabled
-              onPress={(_e: { type: "keyboard" | "click" }) =>
-                console.log("This won't fire", _e)
-              }
+              onPress={(_e) => console.log("This won't fire", _e)}
             >
               <Card.Header>
                 <Card.Title>비활성화된 카드</Card.Title>

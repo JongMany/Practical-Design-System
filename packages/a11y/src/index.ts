@@ -5,3 +5,5 @@ export * from "./rovingTabIndex";
 export * from "./activeDescendant";
 export * from "./escapeClose";
 export * from "./createAriaIds";
+export * from "./keyboardPress";
+export * from "./pointerActivation";

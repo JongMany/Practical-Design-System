@@ -1,6 +1,10 @@
 import React from "react";
 import { composeEventHandlers } from "../utils/composeEventHandlers";
-import { useAriaIds, useAriaPress } from "@acme/react-a11y";
+import {
+  useAriaIds,
+  useKeyboardPress,
+  usePointerActivation,
+} from "@acme/react-a11y";
 import { createContext } from "../context/createContext";
 import {
   createPolymorphicElement,
@@ -77,10 +81,15 @@ const CardRoot = React.forwardRef<HTMLElement, CardProps>(
     const descId = ariaDescribedbyProp || autoDescId;
 
     // 접근성 지원을 위한 키보드/마우스 이벤트 통합
-    // useAriaPress 훅을 사용하여 키보드와 마우스 이벤트를 일관되게 처리
-    const press = useAriaPress({
+    // 키보드와 포인터 활성화를 분리하여 처리
+    const keyboardPress = useKeyboardPress({
       disabled: disabled || action === "none",
-      onPress: onPress ? (t) => onPress(t) : undefined,
+      onKeyboardPress: onPress ? (t) => onPress(t) : undefined,
+    });
+
+    const pointerActivation = usePointerActivation({
+      disabled: disabled || action === "none",
+      onPointerActivate: onPress ? (t) => onPress(t) : undefined,
     });
 
     // ARIA 역할 및 인터랙션 상태 계산
@@ -109,10 +118,15 @@ const CardRoot = React.forwardRef<HTMLElement, CardProps>(
         : undefined;
 
     // 외부 onPress 이벤트를 처리하는 핸들러
-    // useAriaPress를 다시 호출하여 외부 핸들러와 내부 핸들러를 분리
-    const pressHandlers = useAriaPress({
+    // 키보드와 포인터 활성화를 분리하여 외부 핸들러와 내부 핸들러를 분리
+    const externalKeyboardPress = useKeyboardPress({
       disabled: disabled || action === "none",
-      onPress: onPress ? (t) => onPress(t) : undefined,
+      onKeyboardPress: onPress ? (t) => onPress(t) : undefined,
+    });
+
+    const externalPointerActivation = usePointerActivation({
+      disabled: disabled || action === "none",
+      onPointerActivate: onPress ? (t) => onPress(t) : undefined,
     });
 
     // 이벤트 핸들러 조합
@@ -120,12 +134,12 @@ const CardRoot = React.forwardRef<HTMLElement, CardProps>(
     // externalHandlersFirst 옵션으로 실행 순서 제어 가능
     const handleClick = composeEventHandlers(
       internalOnClick,
-      pressHandlers.onClick,
+      externalPointerActivation.onClick,
       { externalFirst: !!externalHandlersFirst }
     );
     const handleKeyDown = composeEventHandlers(
       internalOnKeyDown,
-      pressHandlers.onKeyDown,
+      externalKeyboardPress.onKeyDown,
       { externalFirst: !!externalHandlersFirst }
     );
 
@@ -150,7 +164,9 @@ const CardRoot = React.forwardRef<HTMLElement, CardProps>(
             // 기본 HTML 속성들 전달
             ...rest,
             // 인터랙티브 모드일 때만 press 관련 속성들 추가
-            ...(isButton || isLink ? press : {}),
+            ...(isButton || isLink
+              ? { ...keyboardPress, ...pointerActivation }
+              : {}),
             ref,
             // button 요소의 기본 submit 방지
             ...typeProp,
@@ -165,7 +181,7 @@ const CardRoot = React.forwardRef<HTMLElement, CardProps>(
             // 키보드 네비게이션을 위한 tabIndex 설정
             tabIndex:
               rest.tabIndex ??
-              (isButton || isLink ? press.tabIndex : undefined),
+              (isButton || isLink ? keyboardPress.tabIndex : undefined),
             // 조합된 이벤트 핸들러들
             onClick: handleClick,
             onKeyDown: handleKeyDown,

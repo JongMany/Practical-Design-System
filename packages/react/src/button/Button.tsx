@@ -1,5 +1,5 @@
 import * as React from "react";
-import { createButtonHandlers } from "@acme/core";
+import { useKeyboardPress, usePointerActivation } from "@acme/react-a11y";
 import { composeEventHandlers } from "../utils/composeEventHandlers";
 import type { ButtonProps } from "./types";
 import { getButtonStyles } from "./styles";
@@ -23,23 +23,25 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     },
     ref
   ) => {
-    const press = React.useMemo(
-      () =>
-        createButtonHandlers({
-          disabled: disabled || loading,
-          onPress: onPress ? (e) => onPress(e) : undefined,
-        }),
-      [disabled, loading, onPress]
-    );
+    // 키보드와 포인터 활성화를 분리하여 처리
+    const keyboardPress = useKeyboardPress({
+      disabled: disabled || loading,
+      onKeyboardPress: onPress ? (e) => onPress(e) : undefined,
+    });
+
+    const pointerActivation = usePointerActivation({
+      disabled: disabled || loading,
+      onPointerActivate: onPress ? (e) => onPress(e) : undefined,
+    });
 
     // 이벤트 핸들러 조합
     const handleClick = composeEventHandlers(
-      (e: React.MouseEvent) => press.onClick(e.nativeEvent),
+      pointerActivation.onClick,
       onClick,
       { externalFirst: false }
     );
     const handleKeyDown = composeEventHandlers(
-      (e: React.KeyboardEvent) => press.onKeyDown(e.nativeEvent),
+      keyboardPress.onKeyDown,
       onKeyDown,
       { externalFirst: false }
     );
@@ -82,7 +84,8 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <button
         {...rest}
-        {...press}
+        {...keyboardPress}
+        {...pointerActivation}
         ref={ref}
         type="button"
         disabled={disabled || loading}
@@ -90,6 +93,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         onKeyDown={handleKeyDown}
         style={{
           ...buttonStyles,
+          ...pointerActivation.style,
           ...style,
         }}
         data-focus-visible
