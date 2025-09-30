@@ -1,8 +1,20 @@
 import React from "react";
-import { Slot } from "../utils/Slot";
 import { composeEventHandlers } from "../utils/composeEventHandlers";
 import { useAriaIds, useAriaPress } from "@acme/react-a11y";
 import { createContext } from "../context/createContext";
+import {
+  createPolymorphicElement,
+  createPolymorphicComponent,
+} from "../utils/createElement";
+import {
+  getCardRootStyles,
+  getCardHeaderStyles,
+  getCardMediaStyles,
+  getCardTitleStyles,
+  getCardDescriptionStyles,
+  getCardBodyStyles,
+  getCardFooterStyles,
+} from "./styles";
 import type {
   CardProps,
   CardContextValue,
@@ -55,8 +67,8 @@ const CardRoot = React.forwardRef<HTMLElement, CardProps>(
     }
 
     // 렌더링할 요소 타입 결정
-    // asChild가 true면 Slot 컴포넌트를, 아니면 지정된 요소나 기본 div를 사용
-    const elementType = asChild ? Slot : (as ?? "div");
+    // 추상화된 유틸리티를 사용하여 다형성 처리
+    const elementType = createPolymorphicElement(as, asChild);
 
     // 접근성을 위한 고유 ID 생성
     // 외부에서 제공된 ID가 있으면 우선 사용, 없으면 자동 생성
@@ -122,11 +134,17 @@ const CardRoot = React.forwardRef<HTMLElement, CardProps>(
     const typeProp =
       elementType === "button" && isButton ? { type: "button" } : {};
 
+    // 스타일 생성
+    const cardStyles = getCardRootStyles(
+      { asChild, isButton, isLink, disabled },
+      rest.style
+    );
+
     // Context Provider로 ID들을 하위 컴포넌트들과 공유
     // CardTitle, CardDescription 등이 이 ID들을 사용하여 접근성 연결
     return (
       <CardProvider titleId={titleId} descId={descId}>
-        {React.createElement(
+        {createPolymorphicComponent(
           elementType,
           {
             // 기본 HTML 속성들 전달
@@ -153,33 +171,8 @@ const CardRoot = React.forwardRef<HTMLElement, CardProps>(
             onKeyDown: handleKeyDown,
             // 포커스 표시를 위한 데이터 속성
             "data-focus-visible": "",
-            // 조건부 스타일 적용
-            // asChild일 때는 display: block 추가 (레이아웃 깨짐 방지)
-            // 일반 모드일 때는 기본 스타일만 적용
-            style: asChild
-              ? {
-                  display: "block", // asChild일 때만 추가
-                  outline: "none",
-                  borderRadius: "var(--ds-radius-2, 12px)",
-                  background: "var(--ds-semantic-color-bg-layer-default)",
-                  color: "var(--ds-semantic-color-fg-neutral)",
-                  boxShadow: "var(--ds-shadow-card, 0 1px 3px rgba(0,0,0,.06))",
-                  padding: "var(--ds-space-5, 20px)",
-                  cursor:
-                    (isButton || isLink) && !disabled ? "pointer" : "default",
-                  ...rest.style,
-                }
-              : {
-                  outline: "none",
-                  borderRadius: "var(--ds-radius-2, 12px)",
-                  background: "var(--ds-semantic-color-bg-layer-default)",
-                  color: "var(--ds-semantic-color-fg-neutral)",
-                  boxShadow: "var(--ds-shadow-card, 0 1px 3px rgba(0,0,0,.06))",
-                  padding: "var(--ds-space-5, 20px)",
-                  cursor:
-                    (isButton || isLink) && !disabled ? "pointer" : "default",
-                  ...rest.style,
-                },
+            // 스타일 적용
+            style: cardStyles,
           },
           children
         )}
@@ -202,9 +195,14 @@ CardRoot.displayName = "Card.Root";
  * - 두 번째 제네릭(PropsType): 컴포넌트가 받을 props의 타입
  */
 const CardHeader = React.forwardRef<HTMLElement, CardSubComponentProps>(
-  ({ as, asChild, ...rest }, ref) => {
-    const Comp = asChild ? Slot : (as ?? "div");
-    return React.createElement(Comp, { ref, ...rest });
+  ({ as, asChild, style, ...rest }, ref) => {
+    const elementType = createPolymorphicElement(as, asChild);
+    const headerStyles = getCardHeaderStyles(style);
+    return createPolymorphicComponent(elementType, {
+      ref,
+      style: headerStyles,
+      ...rest,
+    });
   }
 );
 CardHeader.displayName = "Card.Header";
@@ -214,9 +212,14 @@ CardHeader.displayName = "Card.Header";
  * 다형성 지원으로 다양한 요소로 렌더링 가능
  */
 const CardMedia = React.forwardRef<HTMLElement, CardSubComponentProps>(
-  ({ as, asChild, ...rest }, ref) => {
-    const Comp = asChild ? Slot : (as ?? "div");
-    return React.createElement(Comp, { ref, ...rest });
+  ({ as, asChild, style, ...rest }, ref) => {
+    const elementType = createPolymorphicElement(as, asChild);
+    const mediaStyles = getCardMediaStyles(style);
+    return createPolymorphicComponent(elementType, {
+      ref,
+      style: mediaStyles,
+      ...rest,
+    });
   }
 );
 CardMedia.displayName = "Card.Media";
@@ -227,10 +230,16 @@ CardMedia.displayName = "Card.Media";
  * Card.Root의 aria-labelledby와 자동 연결됨
  */
 const CardTitle = React.forwardRef<HTMLElement, CardSubComponentProps>(
-  ({ as, asChild, id, ...rest }, ref) => {
+  ({ as, asChild, id, style, ...rest }, ref) => {
     const { titleId } = useCardContext("Card.Title");
-    const Comp = asChild ? Slot : (as ?? "h3");
-    return React.createElement(Comp, { ref, id: id ?? titleId, ...rest });
+    const elementType = createPolymorphicElement(as ?? "h3", asChild);
+    const titleStyles = getCardTitleStyles(style);
+    return createPolymorphicComponent(elementType, {
+      ref,
+      id: id ?? titleId,
+      style: titleStyles,
+      ...rest,
+    });
   }
 );
 CardTitle.displayName = "Card.Title";
@@ -241,10 +250,16 @@ CardTitle.displayName = "Card.Title";
  * Card.Root의 aria-describedby와 자동 연결됨
  */
 const CardDescription = React.forwardRef<HTMLElement, CardSubComponentProps>(
-  ({ as, asChild, id, ...rest }, ref) => {
+  ({ as, asChild, id, style, ...rest }, ref) => {
     const { descId } = useCardContext("Card.Description");
-    const Comp = asChild ? Slot : (as ?? "p");
-    return React.createElement(Comp, { ref, id: id ?? descId, ...rest });
+    const elementType = createPolymorphicElement(as ?? "p", asChild);
+    const descriptionStyles = getCardDescriptionStyles(style);
+    return createPolymorphicComponent(elementType, {
+      ref,
+      id: id ?? descId,
+      style: descriptionStyles,
+      ...rest,
+    });
   }
 );
 CardDescription.displayName = "Card.Description";
@@ -254,9 +269,14 @@ CardDescription.displayName = "Card.Description";
  * 다형성 지원으로 다양한 요소로 렌더링 가능
  */
 const CardBody = React.forwardRef<HTMLElement, CardSubComponentProps>(
-  ({ as, asChild, ...rest }, ref) => {
-    const Comp = asChild ? Slot : (as ?? "div");
-    return React.createElement(Comp, { ref, ...rest });
+  ({ as, asChild, style, ...rest }, ref) => {
+    const elementType = createPolymorphicElement(as, asChild);
+    const bodyStyles = getCardBodyStyles(style);
+    return createPolymorphicComponent(elementType, {
+      ref,
+      style: bodyStyles,
+      ...rest,
+    });
   }
 );
 CardBody.displayName = "Card.Body";
@@ -266,9 +286,14 @@ CardBody.displayName = "Card.Body";
  * 다형성 지원으로 다양한 요소로 렌더링 가능
  */
 const CardFooter = React.forwardRef<HTMLElement, CardSubComponentProps>(
-  ({ as, asChild, ...rest }, ref) => {
-    const Comp = asChild ? Slot : (as ?? "div");
-    return React.createElement(Comp, { ref, ...rest });
+  ({ as, asChild, style, ...rest }, ref) => {
+    const elementType = createPolymorphicElement(as, asChild);
+    const footerStyles = getCardFooterStyles(style);
+    return createPolymorphicComponent(elementType, {
+      ref,
+      style: footerStyles,
+      ...rest,
+    });
   }
 );
 CardFooter.displayName = "Card.Footer";

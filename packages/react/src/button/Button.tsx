@@ -1,34 +1,103 @@
 import * as React from "react";
-import { useAriaPress } from "@acme/react-a11y";
+import { createButtonHandlers } from "@acme/core";
 import { composeEventHandlers } from "../utils/composeEventHandlers";
-
-export type ButtonProps = React.PropsWithChildren<{
-  disabled?: boolean;
-  onPress?: (e: { type: "click" | "keyboard" }) => void;
-}>;
+import type { ButtonProps } from "./types";
+import { getButtonStyles } from "./styles";
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ disabled, onPress, children, ...rest }, ref) => {
-    const press = useAriaPress({ disabled, onPress });
+  (
+    {
+      variant = "primary",
+      size = "md",
+      disabled,
+      loading,
+      onPress,
+      children,
+      leftIcon,
+      rightIcon,
+      iconOnly,
+      onClick,
+      onKeyDown,
+      style,
+      ...rest
+    },
+    ref
+  ) => {
+    const press = React.useMemo(
+      () =>
+        createButtonHandlers({
+          disabled: disabled || loading,
+          onPress: onPress ? (e) => onPress(e) : undefined,
+        }),
+      [disabled, loading, onPress]
+    );
+
+    // 이벤트 핸들러 조합
+    const handleClick = composeEventHandlers(
+      (e: React.MouseEvent) => press.onClick(e.nativeEvent),
+      onClick,
+      { externalFirst: false }
+    );
+    const handleKeyDown = composeEventHandlers(
+      (e: React.KeyboardEvent) => press.onKeyDown(e.nativeEvent),
+      onKeyDown,
+      { externalFirst: false }
+    );
+
+    // 스타일 생성
+    const buttonStyles = getButtonStyles(variant, size, disabled, loading);
+
+    // 아이콘 렌더링
+    const renderIcon = (icon: React.ReactNode, position: "left" | "right") => {
+      if (!icon) return null;
+
+      return React.createElement(
+        "span",
+        {
+          "aria-hidden": "true",
+          style: {
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            ...(iconOnly && {
+              width: "100%",
+              height: "100%",
+            }),
+          },
+        },
+        icon
+      );
+    };
+
+    // 버튼 내용
+    const buttonContent = iconOnly
+      ? // 아이콘만 표시
+        leftIcon || rightIcon || null // 텍스트와 아이콘 조합
+      : [
+          renderIcon(leftIcon, "left"),
+          children,
+          renderIcon(rightIcon, "right"),
+        ].filter(Boolean);
 
     return (
       <button
         {...rest}
-        {...press} // a11y props/handlers 주입
-        onClick={composeEventHandlers(press.onClick, press.onClick)}
-        onKeyDown={composeEventHandlers(press.onKeyDown, press.onKeyDown)}
+        {...press}
         ref={ref}
         type="button"
-        data-focus-visible="" // focus ring 표시용
+        disabled={disabled || loading}
+        onClick={handleClick}
+        onKeyDown={handleKeyDown}
         style={{
-          paddingInline: "var(--ds-space-control-padding-x)",
-          paddingBlock: "var(--ds-space-control-padding-y)",
-          borderRadius: "var(--ds-radius-control)",
-          background: "var(--ds-color-button-primary-bg)",
-          color: "var(--ds-color-button-primary-fg)",
+          ...buttonStyles,
+          ...style,
         }}
+        data-focus-visible
+        data-loading={loading || undefined}
+        data-variant={variant}
+        data-size={size}
       >
-        {children}
+        {buttonContent}
       </button>
     );
   }

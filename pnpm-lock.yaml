@@ -83,6 +83,10 @@ importers:
         version: 7.1.7(@types/node@22.15.3)(jiti@2.6.0)(lightningcss@1.30.1)(tsx@4.20.6)
 
   packages/a11y:
+    dependencies:
+      '@acme/core':
+        specifier: workspace:*
+        version: link:../core
     devDependencies:
       '@microsoft/api-extractor':
         specifier: ^7.6.0
@@ -202,6 +206,9 @@ importers:
       '@acme/a11y':
         specifier: workspace:*
         version: link:../a11y
+      '@acme/core':
+        specifier: workspace:*
+        version: link:../core
       react:
         specifier: ^19.1.0
         version: 19.1.1

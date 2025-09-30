@@ -18,6 +18,9 @@
   "scripts": {
     "build": "tsup src/index.ts --format esm,cjs --experimental-dts --clean"
   },
+  "dependencies": {
+    "@acme/core": "workspace:*"
+  },
   "devDependencies": {
     "tsup": "^8.2.4",
     "@types/node": "^22.15.3",
