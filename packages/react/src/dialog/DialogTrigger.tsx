@@ -1,5 +1,6 @@
 import React from "react";
 import { DIALOG_CONTEXT_NAME, useDialogContext } from "./context";
+import { Slot } from "../utils/Slot";
 import type { DialogTriggerProps } from "./types";
 
 /**
@@ -21,11 +22,11 @@ export const DialogTrigger = React.forwardRef<
   );
 
   if (asChild) {
-    return React.cloneElement(children as React.ReactElement, {
-      ref,
-      onClick: handleClick,
-      ...rest,
-    });
+    return (
+      <Slot ref={ref} onClick={handleClick} {...rest}>
+        {children}
+      </Slot>
+    );
   }
 
   return (

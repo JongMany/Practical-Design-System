@@ -1,5 +1,6 @@
 import React from "react";
-import { useDialogContext } from "./context";
+import { DIALOG_CONTEXT_NAME, useDialogContext } from "./context";
+import { Slot } from "../utils/Slot";
 import type { DialogDescriptionProps } from "./types";
 
 /**
@@ -10,7 +11,7 @@ export const DialogDescription = React.forwardRef<
   HTMLParagraphElement,
   DialogDescriptionProps
 >(({ asChild = false, children, style, ...rest }, ref) => {
-  const { getDescriptionProps } = useDialogContext();
+  const { getDescriptionProps } = useDialogContext(DIALOG_CONTEXT_NAME);
 
   const descriptionStyles: React.CSSProperties = {
     margin: "0 0 20px 0",
@@ -20,12 +21,16 @@ export const DialogDescription = React.forwardRef<
   };
 
   if (asChild) {
-    return React.cloneElement(children as React.ReactElement, {
-      ref,
-      ...getDescriptionProps(),
-      style: descriptionStyles,
-      ...rest,
-    });
+    return (
+      <Slot
+        ref={ref}
+        {...getDescriptionProps()}
+        style={descriptionStyles}
+        {...rest}
+      >
+        {children}
+      </Slot>
+    );
   }
 
   return (

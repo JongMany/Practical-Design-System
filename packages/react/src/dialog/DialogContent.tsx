@@ -1,5 +1,6 @@
 import React from "react";
 import { DIALOG_CONTEXT_NAME, useDialogContext } from "./context";
+import { Slot } from "../utils/Slot";
 import type { DialogContentProps } from "./types";
 
 /**
@@ -46,12 +47,16 @@ export const DialogContent = React.forwardRef<
   );
 
   if (asChild) {
-    return React.cloneElement(children as React.ReactElement, {
-      ref: mergedRef,
-      ...getDialogProps(),
-      style: contentStyles,
-      ...rest,
-    });
+    return (
+      <Slot
+        ref={mergedRef}
+        {...getDialogProps()}
+        style={contentStyles}
+        {...rest}
+      >
+        {children}
+      </Slot>
+    );
   }
 
   return (

@@ -1,5 +1,6 @@
 import React from "react";
 import { DIALOG_CONTEXT_NAME, useDialogContext } from "./context";
+import { Slot } from "../utils/Slot";
 import type { DialogOverlayProps } from "./types";
 
 /**
@@ -11,6 +12,11 @@ export const DialogOverlay = React.forwardRef<
   DialogOverlayProps
 >(({ asChild = false, children, style, ...rest }, ref) => {
   const { getOverlayProps } = useDialogContext(DIALOG_CONTEXT_NAME);
+
+  const overlayProps = getOverlayProps();
+  const handleOverlayClick = (e: React.MouseEvent) => {
+    overlayProps.onClick(e.nativeEvent);
+  };
 
   const overlayStyles: React.CSSProperties = {
     position: "fixed",
@@ -27,16 +33,27 @@ export const DialogOverlay = React.forwardRef<
   };
 
   if (asChild) {
-    return React.cloneElement(children as React.ReactElement, {
-      ref,
-      ...getOverlayProps(),
-      style: overlayStyles,
-      ...rest,
-    });
+    return (
+      <Slot
+        ref={ref}
+        {...overlayProps}
+        onClick={handleOverlayClick}
+        style={overlayStyles}
+        {...rest}
+      >
+        {children}
+      </Slot>
+    );
   }
 
   return (
-    <div ref={ref} {...getOverlayProps()} style={overlayStyles} {...rest}>
+    <div
+      ref={ref}
+      {...overlayProps}
+      onClick={handleOverlayClick}
+      style={overlayStyles}
+      {...rest}
+    >
       {children}
     </div>
   );

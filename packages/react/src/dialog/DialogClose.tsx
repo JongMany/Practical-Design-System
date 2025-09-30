@@ -1,5 +1,6 @@
 import React from "react";
 import { DIALOG_CONTEXT_NAME, useDialogContext } from "./context";
+import { Slot } from "../utils/Slot";
 import type { DialogCloseProps } from "./types";
 
 /**
@@ -33,13 +34,11 @@ export const DialogClose = React.forwardRef<
   };
 
   if (asChild) {
-    return React.cloneElement(children as React.ReactElement, {
-      ref,
-      type: "button",
-      onClick: handleClick,
-      style: closeStyles,
-      ...rest,
-    });
+    return (
+      <Slot ref={ref} onClick={handleClick} style={closeStyles} {...rest}>
+        {children}
+      </Slot>
+    );
   }
 
   return (

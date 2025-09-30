@@ -1,5 +1,6 @@
 import React from "react";
 import { DIALOG_CONTEXT_NAME, useDialogContext } from "./context";
+import { Slot } from "../utils/Slot";
 import type { DialogTitleProps } from "./types";
 
 /**
@@ -20,12 +21,11 @@ export const DialogTitle = React.forwardRef<
   };
 
   if (asChild) {
-    return React.cloneElement(children as React.ReactElement, {
-      ref,
-      ...getTitleProps(),
-      style: titleStyles,
-      ...rest,
-    });
+    return (
+      <Slot ref={ref} {...getTitleProps()} style={titleStyles} {...rest}>
+        {children}
+      </Slot>
+    );
   }
 
   return (
