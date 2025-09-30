@@ -7,3 +7,4 @@ export * from "./escapeClose";
 export * from "./createAriaIds";
 export * from "./keyboardPress";
 export * from "./pointerActivation";
+export * from "./dialog";
