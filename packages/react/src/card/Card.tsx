@@ -204,7 +204,7 @@ CardRoot.displayName = "Card.Root";
 const CardHeader = React.forwardRef<HTMLElement, CardSubComponentProps>(
   ({ as, asChild, ...rest }, ref) => {
     const Comp = asChild ? Slot : (as ?? "div");
-    return <Comp ref={ref} {...rest} />;
+    return React.createElement(Comp, { ref, ...rest });
   }
 );
 CardHeader.displayName = "Card.Header";
@@ -216,7 +216,7 @@ CardHeader.displayName = "Card.Header";
 const CardMedia = React.forwardRef<HTMLElement, CardSubComponentProps>(
   ({ as, asChild, ...rest }, ref) => {
     const Comp = asChild ? Slot : (as ?? "div");
-    return <Comp ref={ref} {...rest} />;
+    return React.createElement(Comp, { ref, ...rest });
   }
 );
 CardMedia.displayName = "Card.Media";
@@ -230,7 +230,7 @@ const CardTitle = React.forwardRef<HTMLElement, CardSubComponentProps>(
   ({ as, asChild, id, ...rest }, ref) => {
     const { titleId } = useCardContext("Card.Title");
     const Comp = asChild ? Slot : (as ?? "h3");
-    return <Comp ref={ref} id={id ?? titleId} {...rest} />;
+    return React.createElement(Comp, { ref, id: id ?? titleId, ...rest });
   }
 );
 CardTitle.displayName = "Card.Title";
@@ -244,7 +244,7 @@ const CardDescription = React.forwardRef<HTMLElement, CardSubComponentProps>(
   ({ as, asChild, id, ...rest }, ref) => {
     const { descId } = useCardContext("Card.Description");
     const Comp = asChild ? Slot : (as ?? "p");
-    return <Comp ref={ref} id={id ?? descId} {...rest} />;
+    return React.createElement(Comp, { ref, id: id ?? descId, ...rest });
   }
 );
 CardDescription.displayName = "Card.Description";
@@ -256,7 +256,7 @@ CardDescription.displayName = "Card.Description";
 const CardBody = React.forwardRef<HTMLElement, CardSubComponentProps>(
   ({ as, asChild, ...rest }, ref) => {
     const Comp = asChild ? Slot : (as ?? "div");
-    return <Comp ref={ref} {...rest} />;
+    return React.createElement(Comp, { ref, ...rest });
   }
 );
 CardBody.displayName = "Card.Body";
@@ -268,7 +268,7 @@ CardBody.displayName = "Card.Body";
 const CardFooter = React.forwardRef<HTMLElement, CardSubComponentProps>(
   ({ as, asChild, ...rest }, ref) => {
     const Comp = asChild ? Slot : (as ?? "div");
-    return <Comp ref={ref} {...rest} />;
+    return React.createElement(Comp, { ref, ...rest });
   }
 );
 CardFooter.displayName = "Card.Footer";
