@@ -1,8 +1,5 @@
 import React from "react";
-import type {
-  PolymorphicProp,
-  PolymorphicComponentProps,
-} from "../types/polymorphic";
+import type { PolymorphicProp } from "../types/polymorphic";
 
 /**
  * Card 컴포넌트의 인터랙션 모드를 정의합니다.
@@ -40,7 +37,7 @@ export type CardBaseProps = {
  * 다형성 지원과 함께 HTML 속성들을 상속받습니다.
  */
 export type CardProps = React.PropsWithChildren<
-  CardBaseProps & PolymorphicProp
+  CardBaseProps & PolymorphicProp<React.ElementType>
 >;
 
 /**

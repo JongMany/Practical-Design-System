@@ -326,7 +326,7 @@ function App() {
               action="button"
               disabled
               onPress={(_e: { type: "keyboard" | "click" }) =>
-                console.log("This won't fire")
+                console.log("This won't fire", _e)
               }
             >
               <Card.Header>
