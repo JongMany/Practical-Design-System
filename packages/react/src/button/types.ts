@@ -1,3 +1,5 @@
+import type { PolymorphicComponentProps } from "../types/polymorphic";
+
 /**
  * Button 컴포넌트의 variant 타입
  */
@@ -38,4 +40,4 @@ export type ButtonBaseProps = {
 /**
  * Button 컴포넌트의 전체 props 타입
  */
-export type ButtonProps = React.PropsWithChildren<ButtonBaseProps>;
+export type ButtonProps = ButtonBaseProps & PolymorphicComponentProps;

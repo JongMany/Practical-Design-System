@@ -6,7 +6,7 @@ import { Slot } from "../utils/Slot";
  * - as: 렌더링할 HTML 요소나 React 컴포넌트 지정
  * - asChild: true일 때 자식 요소를 직접 렌더링 (Slot 패턴)
  */
-export type PolymorphicProp<C extends React.ElementType> = {
+export type PolymorphicProp<C extends React.ElementType = "div"> = {
   as?: C;
   asChild?: boolean;
 };
