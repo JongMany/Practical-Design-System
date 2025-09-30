@@ -72,7 +72,8 @@ const CardRoot = React.forwardRef<HTMLElement, CardProps>(
 
     // 접근성을 위한 고유 ID 생성
     // 외부에서 제공된 ID가 있으면 우선 사용, 없으면 자동 생성
-    const { label: autoTitleId, desc: autoDescId } = useAriaIds("card");
+    const { titleId: autoTitleId, descriptionId: autoDescId } =
+      useAriaIds("card");
     const titleId = ariaLabelledbyProp || autoTitleId;
     const descId = ariaDescribedbyProp || autoDescId;
 
