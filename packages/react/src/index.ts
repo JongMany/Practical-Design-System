@@ -1,3 +1,3 @@
 export * from "./button";
 export * from "./card";
-export * from "./dialog";
+export { default as Dialog } from "./dialog";

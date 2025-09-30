@@ -1,6 +1,6 @@
 import React from "react";
 import { createPortal } from "react-dom";
-import { useDialogContext } from "./context";
+import { DIALOG_CONTEXT_NAME, useDialogContext } from "./context";
 import type { DialogPortalProps } from "./types";
 
 /**
@@ -11,7 +11,7 @@ export const DialogPortal: React.FC<DialogPortalProps> = ({
   children,
   container,
 }) => {
-  const { isOpen } = useDialogContext();
+  const { isOpen } = useDialogContext(DIALOG_CONTEXT_NAME);
 
   if (!isOpen) {
     return null;

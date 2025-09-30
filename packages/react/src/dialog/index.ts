@@ -5,6 +5,7 @@ import { DialogTitle } from "./DialogTitle";
 import { DialogDescription } from "./DialogDescription";
 import { DialogClose } from "./DialogClose";
 import { DialogTrigger } from "./DialogTrigger";
+import { DialogPortal } from "./DialogPortal";
 
 const Dialog = Object.assign(
   {},
@@ -16,6 +17,7 @@ const Dialog = Object.assign(
     Description: DialogDescription,
     Close: DialogClose,
     Trigger: DialogTrigger,
+    Portal: DialogPortal,
   }
 );
 
