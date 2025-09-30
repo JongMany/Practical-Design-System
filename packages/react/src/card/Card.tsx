@@ -3,67 +3,11 @@ import { Slot } from "../utils/Slot";
 import { composeEventHandlers } from "../utils/composeEventHandlers";
 import { useAriaIds, useAriaPress } from "@acme/react-a11y";
 import { createContext } from "../context/createContext";
-
-/**
- * Card 컴포넌트의 인터랙션 모드를 정의합니다.
- * - "none": 정적 카드 (클릭 불가)
- * - "button": 버튼처럼 동작하는 카드 (키보드/마우스 지원)
- * - "link": 링크처럼 동작하는 카드 (키보드/마우스 지원)
- */
-type CardAction = "none" | "button" | "link";
-
-/**
- * 다형성 컴포넌트를 위한 props 타입
- * - as: 렌더링할 HTML 요소나 React 컴포넌트 지정
- * - asChild: true일 때 자식 요소를 직접 렌더링 (Slot 패턴)
- */
-type PolymorphicProp<C extends React.ElementType> = {
-  as?: C;
-  asChild?: boolean;
-};
-
-/**
- * Card 컴포넌트의 기본 props 타입
- * 인터랙션, 접근성, 이벤트 핸들링 관련 속성들을 포함합니다.
- */
-type CardBaseProps = {
-  /** 카드가 인터랙티브(클릭/키보드 활성)한지 */
-  action?: CardAction;
-  /** 비활성화 (action !== 'none'일 때만 의미) */
-  disabled?: boolean;
-  /** 버튼/카드 액션 */
-  onPress?: (e: { type: "keyboard" | "click" }) => void;
-  /** 선택형 카드(토글)의 상태 표시 (옵션) */
-  pressed?: boolean;
-  /** 외부 이벤트 핸들러 */
-  onClick?: React.MouseEventHandler;
-  onKeyDown?: React.KeyboardEventHandler;
-  /** a11y 라벨링을 위해 외부에서 title/desc id를 줄 수 있음(선택) */
-  "aria-labelledby"?: string;
-  "aria-describedby"?: string;
-  /** 우선순위 제어: true면 외부 핸들러 먼저 실행 */
-  externalHandlersFirst?: boolean;
-} & React.HTMLAttributes<HTMLElement>;
-
-/**
- * Card 컴포넌트의 전체 props 타입
- * 다형성 지원과 함께 HTML 속성들을 상속받습니다.
- */
-export type CardProps<C extends React.ElementType = React.ElementType> =
-  React.PropsWithChildren<CardBaseProps & PolymorphicProp<C>> &
-    Omit<
-      React.ComponentPropsWithoutRef<C>,
-      keyof CardBaseProps | "children" | "as" | "asChild"
-    >;
-
-/**
- * Card Context에서 공유되는 값들
- * 접근성을 위한 ID들을 하위 컴포넌트들과 공유합니다.
- */
-type CardContextValue = {
-  titleId: string;
-  descId: string;
-};
+import type {
+  CardProps,
+  CardContextValue,
+  CardSubComponentProps,
+} from "./types";
 
 /**
  * Card 컴포넌트의 Context 생성
@@ -81,7 +25,7 @@ const [CardProvider, useCardContext] = createContext<CardContextValue>("Card");
  * - 이벤트 핸들러 조합 (내부/외부 핸들러 통합)
  * - Context를 통한 ID 공유
  */
-export const CardRoot = React.forwardRef<any, CardProps>(
+const CardRoot = React.forwardRef<HTMLElement, CardProps>(
   (
     {
       as,
@@ -252,27 +196,29 @@ CardRoot.displayName = "Card.Root";
 /**
  * Card의 헤더 영역
  * 다형성 지원으로 다양한 요소로 렌더링 가능
+ *
+ * forwardRef: ref를 자식 컴포넌트로 전달하기 위한 고차 컴포넌트 (HOC)
+ * - 첫 번째 제네릭(RefType): ref로 전달받을 요소의 타입
+ * - 두 번째 제네릭(PropsType): 컴포넌트가 받을 props의 타입
  */
-export const CardHeader = React.forwardRef<
-  HTMLElement,
-  React.HTMLAttributes<HTMLElement> & PolymorphicProp<any>
->(({ as, asChild, ...rest }, ref) => {
-  const Comp: any = asChild ? Slot : (as ?? "div");
-  return <Comp ref={ref} {...rest} />;
-});
+const CardHeader = React.forwardRef<HTMLElement, CardSubComponentProps>(
+  ({ as, asChild, ...rest }, ref) => {
+    const Comp = asChild ? Slot : (as ?? "div");
+    return <Comp ref={ref} {...rest} />;
+  }
+);
 CardHeader.displayName = "Card.Header";
 
 /**
  * Card의 미디어 영역 (이미지, 비디오 등)
  * 다형성 지원으로 다양한 요소로 렌더링 가능
  */
-export const CardMedia = React.forwardRef<
-  HTMLElement,
-  React.HTMLAttributes<HTMLElement> & PolymorphicProp<any>
->(({ as, asChild, ...rest }, ref) => {
-  const Comp: any = asChild ? Slot : (as ?? "div");
-  return <Comp ref={ref} {...rest} />;
-});
+const CardMedia = React.forwardRef<HTMLElement, CardSubComponentProps>(
+  ({ as, asChild, ...rest }, ref) => {
+    const Comp = asChild ? Slot : (as ?? "div");
+    return <Comp ref={ref} {...rest} />;
+  }
+);
 CardMedia.displayName = "Card.Media";
 
 /**
@@ -280,14 +226,13 @@ CardMedia.displayName = "Card.Media";
  * Context에서 제공되는 titleId를 자동으로 연결하여 접근성 지원
  * Card.Root의 aria-labelledby와 자동 연결됨
  */
-export const CardTitle = React.forwardRef<
-  HTMLElement,
-  React.HTMLAttributes<HTMLElement> & PolymorphicProp<any>
->(({ as, asChild, id, ...rest }, ref) => {
-  const { titleId } = useCardContext("Card.Title");
-  const Comp: any = asChild ? Slot : (as ?? "h3");
-  return <Comp ref={ref} id={id ?? titleId} {...rest} />;
-});
+const CardTitle = React.forwardRef<HTMLElement, CardSubComponentProps>(
+  ({ as, asChild, id, ...rest }, ref) => {
+    const { titleId } = useCardContext("Card.Title");
+    const Comp = asChild ? Slot : (as ?? "h3");
+    return <Comp ref={ref} id={id ?? titleId} {...rest} />;
+  }
+);
 CardTitle.displayName = "Card.Title";
 
 /**
@@ -295,60 +240,42 @@ CardTitle.displayName = "Card.Title";
  * Context에서 제공되는 descId를 자동으로 연결하여 접근성 지원
  * Card.Root의 aria-describedby와 자동 연결됨
  */
-export const CardDescription = React.forwardRef<
-  HTMLElement,
-  React.HTMLAttributes<HTMLElement> & PolymorphicProp<any>
->(({ as, asChild, id, ...rest }, ref) => {
-  const { descId } = useCardContext("Card.Description");
-  const Comp: any = asChild ? Slot : (as ?? "p");
-  return <Comp ref={ref} id={id ?? descId} {...rest} />;
-});
+const CardDescription = React.forwardRef<HTMLElement, CardSubComponentProps>(
+  ({ as, asChild, id, ...rest }, ref) => {
+    const { descId } = useCardContext("Card.Description");
+    const Comp = asChild ? Slot : (as ?? "p");
+    return <Comp ref={ref} id={id ?? descId} {...rest} />;
+  }
+);
 CardDescription.displayName = "Card.Description";
 
 /**
  * Card의 본문 영역
  * 다형성 지원으로 다양한 요소로 렌더링 가능
  */
-export const CardBody = React.forwardRef<
-  HTMLElement,
-  React.HTMLAttributes<HTMLElement> & PolymorphicProp<any>
->(({ as, asChild, ...rest }, ref) => {
-  const Comp: any = asChild ? Slot : (as ?? "div");
-  return <Comp ref={ref} {...rest} />;
-});
+const CardBody = React.forwardRef<HTMLElement, CardSubComponentProps>(
+  ({ as, asChild, ...rest }, ref) => {
+    const Comp = asChild ? Slot : (as ?? "div");
+    return <Comp ref={ref} {...rest} />;
+  }
+);
 CardBody.displayName = "Card.Body";
 
 /**
  * Card의 푸터 영역
  * 다형성 지원으로 다양한 요소로 렌더링 가능
  */
-export const CardFooter = React.forwardRef<
-  HTMLElement,
-  React.HTMLAttributes<HTMLElement> & PolymorphicProp<any>
->(({ as, asChild, ...rest }, ref) => {
-  const Comp: any = asChild ? Slot : (as ?? "div");
-  return <Comp ref={ref} {...rest} />;
-});
+const CardFooter = React.forwardRef<HTMLElement, CardSubComponentProps>(
+  ({ as, asChild, ...rest }, ref) => {
+    const Comp = asChild ? Slot : (as ?? "div");
+    return <Comp ref={ref} {...rest} />;
+  }
+);
 CardFooter.displayName = "Card.Footer";
 
 /* -------------------------------------------------------------------------------------------------
  * 네임스페이스 export
  * -----------------------------------------------------------------------------------------------*/
-
-/**
- * Card 컴포넌트의 네임스페이스 export
- *
- * 사용법:
- * ```tsx
- * <Card.Root>
- *   <Card.Header>
- *     <Card.Title>제목</Card.Title>
- *   </Card.Header>
- *   <Card.Body>내용</Card.Body>
- *   <Card.Footer>푸터</Card.Footer>
- * </Card.Root>
- * ```
- */
 export const Card = Object.assign(CardRoot, {
   Root: CardRoot,
   Header: CardHeader,
