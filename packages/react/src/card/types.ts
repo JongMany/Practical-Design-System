@@ -19,7 +19,9 @@ export type CardBaseProps = {
   /** 비활성화 (action !== 'none'일 때만 의미) */
   disabled?: boolean;
   /** 버튼/카드 액션 */
-  onPress?: (e: { type: "keyboard" | "click" | "touch" }) => void;
+  onTouchEnd?: (e: TouchEvent) => void;
+  /** 통합된 액션 핸들러 */
+  onPress?: (e: { type: "click" | "touch" }) => void;
   /** 선택형 카드(토글)의 상태 표시 (옵션) */
   pressed?: boolean;
   /** 외부 이벤트 핸들러 */

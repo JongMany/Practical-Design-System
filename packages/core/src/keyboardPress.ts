@@ -6,7 +6,7 @@ export interface KeyboardPressOptions {
   /** 비활성화 상태 */
   disabled?: boolean;
   /** 키보드 활성화 이벤트 핸들러 */
-  onKeyboardPress?: (event: { type: "keyboard" }) => void;
+  onKeyboardPress?: (event: KeyboardEvent) => void;
   /** 추가 키보드 키 지원 */
   additionalKeys?: string[];
 }
@@ -48,7 +48,7 @@ export function createKeyboardPressHandlers(
       // 지원하는 키인지 확인
       if (allKeys.includes(e.key)) {
         e.preventDefault();
-        onKeyboardPress?.({ type: "keyboard" });
+        onKeyboardPress?.(e);
       }
     },
   };

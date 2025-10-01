@@ -67,6 +67,7 @@ function App() {
             <Button onPress={() => console.log("React button clicked")}>
               버튼 컴포넌트
             </Button>
+            <Button>d</Button>
           </div>
         </section>
         {/* Color Palette */}
@@ -233,6 +234,14 @@ function App() {
               <Button onPress={() => console.log("React button clicked")}>
                 React Component
               </Button>
+              <Button
+                leftIcon="🔍"
+                rightIcon="→"
+                onPress={() => console.log("Button with icons clicked")}
+                onClick={() => console.log("Button with icons clicked")}
+              >
+                아이콘 버튼
+              </Button>
             </div>
           </div>
         </section>
@@ -319,10 +328,7 @@ function App() {
           {/* Interactive Button Card */}
           <div className="card-showcase">
             <h3>Interactive Button Card</h3>
-            <Card.Root
-              action="button"
-              onPress={(e) => console.log("Card pressed:", e.type)}
-            >
+            <Card.Root action="button">
               <Card.Header>
                 <Card.Title>클릭 가능한 카드</Card.Title>
                 <Card.Description>
@@ -338,11 +344,7 @@ function App() {
           {/* Toggle Card */}
           <div className="card-showcase">
             <h3>Toggle Card</h3>
-            <Card.Root
-              action="button"
-              pressed={false}
-              onPress={(e) => console.log("Toggle card pressed:", e.type)}
-            >
+            <Card.Root action="button" pressed={false}>
               <Card.Header>
                 <Card.Title>토글 카드</Card.Title>
                 <Card.Description>
@@ -358,11 +360,7 @@ function App() {
           {/* Disabled Card */}
           <div className="card-showcase">
             <h3>Disabled Card</h3>
-            <Card.Root
-              action="button"
-              disabled
-              onPress={(_e) => console.log("This won't fire", _e)}
-            >
+            <Card.Root action="button" disabled>
               <Card.Header>
                 <Card.Title>비활성화된 카드</Card.Title>
                 <Card.Description>

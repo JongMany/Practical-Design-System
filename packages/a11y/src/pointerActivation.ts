@@ -79,7 +79,7 @@ export function createPointerActivationA11yHandlers(
     }, longPressDelay);
   };
 
-  const handleActivation = (type: "click" | "touch") => {
+  const handleActivation = (event: MouseEvent | TouchEvent) => {
     // 연속 활성화 방지
     if (preventDoubleActivation) {
       const now = Date.now();
@@ -91,7 +91,7 @@ export function createPointerActivationA11yHandlers(
 
     // 장시간 누름이 아닌 경우에만 일반 활성화 실행
     if (!isLongPressing) {
-      baseOptions.onPointerActivate?.({ type });
+      baseOptions.onPointerActivate?.(event);
     }
 
     // 상태 초기화
@@ -102,11 +102,11 @@ export function createPointerActivationA11yHandlers(
     ...baseHandlers,
     onClick(e) {
       if (baseOptions.disabled) return;
-      handleActivation("click");
+      handleActivation(e);
     },
     onTouchEnd(e) {
       if (baseOptions.disabled) return;
-      handleActivation("touch");
+      handleActivation(e);
     },
     onMouseDown(e) {
       if (baseOptions.disabled) return;

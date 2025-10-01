@@ -80,7 +80,7 @@ export function createKeyboardPressA11yHandlers(
 
     if (allKeys.includes(e.key)) {
       e.preventDefault();
-      baseOptions.onKeyboardPress?.({ type: "keyboard" });
+      baseOptions.onKeyboardPress?.(e);
     }
   };
 

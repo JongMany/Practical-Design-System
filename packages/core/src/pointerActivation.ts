@@ -6,7 +6,7 @@ export interface PointerActivationOptions {
   /** 비활성화 상태 */
   disabled?: boolean;
   /** 포인터 활성화 이벤트 핸들러 */
-  onPointerActivate?: (event: { type: "click" | "touch" }) => void;
+  onPointerActivate?: (event: MouseEvent | TouchEvent) => void;
 }
 
 export interface PointerActivationHandlers {
@@ -39,12 +39,12 @@ export function createPointerActivationHandlers(
     "aria-disabled": disabled || undefined,
     onClick(e) {
       if (!disabled) {
-        onPointerActivate?.({ type: "click" });
+        onPointerActivate?.(e);
       }
     },
     onTouchEnd(e) {
       if (!disabled) {
-        onPointerActivate?.({ type: "touch" });
+        onPointerActivate?.(e);
       }
     },
   };
