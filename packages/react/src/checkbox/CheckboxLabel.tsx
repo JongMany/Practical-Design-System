@@ -3,7 +3,7 @@
  */
 
 import React from "react";
-import { useCheckboxContext } from "./context";
+import { CHECKBOX_CONTEXT_NAME, useCheckboxContext } from "./context";
 import type { CheckboxLabelProps } from "./types";
 
 /**
@@ -15,7 +15,7 @@ export const CheckboxLabel = React.forwardRef<
   HTMLLabelElement,
   CheckboxLabelProps
 >(({ children, className, style, ...rest }, ref) => {
-  const { disabled, checkboxId } = useCheckboxContext();
+  const { disabled, checkboxId } = useCheckboxContext(CHECKBOX_CONTEXT_NAME);
 
   return (
     <label

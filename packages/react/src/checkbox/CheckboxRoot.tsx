@@ -2,10 +2,25 @@
  * Checkbox Root Component
  */
 
-import React, { useState } from "react";
+import React, { CSSProperties, useState } from "react";
 import { useCheckbox } from "@acme/react-a11y";
 import { CheckboxProvider } from "./context";
 import type { CheckboxRootProps } from "./types";
+
+const defaultInputStyle: CSSProperties = {
+  position: "absolute",
+  opacity: 0,
+  pointerEvents: "none",
+  width: 0,
+  height: 0,
+};
+
+const defaultRootStyle: CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  position: "relative",
+  gap: "8px",
+};
 
 /**
  * Checkbox Root 컴포넌트
@@ -97,10 +112,7 @@ export const CheckboxRoot = React.forwardRef<HTMLDivElement, CheckboxRootProps>(
           ref={ref}
           className={className}
           style={{
-            display: "inline-flex",
-            alignItems: "center",
-            position: "relative",
-            gap: "8px",
+            ...defaultRootStyle,
             ...style,
           }}
           {...rest}
@@ -125,11 +137,7 @@ export const CheckboxRoot = React.forwardRef<HTMLDivElement, CheckboxRootProps>(
               }
             }}
             style={{
-              position: "absolute",
-              opacity: 0,
-              pointerEvents: "none",
-              width: 0,
-              height: 0,
+              ...defaultInputStyle,
             }}
             tabIndex={-1}
           />

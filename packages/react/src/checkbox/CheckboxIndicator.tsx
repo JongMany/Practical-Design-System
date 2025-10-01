@@ -2,9 +2,24 @@
  * Checkbox Indicator Component
  */
 
-import React from "react";
-import { useCheckboxContext } from "./context";
+import React, { CSSProperties } from "react";
+import { CHECKBOX_CONTEXT_NAME, useCheckboxContext } from "./context";
 import type { CheckboxIndicatorProps } from "./types";
+
+const defaultIndicatorStyle: CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  width: "16px",
+  height: "16px",
+  border: "1px solid #ccc",
+  borderRadius: "3px",
+  transition: "all 0.2s ease",
+  fontSize: "12px",
+  fontWeight: "bold",
+  lineHeight: 1,
+  userSelect: "none",
+};
 
 /**
  * Checkbox Indicator 컴포넌트
@@ -14,29 +29,20 @@ export const CheckboxIndicator = React.forwardRef<
   HTMLDivElement,
   CheckboxIndicatorProps
 >(({ children, className, style, ...rest }, ref) => {
-  const { checked, disabled, handlers } = useCheckboxContext();
+  const { checked, disabled, handlers } = useCheckboxContext(
+    CHECKBOX_CONTEXT_NAME
+  );
 
   return (
     <div
       ref={ref}
       className={className}
       style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        width: "16px",
-        height: "16px",
-        border: "1px solid #ccc",
-        borderRadius: "3px",
+        ...defaultIndicatorStyle,
         backgroundColor: checked ? "#007bff" : "white",
         color: checked ? "white" : "transparent",
         cursor: disabled ? "not-allowed" : "pointer",
         opacity: disabled ? 0.5 : 1,
-        transition: "all 0.2s ease",
-        fontSize: "12px",
-        fontWeight: "bold",
-        lineHeight: 1,
-        userSelect: "none",
         ...style,
       }}
       onClick={(e) => {
