@@ -33,12 +33,21 @@ export const CheckboxIndicator = React.forwardRef<
         cursor: disabled ? "not-allowed" : "pointer",
         opacity: disabled ? 0.5 : 1,
         transition: "all 0.2s ease",
+        fontSize: "12px",
+        fontWeight: "bold",
+        lineHeight: 1,
+        userSelect: "none",
         ...style,
       }}
       onClick={(e) => {
         if (!disabled) {
           e.preventDefault();
           handlers.toggle();
+        }
+      }}
+      onMouseDown={(e) => {
+        if (disabled) {
+          e.preventDefault();
         }
       }}
       {...rest}

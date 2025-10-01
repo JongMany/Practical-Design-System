@@ -15,7 +15,9 @@ export const CheckboxRoot = React.forwardRef<HTMLDivElement, CheckboxRootProps>(
   (
     {
       checked: controlledChecked,
+      disabled: controlledDisabled,
       onCheckedChange,
+      onDisabledChange,
       defaultChecked = false,
       defaultDisabled = false,
       defaultReadOnly = false,
@@ -42,7 +44,11 @@ export const CheckboxRoot = React.forwardRef<HTMLDivElement, CheckboxRootProps>(
 
     // 제어된 상태인지 확인
     const isControlled = controlledChecked !== undefined;
+    const isDisabledControlled = controlledDisabled !== undefined;
     const checked = isControlled ? controlledChecked : internalChecked;
+    const disabled = isDisabledControlled
+      ? controlledDisabled
+      : internalDisabled;
 
     // Checkbox ID 생성
     const checkboxId =
@@ -58,7 +64,7 @@ export const CheckboxRoot = React.forwardRef<HTMLDivElement, CheckboxRootProps>(
         }
       },
       defaultChecked: checked,
-      defaultDisabled: internalDisabled,
+      defaultDisabled: disabled,
       defaultReadOnly: internalReadOnly,
       defaultRequired: internalRequired,
       keyboardPress,
@@ -94,6 +100,7 @@ export const CheckboxRoot = React.forwardRef<HTMLDivElement, CheckboxRootProps>(
             display: "inline-flex",
             alignItems: "center",
             position: "relative",
+            gap: "8px",
             ...style,
           }}
           {...rest}
@@ -103,12 +110,18 @@ export const CheckboxRoot = React.forwardRef<HTMLDivElement, CheckboxRootProps>(
             type="checkbox"
             id={checkboxId}
             checked={checked}
-            disabled={checkboxState.disabled}
+            disabled={disabled}
             readOnly={checkboxState.readOnly}
             required={checkboxState.required}
             onChange={(e) => {
-              if (!checkboxState.disabled && !checkboxState.readOnly) {
+              if (!disabled && !checkboxState.readOnly) {
                 checkboxState.handlers.setChecked(e.target.checked);
+              }
+            }}
+            onClick={(e) => {
+              if (disabled) {
+                e.preventDefault();
+                e.stopPropagation();
               }
             }}
             style={{

@@ -647,90 +647,70 @@ function App() {
               style={{ display: "flex", flexDirection: "column", gap: "16px" }}
             >
               {/* 기본 Checkbox */}
-              <div
-                style={{ display: "flex", alignItems: "center", gap: "8px" }}
+              <Checkbox.Root
+                className="CheckboxRoot"
+                defaultChecked={false}
+                id="c1"
+                onCheckedChange={handleCheckboxChange("basic")}
               >
-                <Checkbox.Root
-                  className="CheckboxRoot"
-                  defaultChecked={false}
-                  id="c1"
-                  onCheckedChange={handleCheckboxChange("basic")}
-                >
-                  <Checkbox.Indicator className="CheckboxIndicator">
-                    ✓
-                  </Checkbox.Indicator>
-                </Checkbox.Root>
-                <label className="Label" htmlFor="c1">
+                <Checkbox.Indicator className="CheckboxIndicator">
+                  ✓
+                </Checkbox.Indicator>
+                <Checkbox.Label className="Label">
                   Accept terms and conditions.
-                </label>
-              </div>
+                </Checkbox.Label>
+              </Checkbox.Root>
 
               {/* Controlled Checkbox */}
-              <div
-                style={{ display: "flex", alignItems: "center", gap: "8px" }}
+              <Checkbox.Root
+                className="CheckboxRoot"
+                checked={checkboxStates.controlled}
+                id="c2"
+                onCheckedChange={handleCheckboxChange("controlled")}
               >
-                <Checkbox.Root
-                  className="CheckboxRoot"
-                  checked={checkboxStates.controlled}
-                  id="c2"
-                  onCheckedChange={handleCheckboxChange("controlled")}
-                >
-                  <Checkbox.Indicator className="CheckboxIndicator">
-                    ✓
-                  </Checkbox.Indicator>
-                </Checkbox.Root>
-                <label className="Label" htmlFor="c2">
+                <Checkbox.Indicator className="CheckboxIndicator">
+                  ✓
+                </Checkbox.Indicator>
+                <Checkbox.Label className="Label">
                   Controlled checkbox (현재 상태:{" "}
                   {checkboxStates.controlled ? "체크됨" : "체크 안됨"})
-                </label>
-              </div>
+                </Checkbox.Label>
+              </Checkbox.Root>
 
               {/* Disabled Checkbox */}
-              <div
-                style={{ display: "flex", alignItems: "center", gap: "8px" }}
-              >
-                <Checkbox.Root className="CheckboxRoot" disabled={true} id="c4">
-                  <Checkbox.Indicator className="CheckboxIndicator">
-                    ✓
-                  </Checkbox.Indicator>
-                </Checkbox.Root>
-                <label className="Label" htmlFor="c4" style={{ opacity: 0.5 }}>
+              <Checkbox.Root className="CheckboxRoot" disabled={true} id="c4">
+                <Checkbox.Indicator className="CheckboxIndicator">
+                  ✓
+                </Checkbox.Indicator>
+                <Checkbox.Label className="Label">
                   Disabled checkbox
-                </label>
-              </div>
+                </Checkbox.Label>
+              </Checkbox.Root>
 
               {/* ReadOnly Checkbox */}
-              <div
-                style={{ display: "flex", alignItems: "center", gap: "8px" }}
+              <Checkbox.Root
+                className="CheckboxRoot"
+                readOnly={true}
+                defaultChecked={true}
+                id="c5"
               >
-                <Checkbox.Root
-                  className="CheckboxRoot"
-                  readOnly={true}
-                  defaultChecked={true}
-                  id="c5"
-                >
-                  <Checkbox.Indicator className="CheckboxIndicator">
-                    ✓
-                  </Checkbox.Indicator>
-                </Checkbox.Root>
-                <label className="Label" htmlFor="c5">
+                <Checkbox.Indicator className="CheckboxIndicator">
+                  ✓
+                </Checkbox.Indicator>
+                <Checkbox.Label className="Label">
                   ReadOnly checkbox
-                </label>
-              </div>
+                </Checkbox.Label>
+              </Checkbox.Root>
 
               {/* Required Checkbox */}
-              <div
-                style={{ display: "flex", alignItems: "center", gap: "8px" }}
-              >
-                <Checkbox.Root className="CheckboxRoot" required={true} id="c6">
-                  <Checkbox.Indicator className="CheckboxIndicator">
-                    ✓
-                  </Checkbox.Indicator>
-                </Checkbox.Root>
-                <label className="Label" htmlFor="c6">
+              <Checkbox.Root className="CheckboxRoot" required={true} id="c6">
+                <Checkbox.Indicator className="CheckboxIndicator">
+                  ✓
+                </Checkbox.Indicator>
+                <Checkbox.Label className="Label">
                   Required checkbox *
-                </label>
-              </div>
+                </Checkbox.Label>
+              </Checkbox.Root>
             </div>
 
             {/* 상태 표시 */}

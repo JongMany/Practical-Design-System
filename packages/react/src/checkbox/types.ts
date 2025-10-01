@@ -15,6 +15,8 @@ export interface CheckboxBaseProps {
   required?: boolean;
   /** 체크 상태 변경 콜백 */
   onCheckedChange?: (checked: boolean) => void;
+  /** 비활성화 상태 변경 콜백 */
+  onDisabledChange?: (disabled: boolean) => void;
   /** ARIA 라벨 */
   "aria-label"?: string;
   /** ARIA 라벨 ID */
@@ -61,6 +63,15 @@ export interface CheckboxRootProps extends CheckboxBaseProps {
 export interface CheckboxIndicatorProps {
   /** 자식 요소 */
   children: ReactNode;
+  /** CSS 클래스명 */
+  className?: string;
+  /** 인라인 스타일 */
+  style?: React.CSSProperties;
+}
+
+export interface CheckboxLabelProps {
+  /** 자식 요소 */
+  children?: ReactNode;
   /** CSS 클래스명 */
   className?: string;
   /** 인라인 스타일 */
