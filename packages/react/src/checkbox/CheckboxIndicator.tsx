@@ -4,6 +4,7 @@
 
 import React, { CSSProperties } from "react";
 import { CHECKBOX_CONTEXT_NAME, useCheckboxContext } from "./context";
+import { composeEventHandlers } from "../utils/composeEventHandlers";
 import type { CheckboxIndicatorProps } from "./types";
 
 const defaultIndicatorStyle: CSSProperties = {
@@ -28,39 +29,51 @@ const defaultIndicatorStyle: CSSProperties = {
 export const CheckboxIndicator = React.forwardRef<
   HTMLDivElement,
   CheckboxIndicatorProps
->(({ children, className, style, ...rest }, ref) => {
-  const { checked, disabled, handlers } = useCheckboxContext(
-    CHECKBOX_CONTEXT_NAME
-  );
+>(
+  (
+    {
+      children,
+      className,
+      style,
+      onClick: externalOnClick,
+      onMouseDown: externalOnMouseDown,
+      ...rest
+    },
+    ref
+  ) => {
+    const { checked, disabled, handlers } = useCheckboxContext(
+      CHECKBOX_CONTEXT_NAME
+    );
 
-  return (
-    <div
-      ref={ref}
-      className={className}
-      style={{
-        ...defaultIndicatorStyle,
-        backgroundColor: checked ? "#007bff" : "white",
-        color: checked ? "white" : "transparent",
-        cursor: disabled ? "not-allowed" : "pointer",
-        opacity: disabled ? 0.5 : 1,
-        ...style,
-      }}
-      onClick={(e) => {
-        if (!disabled) {
-          e.preventDefault();
-          handlers.toggle();
-        }
-      }}
-      onMouseDown={(e) => {
-        if (disabled) {
-          e.preventDefault();
-        }
-      }}
-      {...rest}
-    >
-      {checked && children}
-    </div>
-  );
-});
+    return (
+      <div
+        ref={ref}
+        className={className}
+        style={{
+          ...defaultIndicatorStyle,
+          backgroundColor: checked ? "#007bff" : "white",
+          color: checked ? "white" : "transparent",
+          cursor: disabled ? "not-allowed" : "pointer",
+          opacity: disabled ? 0.5 : 1,
+          ...style,
+        }}
+        onClick={composeEventHandlers((e) => {
+          if (!disabled) {
+            e.preventDefault();
+            handlers.toggle();
+          }
+        }, externalOnClick)}
+        onMouseDown={composeEventHandlers((e) => {
+          if (disabled) {
+            e.preventDefault();
+          }
+        }, externalOnMouseDown)}
+        {...rest}
+      >
+        {checked && children}
+      </div>
+    );
+  }
+);
 
 CheckboxIndicator.displayName = "CheckboxIndicator";

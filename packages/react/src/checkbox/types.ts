@@ -58,6 +58,10 @@ export interface CheckboxRootProps extends CheckboxBaseProps {
   defaultRequired?: boolean;
   /** HTML ID */
   id?: string;
+  /** Change 이벤트 핸들러 */
+  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  /** Click 이벤트 핸들러 */
+  onClick?: (event: React.MouseEvent<HTMLInputElement>) => void;
 }
 
 export interface CheckboxIndicatorProps {
@@ -67,6 +71,10 @@ export interface CheckboxIndicatorProps {
   className?: string;
   /** 인라인 스타일 */
   style?: React.CSSProperties;
+  /** Click 이벤트 핸들러 */
+  onClick?: (event: React.MouseEvent<HTMLDivElement>) => void;
+  /** MouseDown 이벤트 핸들러 */
+  onMouseDown?: (event: React.MouseEvent<HTMLDivElement>) => void;
 }
 
 export interface CheckboxLabelProps {

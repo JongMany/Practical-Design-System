@@ -2,9 +2,11 @@
  * Checkbox Root Component
  */
 
-import React, { CSSProperties, useState } from "react";
+import React, { CSSProperties } from "react";
 import { useCheckbox } from "@acme/react-a11y";
 import { CheckboxProvider } from "./context";
+import { useControlledState } from "./useControlledState";
+import { composeEventHandlers } from "../utils/composeEventHandlers";
 import type { CheckboxRootProps } from "./types";
 
 const defaultInputStyle: CSSProperties = {
@@ -47,41 +49,39 @@ export const CheckboxRoot = React.forwardRef<HTMLDivElement, CheckboxRootProps>(
       children,
       className,
       style,
+      onChange: externalOnChange,
+      onClick: externalOnClick,
       ...rest
     },
     ref
   ) => {
-    // 내부 상태 관리
-    const [internalChecked, setInternalChecked] = useState(defaultChecked);
-    const [internalDisabled, setInternalDisabled] = useState(defaultDisabled);
-    const [internalReadOnly, setInternalReadOnly] = useState(defaultReadOnly);
-    const [internalRequired, setInternalRequired] = useState(defaultRequired);
+    // Controlled/Uncontrolled 상태 관리
+    const checkedState = useControlledState({
+      value: controlledChecked,
+      defaultValue: defaultChecked,
+      onChange: onCheckedChange,
+    });
 
-    // 제어된 상태인지 확인
-    const isControlled = controlledChecked !== undefined;
-    const isDisabledControlled = controlledDisabled !== undefined;
-    const checked = isControlled ? controlledChecked : internalChecked;
-    const disabled = isDisabledControlled
-      ? controlledDisabled
-      : internalDisabled;
+    const disabledState = useControlledState({
+      value: controlledDisabled,
+      defaultValue: defaultDisabled,
+      onChange: onDisabledChange,
+    });
+
+    const { value: checked } = checkedState;
+    const { value: disabled } = disabledState;
 
     // Checkbox ID 생성
     const checkboxId =
       id || `${idPrefix}-${Math.random().toString(36).substr(2, 9)}`;
 
     // Checkbox 훅 사용
-    const checkboxState = useCheckbox(checked, {
-      onCheckedChange: (newChecked) => {
-        if (isControlled) {
-          onCheckedChange?.(newChecked);
-        } else {
-          setInternalChecked(newChecked);
-        }
-      },
-      defaultChecked: checked,
-      defaultDisabled: disabled,
-      defaultReadOnly: internalReadOnly,
-      defaultRequired: internalRequired,
+    const checkboxState = useCheckbox({
+      checked,
+      disabled,
+      readOnly: defaultReadOnly,
+      required: defaultRequired,
+      onCheckedChange: checkedState.setValue,
       keyboardPress,
       pointerActivation,
       "aria-label": ariaLabel,
@@ -125,17 +125,17 @@ export const CheckboxRoot = React.forwardRef<HTMLDivElement, CheckboxRootProps>(
             disabled={disabled}
             readOnly={checkboxState.readOnly}
             required={checkboxState.required}
-            onChange={(e) => {
+            onChange={composeEventHandlers((e) => {
               if (!disabled && !checkboxState.readOnly) {
                 checkboxState.handlers.setChecked(e.target.checked);
               }
-            }}
-            onClick={(e) => {
+            }, externalOnChange)}
+            onClick={composeEventHandlers((e) => {
               if (disabled) {
                 e.preventDefault();
                 e.stopPropagation();
               }
-            }}
+            }, externalOnClick)}
             style={{
               ...defaultInputStyle,
             }}

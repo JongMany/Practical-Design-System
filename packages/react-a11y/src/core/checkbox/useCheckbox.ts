@@ -9,6 +9,14 @@ import { createCheckboxA11y, type CheckboxA11yOptions } from "@acme/a11y";
 export interface UseCheckboxOptions extends CheckboxA11yOptions {
   /** 체크 상태 변경 콜백 */
   onCheckedChange?: (checked: boolean) => void;
+  /** 현재 체크 상태 */
+  checked: boolean;
+  /** 현재 비활성화 상태 */
+  disabled: boolean;
+  /** 현재 읽기 전용 상태 */
+  readOnly: boolean;
+  /** 현재 필수 상태 */
+  required: boolean;
 }
 
 export interface UseCheckboxReturn {
@@ -43,23 +51,15 @@ export interface UseCheckboxReturn {
 /**
  * React용 Checkbox 훅
  */
-export function useCheckbox(
-  initialChecked: boolean = false,
-  options: UseCheckboxOptions = {}
-): UseCheckboxReturn {
-  const { onCheckedChange, ...a11yOptions } = options;
-
-  // 내부 상태 관리
-  const [checked, setChecked] = React.useState(initialChecked);
-  const [disabled, setDisabled] = React.useState(
-    options.defaultDisabled ?? false
-  );
-  const [readOnly, setReadOnly] = React.useState(
-    options.defaultReadOnly ?? false
-  );
-  const [required, setRequired] = React.useState(
-    options.defaultRequired ?? false
-  );
+export function useCheckbox(options: UseCheckboxOptions): UseCheckboxReturn {
+  const {
+    onCheckedChange,
+    checked,
+    disabled,
+    readOnly,
+    required,
+    ...a11yOptions
+  } = options;
 
   // a11y checkbox 상태 생성
   const checkboxState = React.useMemo(() => {
@@ -78,22 +78,20 @@ export function useCheckbox(
       toggle: () => {
         if (disabled || readOnly) return;
         const newChecked = !checked;
-        setChecked(newChecked);
         onCheckedChange?.(newChecked);
       },
       setChecked: (newChecked: boolean) => {
         if (disabled || readOnly) return;
-        setChecked(newChecked);
         onCheckedChange?.(newChecked);
       },
-      setDisabled: (newDisabled: boolean) => {
-        setDisabled(newDisabled);
+      setDisabled: () => {
+        // disabled 상태는 외부에서 관리되므로 빈 함수
       },
-      setReadOnly: (newReadOnly: boolean) => {
-        setReadOnly(newReadOnly);
+      setReadOnly: () => {
+        // readOnly 상태는 외부에서 관리되므로 빈 함수
       },
-      setRequired: (newRequired: boolean) => {
-        setRequired(newRequired);
+      setRequired: () => {
+        // required 상태는 외부에서 관리되므로 빈 함수
       },
     }),
     [checked, disabled, readOnly, onCheckedChange]
