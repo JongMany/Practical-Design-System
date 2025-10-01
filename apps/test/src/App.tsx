@@ -1,4 +1,10 @@
-import { Button, Card, Dialog, type DialogRootRef } from "@acme/react";
+import {
+  Button,
+  Card,
+  Dialog,
+  Checkbox,
+  type DialogRootRef,
+} from "@acme/react";
 import { useRef, useState } from "react";
 import "./App.css";
 
@@ -31,6 +37,18 @@ function App() {
   const setDialogStateExternally = (open: boolean) => {
     dialogRef.current?.setOpen(open);
   };
+
+  // Checkbox 상태 관리
+  const [checkboxStates, setCheckboxStates] = useState({
+    basic: false,
+    controlled: false,
+    disabled: false,
+  });
+
+  const handleCheckboxChange =
+    (key: keyof typeof checkboxStates) => (checked: boolean) => {
+      setCheckboxStates((prev) => ({ ...prev, [key]: checked }));
+    };
 
   return (
     <div className="app">
@@ -617,6 +635,122 @@ function App() {
               >
                 현재 상태: {controlledDialogOpen ? "열림" : "닫힘"}
               </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Checkbox Component */}
+        <section className="demo-section">
+          <h2>Checkbox Component</h2>
+          <div className="checkbox-showcase">
+            <div
+              style={{ display: "flex", flexDirection: "column", gap: "16px" }}
+            >
+              {/* 기본 Checkbox */}
+              <div
+                style={{ display: "flex", alignItems: "center", gap: "8px" }}
+              >
+                <Checkbox.Root
+                  className="CheckboxRoot"
+                  defaultChecked={false}
+                  id="c1"
+                  onCheckedChange={handleCheckboxChange("basic")}
+                >
+                  <Checkbox.Indicator className="CheckboxIndicator">
+                    ✓
+                  </Checkbox.Indicator>
+                </Checkbox.Root>
+                <label className="Label" htmlFor="c1">
+                  Accept terms and conditions.
+                </label>
+              </div>
+
+              {/* Controlled Checkbox */}
+              <div
+                style={{ display: "flex", alignItems: "center", gap: "8px" }}
+              >
+                <Checkbox.Root
+                  className="CheckboxRoot"
+                  checked={checkboxStates.controlled}
+                  id="c2"
+                  onCheckedChange={handleCheckboxChange("controlled")}
+                >
+                  <Checkbox.Indicator className="CheckboxIndicator">
+                    ✓
+                  </Checkbox.Indicator>
+                </Checkbox.Root>
+                <label className="Label" htmlFor="c2">
+                  Controlled checkbox (현재 상태:{" "}
+                  {checkboxStates.controlled ? "체크됨" : "체크 안됨"})
+                </label>
+              </div>
+
+              {/* Disabled Checkbox */}
+              <div
+                style={{ display: "flex", alignItems: "center", gap: "8px" }}
+              >
+                <Checkbox.Root className="CheckboxRoot" disabled={true} id="c4">
+                  <Checkbox.Indicator className="CheckboxIndicator">
+                    ✓
+                  </Checkbox.Indicator>
+                </Checkbox.Root>
+                <label className="Label" htmlFor="c4" style={{ opacity: 0.5 }}>
+                  Disabled checkbox
+                </label>
+              </div>
+
+              {/* ReadOnly Checkbox */}
+              <div
+                style={{ display: "flex", alignItems: "center", gap: "8px" }}
+              >
+                <Checkbox.Root
+                  className="CheckboxRoot"
+                  readOnly={true}
+                  defaultChecked={true}
+                  id="c5"
+                >
+                  <Checkbox.Indicator className="CheckboxIndicator">
+                    ✓
+                  </Checkbox.Indicator>
+                </Checkbox.Root>
+                <label className="Label" htmlFor="c5">
+                  ReadOnly checkbox
+                </label>
+              </div>
+
+              {/* Required Checkbox */}
+              <div
+                style={{ display: "flex", alignItems: "center", gap: "8px" }}
+              >
+                <Checkbox.Root className="CheckboxRoot" required={true} id="c6">
+                  <Checkbox.Indicator className="CheckboxIndicator">
+                    ✓
+                  </Checkbox.Indicator>
+                </Checkbox.Root>
+                <label className="Label" htmlFor="c6">
+                  Required checkbox *
+                </label>
+              </div>
+            </div>
+
+            {/* 상태 표시 */}
+            <div
+              style={{
+                marginTop: "24px",
+                padding: "16px",
+                backgroundColor: "#f5f5f5",
+                borderRadius: "8px",
+              }}
+            >
+              <h4>현재 Checkbox 상태들:</h4>
+              <ul>
+                <li>Basic: {checkboxStates.basic ? "체크됨" : "체크 안됨"}</li>
+                <li>
+                  Controlled:{" "}
+                  {checkboxStates.controlled ? "체크됨" : "체크 안됨"}
+                </li>
+                <li>Disabled: 항상 비활성화</li>
+              </ul>
             </div>
           </div>
         </section>

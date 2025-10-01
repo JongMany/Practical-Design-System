@@ -5,3 +5,4 @@ export * from "./core/focus/useFocusTrap";
 export * from "./core/relations/useAriaIds";
 export * from "./core/dialog/useDialog";
 export * from "./core/scroll/useScrollBlock";
+export * from "./core/checkbox/useCheckbox";
