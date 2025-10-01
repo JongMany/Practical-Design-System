@@ -22,7 +22,10 @@ export const DialogContent = React.forwardRef<
     maxWidth: "90vw",
     maxHeight: "90vh",
     overflow: "auto",
-    position: "relative",
+    position: "fixed",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
     zIndex: 1001,
     ...style,
   };

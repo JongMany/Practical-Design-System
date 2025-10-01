@@ -25,9 +25,6 @@ export const DialogOverlay = React.forwardRef<
     right: 0,
     bottom: 0,
     backgroundColor: "rgba(0, 0, 0, 0.5)",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
     zIndex: 1000,
     ...style,
   };

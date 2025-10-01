@@ -1,4 +1,4 @@
-import { Button, Card } from "@acme/react";
+import { Button, Card, Dialog } from "@acme/react";
 import "./App.css";
 
 function App() {
@@ -401,6 +401,27 @@ function App() {
                 </Card.Body>
               </a>
             </Card.Root>
+          </div>
+        </section>
+
+        {/* Dialog Component */}
+        <section className="demo-section">
+          <h2>Dialog Component</h2>
+          <div className="dialog-showcase">
+            <Dialog.Root>
+              <Dialog.Trigger>다이얼로그 열기</Dialog.Trigger>
+              <Dialog.Portal>
+                <Dialog.Overlay />
+                <Dialog.Content>
+                  <Dialog.Title>다이얼로그 제목</Dialog.Title>
+                  <Dialog.Description>
+                    이것은 다이얼로그의 설명입니다. 사용자에게 중요한 정보를
+                    전달합니다.
+                  </Dialog.Description>
+                  <Dialog.Close>닫기</Dialog.Close>
+                </Dialog.Content>
+              </Dialog.Portal>
+            </Dialog.Root>
           </div>
         </section>
       </main>

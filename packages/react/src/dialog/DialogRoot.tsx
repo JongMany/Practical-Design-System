@@ -61,6 +61,43 @@ export const DialogRoot = React.forwardRef<HTMLDivElement, DialogRootProps>(
       [isControlled, onOpenChange]
     );
 
+    // Dialog 열림/닫힘 시 body 스타일 관리
+    React.useEffect(() => {
+      if (isOpen && preventScroll) {
+        // 이전 스타일 저장
+        const previousOverflow = document.body.style.overflow;
+        const previousPaddingRight = document.body.style.paddingRight;
+        const previousPosition = document.body.style.position;
+
+        // body 스타일 적용
+        document.body.style.overflow = "hidden";
+        document.body.style.paddingRight = `${window.innerWidth - document.documentElement.clientWidth}px`;
+        document.body.style.position = "relative";
+
+        // cleanup 함수
+        return () => {
+          document.body.style.overflow = previousOverflow;
+          document.body.style.paddingRight = previousPaddingRight;
+          document.body.style.position = previousPosition;
+        };
+      }
+    }, [isOpen, preventScroll]);
+
+    // Escape 키 이벤트 리스너
+    React.useEffect(() => {
+      if (!isOpen || !closeOnEscape) return;
+
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === "Escape") {
+          e.preventDefault();
+          handleOpenChange(false);
+        }
+      };
+
+      document.addEventListener("keydown", handleKeyDown);
+      return () => document.removeEventListener("keydown", handleKeyDown);
+    }, [isOpen, closeOnEscape, handleOpenChange]);
+
     // Dialog 상태를 Context로 전달
     const dialogContext = React.useMemo(
       () => ({

@@ -101,8 +101,11 @@ export function createDialogA11y(
   // 이전 포커스 요소 저장
   let previouslyFocusedElement: HTMLElement | null = null;
   // 이전 body 스타일 저장
-  let previousBodyStyle: { overflow: string; paddingRight: string } | null =
-    null;
+  let previousBodyStyle: {
+    overflow: string;
+    paddingRight: string;
+    position: string;
+  } | null = null;
 
   const open = () => {
     if (baseState.isOpen) return;
@@ -110,14 +113,16 @@ export function createDialogA11y(
     previouslyFocusedElement = document.activeElement as HTMLElement;
     baseState.open();
 
-    // 스크롤 방지
+    // 스크롤 방지 및 body position 설정
     if (preventScroll) {
       previousBodyStyle = {
         overflow: document.body.style.overflow,
         paddingRight: document.body.style.paddingRight,
+        position: document.body.style.position,
       };
       document.body.style.overflow = "hidden";
       document.body.style.paddingRight = `${window.innerWidth - document.documentElement.clientWidth}px`; // 스크롤바 공간 보정
+      document.body.style.position = "relative"; // body에 relative 추가
     }
 
     // 포커스 트랩 활성화
@@ -146,6 +151,7 @@ export function createDialogA11y(
     if (preventScroll && previousBodyStyle) {
       document.body.style.overflow = previousBodyStyle.overflow;
       document.body.style.paddingRight = previousBodyStyle.paddingRight;
+      document.body.style.position = previousBodyStyle.position;
       previousBodyStyle = null;
     }
 
