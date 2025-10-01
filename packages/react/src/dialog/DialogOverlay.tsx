@@ -56,6 +56,9 @@ export const DialogOverlay = React.forwardRef<
       style={{
         ...defaultOverlayStyles,
         ...style,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
       }}
       {...restOverlayProps}
       {...rest}

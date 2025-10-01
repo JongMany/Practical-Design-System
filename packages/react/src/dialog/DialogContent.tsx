@@ -13,10 +13,7 @@ const defaultContentStyles: React.CSSProperties = {
   maxWidth: "90vw",
   maxHeight: "90vh",
   overflow: "auto",
-  position: "fixed",
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
+  position: "relative",
   zIndex: 1001,
 };
 

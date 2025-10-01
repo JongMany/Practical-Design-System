@@ -2,6 +2,22 @@ import React from "react";
 import type { PolymorphicProp } from "../types/polymorphic";
 
 /**
+ * Dialog Root의 외부 제어 인터페이스
+ */
+export interface DialogRootRef {
+  /** Dialog 열기 */
+  open: () => void;
+  /** Dialog 닫기 */
+  close: () => void;
+  /** Dialog 토글 */
+  toggle: () => void;
+  /** 현재 열림 상태 */
+  isOpen: boolean;
+  /** Dialog 상태 강제 설정 */
+  setOpen: (open: boolean) => void;
+}
+
+/**
  * Dialog Root 컴포넌트의 props 타입
  */
 export type DialogRootProps = React.PropsWithChildren<{

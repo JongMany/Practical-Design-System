@@ -1,13 +1,13 @@
 import React from "react";
 import { useDialog, useEscapeToClose, useScrollBlock } from "@acme/react-a11y";
 import { DialogProvider } from "./context";
-import type { DialogRootProps } from "./types";
+import type { DialogRootProps, DialogRootRef } from "./types";
 
 /**
  * Dialog Root 컴포넌트
  * Dialog의 상태를 관리하고 Context Provider를 통해 하위 컴포넌트에 전달합니다.
  */
-export const DialogRoot = React.forwardRef<HTMLDivElement, DialogRootProps>(
+export const DialogRoot = React.forwardRef<DialogRootRef, DialogRootProps>(
   (
     {
       open: controlledOpen,
@@ -28,6 +28,8 @@ export const DialogRoot = React.forwardRef<HTMLDivElement, DialogRootProps>(
     },
     ref
   ) => {
+    // DOM 요소를 위한 ref
+    const domRef = React.useRef<HTMLDivElement>(null);
     // 내부 상태 관리
     const [internalOpen, setInternalOpen] = React.useState(defaultOpen);
 
@@ -60,6 +62,35 @@ export const DialogRoot = React.forwardRef<HTMLDivElement, DialogRootProps>(
       },
       [isControlled, onOpenChange]
     );
+
+    // 외부에서 Dialog 상태를 제어할 수 있도록 ref 노출
+    React.useImperativeHandle(
+      ref,
+      () => ({
+        open: () => handleOpenChange(true),
+        close: () => handleOpenChange(false),
+        toggle: () => handleOpenChange(!isOpen),
+        isOpen,
+        setOpen: handleOpenChange,
+      }),
+      [handleOpenChange, isOpen]
+    );
+
+    // 외부에서 controlledOpen이 변경될 때 내부 상태 동기화
+    React.useEffect(() => {
+      if (isControlled && controlledOpen !== undefined) {
+        // 외부에서 상태가 변경된 경우, 내부 상태도 동기화
+        // (uncontrolled 모드에서 controlled 모드로 전환될 때)
+        if (controlledOpen !== internalOpen) {
+          setInternalOpen(controlledOpen);
+        }
+      }
+    }, [isControlled, controlledOpen, internalOpen]);
+
+    // DOM ref와 외부 ref를 병합 (useImperativeHandle과 분리)
+    const mergedRef = React.useCallback((node: HTMLDivElement | null) => {
+      domRef.current = node;
+    }, []);
 
     // 스크롤 방지 처리
     useScrollBlock(isOpen, {
@@ -102,7 +133,7 @@ export const DialogRoot = React.forwardRef<HTMLDivElement, DialogRootProps>(
 
     return (
       <DialogProvider {...dialogContext}>
-        <div ref={ref} {...rest}>
+        <div ref={mergedRef} {...rest}>
           {children}
         </div>
       </DialogProvider>

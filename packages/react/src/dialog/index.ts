@@ -7,6 +7,9 @@ import { DialogClose } from "./DialogClose";
 import { DialogTrigger } from "./DialogTrigger";
 import { DialogPortal } from "./DialogPortal";
 
+// 타입 export
+export type { DialogRootRef } from "./types";
+
 const Dialog = Object.assign(
   {},
   {
