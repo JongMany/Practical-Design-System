@@ -1,6 +1,7 @@
 import React from "react";
 import { useDialog, useEscapeToClose, useScrollBlock } from "@acme/react-a11y";
 import { DialogProvider } from "./context";
+import { useControlledState } from "../hooks/useControlledState";
 import type { DialogRootProps, DialogRootRef } from "./types";
 
 /**
@@ -30,12 +31,15 @@ export const DialogRoot = React.forwardRef<DialogRootRef, DialogRootProps>(
   ) => {
     // DOM 요소를 위한 ref
     const domRef = React.useRef<HTMLDivElement>(null);
-    // 내부 상태 관리
-    const [internalOpen, setInternalOpen] = React.useState(defaultOpen);
 
-    // 제어된 상태인지 확인
-    const isControlled = controlledOpen !== undefined;
-    const isOpen = isControlled ? controlledOpen : internalOpen;
+    // Controlled/Uncontrolled 상태 관리
+    const openState = useControlledState({
+      value: controlledOpen,
+      defaultValue: defaultOpen,
+      onChange: onOpenChange,
+    });
+
+    const { value: isOpen } = openState;
 
     // Dialog 훅 사용
     const dialogState = useDialog(isOpen, {
@@ -52,16 +56,7 @@ export const DialogRoot = React.forwardRef<DialogRootRef, DialogRootProps>(
     });
 
     // 상태 변경 핸들러
-    const handleOpenChange = React.useCallback(
-      (newOpen: boolean) => {
-        if (isControlled) {
-          onOpenChange?.(newOpen);
-        } else {
-          setInternalOpen(newOpen);
-        }
-      },
-      [isControlled, onOpenChange]
-    );
+    const handleOpenChange = openState.setValue;
 
     // 외부에서 Dialog 상태를 제어할 수 있도록 ref 노출
     React.useImperativeHandle(
@@ -76,16 +71,7 @@ export const DialogRoot = React.forwardRef<DialogRootRef, DialogRootProps>(
       [handleOpenChange, isOpen]
     );
 
-    // 외부에서 controlledOpen이 변경될 때 내부 상태 동기화
-    React.useEffect(() => {
-      if (isControlled && controlledOpen !== undefined) {
-        // 외부에서 상태가 변경된 경우, 내부 상태도 동기화
-        // (uncontrolled 모드에서 controlled 모드로 전환될 때)
-        if (controlledOpen !== internalOpen) {
-          setInternalOpen(controlledOpen);
-        }
-      }
-    }, [isControlled, controlledOpen, internalOpen]);
+    // useControlledState가 자동으로 동기화를 처리하므로 별도 useEffect 불필요
 
     // DOM ref와 외부 ref를 병합 (useImperativeHandle과 분리)
     const mergedRef = React.useCallback((node: HTMLDivElement | null) => {

@@ -5,7 +5,7 @@
 import React, { CSSProperties } from "react";
 import { useCheckbox } from "@acme/react-a11y";
 import { CheckboxProvider } from "./context";
-import { useControlledState } from "./useControlledState";
+import { useControlledState } from "../hooks/useControlledState";
 import { composeEventHandlers } from "../utils/composeEventHandlers";
 import type { CheckboxRootProps } from "./types";
 
