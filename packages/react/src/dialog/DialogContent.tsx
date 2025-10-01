@@ -1,6 +1,7 @@
 import React from "react";
 import { DIALOG_CONTEXT_NAME, useDialogContext } from "./context";
 import { Slot } from "../utils/Slot";
+import { mergeRefs } from "../utils/mergeRefs";
 import type { DialogContentProps } from "./types";
 
 /**
@@ -30,24 +31,8 @@ export const DialogContent = React.forwardRef<
     ...style,
   };
 
-  // ref 병합 함수
-  const mergedRef = React.useCallback(
-    (node: HTMLDivElement | null) => {
-      // 외부 ref 설정
-      if (typeof ref === "function") {
-        ref(node);
-      } else if (ref) {
-        ref.current = node;
-      }
-
-      // dialogRef 설정
-      if (dialogRef.current !== node) {
-        (dialogRef as React.MutableRefObject<HTMLElement | null>).current =
-          node;
-      }
-    },
-    [ref, dialogRef]
-  );
+  // ref 병합 - mergeRefs 유틸리티 사용
+  const mergedRef = mergeRefs(ref, dialogRef);
 
   if (asChild) {
     return (

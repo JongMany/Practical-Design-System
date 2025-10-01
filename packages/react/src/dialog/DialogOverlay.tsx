@@ -1,6 +1,7 @@
 import React from "react";
 import { DIALOG_CONTEXT_NAME, useDialogContext } from "./context";
 import { Slot } from "../utils/Slot";
+import { mergeRefs } from "../utils/mergeRefs";
 import type { DialogOverlayProps } from "./types";
 
 /**
@@ -11,11 +12,17 @@ export const DialogOverlay = React.forwardRef<
   HTMLDivElement,
   DialogOverlayProps
 >(({ asChild = false, children, style, ...rest }, ref) => {
-  const { getOverlayProps } = useDialogContext(DIALOG_CONTEXT_NAME);
+  const { getOverlayProps, overlayRef } = useDialogContext(DIALOG_CONTEXT_NAME);
 
+  const mergedRef = mergeRefs(ref, overlayRef);
+
+  // getOverlayProps에서 onClick 핸들러 가져오기
   const overlayProps = getOverlayProps();
+  const { onClick: overlayOnClick, ...restOverlayProps } = overlayProps;
+
   const handleOverlayClick = (e: React.MouseEvent) => {
-    overlayProps.onClick(e.nativeEvent);
+    // getOverlayProps에서 가져온 핸들러 사용
+    overlayOnClick?.(e.nativeEvent);
   };
 
   const overlayStyles: React.CSSProperties = {
@@ -32,10 +39,10 @@ export const DialogOverlay = React.forwardRef<
   if (asChild) {
     return (
       <Slot
-        ref={ref}
-        {...overlayProps}
+        ref={mergedRef}
         onClick={handleOverlayClick}
         style={overlayStyles}
+        {...restOverlayProps}
         {...rest}
       >
         {children}
@@ -45,10 +52,10 @@ export const DialogOverlay = React.forwardRef<
 
   return (
     <div
-      ref={ref}
-      {...overlayProps}
+      ref={mergedRef}
       onClick={handleOverlayClick}
       style={overlayStyles}
+      {...restOverlayProps}
       {...rest}
     >
       {children}

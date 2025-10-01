@@ -16,7 +16,7 @@ export const DialogRoot = React.forwardRef<HTMLDivElement, DialogRootProps>(
       autoFocus = true,
       restoreFocus = true,
       preventScroll = true,
-      closeOnOutsideClick = false,
+      closeOnOutsideClick = true,
       closeOnEscape = true,
       focusTrap = true,
       "aria-label": ariaLabel,
@@ -105,8 +105,18 @@ export const DialogRoot = React.forwardRef<HTMLDivElement, DialogRootProps>(
         open: () => handleOpenChange(true),
         close: () => handleOpenChange(false),
         toggle: () => handleOpenChange(!isOpen),
+        getOverlayProps: () => ({
+          onClick: (e: MouseEvent) => {
+            if (
+              closeOnOutsideClick &&
+              dialogState.overlayRef.current === e.target
+            ) {
+              handleOpenChange(false);
+            }
+          },
+        }),
       }),
-      [dialogState, handleOpenChange, isOpen]
+      [dialogState, handleOpenChange, isOpen, closeOnOutsideClick]
     );
 
     return (
