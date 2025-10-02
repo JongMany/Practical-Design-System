@@ -64,7 +64,7 @@ function App() {
         <section className="demo-section">
           <h2>Button Component</h2>
           <div className="button-showcase">
-            <Button onPress={() => console.log("React button clicked")}>
+            <Button onClick={() => console.log("React button clicked")}>
               버튼 컴포넌트
             </Button>
             <Button>d</Button>
@@ -231,13 +231,12 @@ function App() {
               </button>
             </div>
             <div className="button-group">
-              <Button onPress={() => console.log("React button clicked")}>
+              <Button onClick={() => console.log("React button clicked")}>
                 React Component
               </Button>
               <Button
                 leftIcon="🔍"
                 rightIcon="→"
-                onPress={() => console.log("Button with icons clicked")}
                 onClick={() => console.log("Button with icons clicked")}
               >
                 아이콘 버튼
@@ -318,7 +317,7 @@ function App() {
                 <p>카드의 본문 내용이 여기에 들어갑니다.</p>
               </Card.Body>
               <Card.Footer>
-                <Button onPress={() => console.log("Card action clicked")}>
+                <Button onClick={() => console.log("Card action clicked")}>
                   액션 버튼
                 </Button>
               </Card.Footer>

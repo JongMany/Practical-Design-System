@@ -5,8 +5,10 @@
 export interface PointerActivationOptions {
   /** 비활성화 상태 */
   disabled?: boolean;
-  /** 포인터 활성화 이벤트 핸들러 */
-  onPointerActivate?: (event: MouseEvent | TouchEvent) => void;
+  /** 마우스 클릭 이벤트 핸들러 */
+  onClick?: (event: MouseEvent) => void;
+  /** 터치 엔드 이벤트 핸들러 */
+  onTouchEnd?: (event: TouchEvent) => void;
 }
 
 export interface PointerActivationHandlers {
@@ -31,7 +33,7 @@ export interface PointerActivationHandlers {
 export function createPointerActivationHandlers(
   options: PointerActivationOptions = {}
 ): PointerActivationHandlers {
-  const { disabled = false, onPointerActivate } = options;
+  const { disabled = false, onClick, onTouchEnd } = options;
 
   return {
     role: "button",
@@ -39,12 +41,12 @@ export function createPointerActivationHandlers(
     "aria-disabled": disabled || undefined,
     onClick(e) {
       if (!disabled) {
-        onPointerActivate?.(e);
+        onClick?.(e);
       }
     },
     onTouchEnd(e) {
       if (!disabled) {
-        onPointerActivate?.(e);
+        onTouchEnd?.(e);
       }
     },
   };

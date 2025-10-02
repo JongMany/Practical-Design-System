@@ -2,8 +2,6 @@
  * 이벤트 관련 기본 유틸리티 함수들
  */
 
-export type KeyboardEventType = "keydown" | "keyup" | "keypress";
-
 /**
  * 키보드 이벤트가 특정 키인지 확인
  */

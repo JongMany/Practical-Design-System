@@ -10,7 +10,7 @@ import { DialogPortal } from "./DialogPortal";
 // 타입 export
 export type { DialogRootRef } from "./types";
 
-const Dialog = Object.assign(
+export const Dialog = Object.assign(
   {},
   {
     Root: DialogRoot,
@@ -23,5 +23,3 @@ const Dialog = Object.assign(
     Portal: DialogPortal,
   }
 );
-
-export default Dialog;

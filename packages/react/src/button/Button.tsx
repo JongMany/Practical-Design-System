@@ -12,7 +12,6 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       size = "md",
       disabled,
       loading,
-      onPress,
       onTouchEnd,
       children,
       leftIcon,
@@ -26,13 +25,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ) => {
     const pointerActivation = usePointerActivation({
       disabled: disabled || loading,
-      onPointerActivate: onPress
-        ? (e) => {
-            // MouseEvent 또는 TouchEvent를 { type: "click" | "keyboard" } 형태로 변환
-            const eventType = e instanceof MouseEvent ? "click" : "click";
-            onPress({ type: eventType });
-          }
-        : undefined,
+      onClick: onClick,
     });
 
     // 이벤트 핸들러 조합
@@ -59,6 +52,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         disabled={disabled || loading}
         onClick={handleClick}
         onTouchEnd={handleTouchEnd}
+        onKeyDown={onKeyDown}
         style={{
           ...buttonStyles,
           ...pointerActivation.style,

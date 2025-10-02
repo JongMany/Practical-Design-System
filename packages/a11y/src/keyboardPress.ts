@@ -12,10 +12,7 @@ export interface KeyboardPressA11yOptions extends KeyboardPressOptions {
   /** 키 조합 지원 (예: Ctrl+Enter) */
   keyCombinations?: string[][];
   /** 키 조합 이벤트 핸들러 */
-  onKeyCombination?: (event: {
-    type: "keyboard";
-    combination: string[];
-  }) => void;
+  onKeyCombination?: (event: KeyboardEvent, combination: string[]) => void;
 }
 
 export interface KeyboardPressA11yHandlers extends KeyboardPressHandlers {
@@ -69,7 +66,7 @@ export function createKeyboardPressA11yHandlers(
         JSON.stringify(currentCombination) === JSON.stringify(sortedCombination)
       ) {
         e.preventDefault();
-        onKeyCombination?.({ type: "keyboard", combination });
+        onKeyCombination?.(e, combination);
         return;
       }
     }
@@ -80,7 +77,7 @@ export function createKeyboardPressA11yHandlers(
 
     if (allKeys.includes(e.key)) {
       e.preventDefault();
-      baseOptions.onKeyboardPress?.(e);
+      baseOptions.onKeyDown?.(e);
     }
   };
 

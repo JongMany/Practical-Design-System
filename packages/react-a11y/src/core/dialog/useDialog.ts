@@ -47,6 +47,7 @@ export function useDialog(
     overlayRef,
     getDialogProps: dialogState.getDialogProps,
     getOverlayProps: dialogState.getOverlayProps,
+    getKeyboardProps: dialogState.getKeyboardProps,
     getTitleProps: dialogState.getTitleProps,
     getDescriptionProps: dialogState.getDescriptionProps,
   };

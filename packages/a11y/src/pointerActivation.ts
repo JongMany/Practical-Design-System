@@ -10,7 +10,7 @@ export interface PointerActivationA11yOptions extends PointerActivationOptions {
   /** 장시간 누름 지연 시간 (ms) */
   longPressDelay?: number;
   /** 장시간 누름 이벤트 핸들러 */
-  onLongPress?: (event: { type: "longpress" }) => void;
+  onLongPress?: (event: MouseEvent | TouchEvent) => void;
   /** 연속 클릭/터치 방지 여부 */
   preventDoubleActivation?: boolean;
   /** 연속 클릭/터치 방지 지연 시간 (ms) */
@@ -61,6 +61,7 @@ export function createPointerActivationA11yHandlers(
   let longPressTimer: number | null = null;
   let lastActivationTime = 0;
   let isLongPressing = false;
+  let lastEvent: MouseEvent | TouchEvent | null = null;
 
   const clearLongPressTimer = () => {
     if (longPressTimer) {
@@ -69,13 +70,16 @@ export function createPointerActivationA11yHandlers(
     }
   };
 
-  const startLongPressTimer = () => {
+  const startLongPressTimer = (event: MouseEvent | TouchEvent) => {
     if (!longPress || !onLongPress) return;
 
+    lastEvent = event;
     clearLongPressTimer();
     longPressTimer = window.setTimeout(() => {
       isLongPressing = true;
-      onLongPress({ type: "longpress" });
+      if (lastEvent) {
+        onLongPress(lastEvent);
+      }
     }, longPressDelay);
   };
 
@@ -91,7 +95,11 @@ export function createPointerActivationA11yHandlers(
 
     // 장시간 누름이 아닌 경우에만 일반 활성화 실행
     if (!isLongPressing) {
-      baseOptions.onPointerActivate?.(event);
+      if (event instanceof MouseEvent) {
+        baseOptions.onClick?.(event);
+      } else if (event instanceof TouchEvent) {
+        baseOptions.onTouchEnd?.(event);
+      }
     }
 
     // 상태 초기화
@@ -110,7 +118,7 @@ export function createPointerActivationA11yHandlers(
     },
     onMouseDown(e) {
       if (baseOptions.disabled) return;
-      startLongPressTimer();
+      startLongPressTimer(e);
     },
     onMouseUp(e) {
       if (baseOptions.disabled) return;
@@ -123,7 +131,7 @@ export function createPointerActivationA11yHandlers(
     },
     onTouchStart(e) {
       if (baseOptions.disabled) return;
-      startLongPressTimer();
+      startLongPressTimer(e);
     },
     onTouchCancel(e) {
       if (baseOptions.disabled) return;

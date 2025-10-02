@@ -83,14 +83,7 @@ const CardRoot = React.forwardRef<HTMLElement, CardProps>(
 
     const pointerActivation = usePointerActivation({
       disabled: disabled || action === "none",
-      onPointerActivate: onTouchEnd
-        ? (e) => {
-            // TouchEvent만 onTouchEnd에 전달
-            if (e instanceof TouchEvent) {
-              onTouchEnd(e);
-            }
-          }
-        : undefined,
+      onTouchEnd: onTouchEnd,
     });
 
     // ARIA 역할 및 인터랙션 상태 계산
@@ -126,13 +119,6 @@ const CardRoot = React.forwardRef<HTMLElement, CardProps>(
 
     const externalPointerActivation = usePointerActivation({
       disabled: disabled || action === "none",
-      onPointerActivate: onPress
-        ? (e) => {
-            // MouseEvent 또는 TouchEvent를 { type: "click" | "touch" } 형태로 변환
-            const eventType = e instanceof MouseEvent ? "click" : "touch";
-            onPress({ type: eventType });
-          }
-        : undefined,
     });
 
     // 이벤트 핸들러 조합

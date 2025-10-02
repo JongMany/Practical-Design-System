@@ -87,7 +87,7 @@ export function createCheckboxA11y(
   // 키보드 활성화 핸들러 생성 (기존 a11y 기능 재사용)
   const keyboardHandlers = createKeyboardPressA11yHandlers({
     disabled: currentState.disabled,
-    onKeyboardPress: (event) => {
+    onKeyDown: (event) => {
       // 키보드 이벤트는 실제 DOM 이벤트에서 처리
       handlers.toggle();
     },
@@ -99,7 +99,10 @@ export function createCheckboxA11y(
   // 포인터 활성화 핸들러 생성 (기존 a11y 기능 재사용)
   const pointerHandlers = createPointerActivationA11yHandlers({
     disabled: currentState.disabled,
-    onPointerActivate: (event) => {
+    onClick: (event) => {
+      handlers.toggle();
+    },
+    onTouchEnd: (event) => {
       handlers.toggle();
     },
     longPress: pointerActivation.longPress ?? false,

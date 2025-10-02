@@ -5,9 +5,47 @@ import {
   preventDefaultAndStopPropagation,
 } from "@acme/core";
 
-export function createRovingFocus(opts: {
+/**
+ * Roving Tab Index 옵션
+ */
+export interface RovingFocusOptions {
+  /** 포커스 이동 방향 */
   orientation: "horizontal" | "vertical" | "both";
-}) {
+}
+
+/**
+ * Roving Tab Index 핸들러 인터페이스
+ */
+export interface RovingFocusHandlers {
+  /** 요소를 roving focus에 등록 */
+  register: (node: HTMLElement) => void;
+  /** 요소를 roving focus에서 제거 */
+  unregister: (node: HTMLElement) => void;
+  /** 키보드 이벤트 핸들러 */
+  onKeyDown: (e: KeyboardEvent) => void;
+}
+
+/**
+ * Roving Tab Index 기능을 제공하는 핸들러를 생성합니다.
+ *
+ * @param opts - Roving focus 옵션
+ * @returns Roving focus 핸들러 객체
+ *
+ * @example
+ * ```typescript
+ * const rovingFocus = createRovingFocus({ orientation: "horizontal" });
+ *
+ * // 요소 등록
+ * rovingFocus.register(element1);
+ * rovingFocus.register(element2);
+ *
+ * // 키보드 이벤트 핸들러 연결
+ * container.addEventListener('keydown', rovingFocus.onKeyDown);
+ * ```
+ */
+export function createRovingFocus(
+  opts: RovingFocusOptions
+): RovingFocusHandlers {
   let current = 0;
   let items: HTMLElement[] = [];
 
@@ -21,11 +59,11 @@ export function createRovingFocus(opts: {
   };
 
   return {
-    register(node: HTMLElement) {
+    register(node: HTMLElement): void {
       items.push(node);
       node.tabIndex = items.length === 1 ? 0 : -1;
     },
-    unregister(node: HTMLElement) {
+    unregister(node: HTMLElement): void {
       const index = items.indexOf(node);
       items = items.filter((n) => n !== node);
 
@@ -37,7 +75,7 @@ export function createRovingFocus(opts: {
         }
       }
     },
-    onKeyDown(e: KeyboardEvent) {
+    onKeyDown(e: KeyboardEvent): void {
       const horiz = opts.orientation !== "vertical";
       const vert = opts.orientation !== "horizontal";
 

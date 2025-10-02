@@ -40,6 +40,10 @@ export interface DialogA11yState extends DialogState {
   getOverlayProps(): {
     onClick: (e: MouseEvent) => void;
   };
+  /** Dialog에 적용할 키보드 이벤트 핸들러 */
+  getKeyboardProps(): {
+    onKeyDown: (e: KeyboardEvent) => void;
+  };
   /** Dialog 제목에 적용할 ARIA 속성 */
   getTitleProps(): {
     id: string;
@@ -205,6 +209,9 @@ export function createDialogA11y(
     }),
     getOverlayProps: () => ({
       onClick: handleOverlayClick,
+    }),
+    getKeyboardProps: () => ({
+      onKeyDown: handleKeyDown,
     }),
     getTitleProps: () => ({
       id: titleId,

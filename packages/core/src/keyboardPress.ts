@@ -5,8 +5,8 @@
 export interface KeyboardPressOptions {
   /** 비활성화 상태 */
   disabled?: boolean;
-  /** 키보드 활성화 이벤트 핸들러 */
-  onKeyboardPress?: (event: KeyboardEvent) => void;
+  /** 키보드 이벤트 핸들러 */
+  onKeyDown?: (event: KeyboardEvent) => void;
   /** 추가 키보드 키 지원 */
   additionalKeys?: string[];
 }
@@ -31,7 +31,7 @@ export interface KeyboardPressHandlers {
 export function createKeyboardPressHandlers(
   options: KeyboardPressOptions = {}
 ): KeyboardPressHandlers {
-  const { disabled = false, onKeyboardPress, additionalKeys = [] } = options;
+  const { disabled = false, onKeyDown, additionalKeys = [] } = options;
 
   // 기본 활성화 키들 (Enter, Space)
   const activationKeys = ["Enter", " "];
@@ -48,7 +48,7 @@ export function createKeyboardPressHandlers(
       // 지원하는 키인지 확인
       if (allKeys.includes(e.key)) {
         e.preventDefault();
-        onKeyboardPress?.(e);
+        onKeyDown?.(e);
       }
     },
   };
