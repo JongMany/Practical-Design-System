@@ -5,3 +5,4 @@ export * from "./dialog";
 export * from "./checkbox";
 export * from "./dom";
 export * from "./events";
+export * from "./form";

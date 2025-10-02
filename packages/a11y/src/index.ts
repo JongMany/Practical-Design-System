@@ -9,3 +9,4 @@ export * from "./keyboardPress";
 export * from "./pointerActivation";
 export * from "./dialog";
 export * from "./checkbox";
+export * from "./form";

@@ -646,7 +646,7 @@ function App() {
               {/* 기본 Checkbox */}
               <Checkbox.Root
                 className="CheckboxRoot"
-                defaultChecked={false}
+                checked={checkboxStates.basic}
                 id="c1"
                 onCheckedChange={handleCheckboxChange("basic")}
               >
