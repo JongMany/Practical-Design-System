@@ -65,6 +65,51 @@ export interface FormA11yOptions {
   };
 }
 
+// 타입 안전한 props 인터페이스들 - useForm과 일치
+interface FormProps {
+  onSubmit?: (event: Event) => void;
+  noValidate?: boolean;
+  [key: string]: unknown;
+}
+
+interface FieldProps {
+  id?: string;
+  name?: string;
+  "aria-invalid"?: boolean;
+  "aria-required"?: boolean;
+  "aria-describedby"?: string;
+  [key: string]: unknown;
+}
+
+interface FieldLabelProps {
+  htmlFor?: string;
+  id?: string;
+  [key: string]: unknown;
+}
+
+interface FieldErrorProps {
+  id?: string;
+  role?: "alert";
+  "aria-live"?: "polite";
+  [key: string]: unknown;
+}
+
+interface FieldDescriptionProps {
+  id?: string;
+  [key: string]: unknown;
+}
+
+interface FieldKeyboardProps {
+  onKeyDown?: (event: KeyboardEvent) => void;
+  [key: string]: unknown;
+}
+
+interface FieldPointerProps {
+  onClick?: (event: MouseEvent) => void;
+  onTouchEnd?: (event: TouchEvent) => void;
+  [key: string]: unknown;
+}
+
 export interface FormA11yState {
   /** Form 데이터 */
   formData: FormData;
@@ -93,19 +138,19 @@ export interface FormA11yState {
     onSubmit: (values: Record<string, string>) => void | Promise<void>
   ) => void;
   /** Form에 적용할 ARIA 속성 */
-  getFormProps: () => Record<string, any>;
+  getFormProps: () => FormProps;
   /** 필드에 적용할 ARIA 속성 */
-  getFieldProps: (fieldName: string) => Record<string, any>;
+  getFieldProps: (fieldName: string) => FieldProps;
   /** 필드 라벨에 적용할 ARIA 속성 */
-  getFieldLabelProps: (fieldName: string) => Record<string, any>;
+  getFieldLabelProps: (fieldName: string) => FieldLabelProps;
   /** 필드 에러에 적용할 ARIA 속성 */
-  getFieldErrorProps: (fieldName: string) => Record<string, any>;
+  getFieldErrorProps: (fieldName: string) => FieldErrorProps;
   /** 필드 설명에 적용할 ARIA 속성 */
-  getFieldDescriptionProps: (fieldName: string) => Record<string, any>;
+  getFieldDescriptionProps: (fieldName: string) => FieldDescriptionProps;
   /** 필드에 적용할 키보드 이벤트 핸들러 */
-  getFieldKeyboardProps: (fieldName: string) => Record<string, any>;
+  getFieldKeyboardProps: (fieldName: string) => FieldKeyboardProps;
   /** 필드에 적용할 포인터 이벤트 핸들러 */
-  getFieldPointerProps: (fieldName: string) => Record<string, any>;
+  getFieldPointerProps: (fieldName: string) => FieldPointerProps;
 }
 
 /**
@@ -257,7 +302,12 @@ export function createFormA11y(options: FormA11yOptions): FormA11yState {
   };
 
   // Form ARIA 속성 생성
-  const getFormProps = () => ({
+  const getFormProps = (): FormProps => ({
+    onSubmit: (event: Event) => {
+      event.preventDefault();
+      // Form 제출 로직은 submitForm에서 처리
+    },
+    noValidate: true,
     role: "form",
     "aria-label": ariaOptions["aria-label"],
     "aria-labelledby": ariaOptions["aria-labelledby"] || formLabelId,
@@ -266,32 +316,59 @@ export function createFormA11y(options: FormA11yOptions): FormA11yState {
   });
 
   // 필드 ARIA 속성 생성
-  const getFieldProps = (fieldName: string) => {
-    if (!fields.includes(fieldName)) return {};
+  const getFieldProps = (fieldName: string): FieldProps => {
+    if (!fields.includes(fieldName)) {
+      return {
+        id: "",
+        name: "",
+        "aria-invalid": false,
+        "aria-required": false,
+        "aria-describedby": "",
+      };
+    }
 
     const field = formData[fieldName];
     const fieldId = fieldIds[fieldName];
-    if (!fieldId) return {};
+    if (!fieldId) {
+      return {
+        id: "",
+        name: "",
+        "aria-invalid": false,
+        "aria-required": false,
+        "aria-describedby": "",
+      };
+    }
 
     const hasError = hasFormFieldError(formData, fieldName);
     const errorId = hasError ? fieldId.error : undefined;
 
     return {
       id: fieldId.input,
-      "aria-invalid": hasError || undefined,
+      name: fieldName,
+      "aria-invalid": hasError || false,
       "aria-describedby":
-        [errorId, fieldId.desc].filter(Boolean).join(" ") || undefined,
+        [errorId, fieldId.desc].filter(Boolean).join(" ") || "",
       "aria-required":
-        fieldValidators[fieldName] === validators.required || undefined,
+        fieldValidators[fieldName] === validators.required || false,
     };
   };
 
   // 필드 라벨 ARIA 속성 생성
-  const getFieldLabelProps = (fieldName: string) => {
-    if (!fields.includes(fieldName)) return {};
+  const getFieldLabelProps = (fieldName: string): FieldLabelProps => {
+    if (!fields.includes(fieldName)) {
+      return {
+        htmlFor: "",
+        id: "",
+      };
+    }
 
     const fieldId = fieldIds[fieldName];
-    if (!fieldId) return {};
+    if (!fieldId) {
+      return {
+        htmlFor: "",
+        id: "",
+      };
+    }
 
     return {
       id: fieldId.label,
@@ -300,11 +377,23 @@ export function createFormA11y(options: FormA11yOptions): FormA11yState {
   };
 
   // 필드 에러 ARIA 속성 생성
-  const getFieldErrorProps = (fieldName: string) => {
-    if (!fields.includes(fieldName)) return {};
+  const getFieldErrorProps = (fieldName: string): FieldErrorProps => {
+    if (!fields.includes(fieldName)) {
+      return {
+        id: "",
+        role: "alert",
+        "aria-live": "polite",
+      };
+    }
 
     const fieldId = fieldIds[fieldName];
-    if (!fieldId) return {};
+    if (!fieldId) {
+      return {
+        id: "",
+        role: "alert",
+        "aria-live": "polite",
+      };
+    }
 
     const hasError = hasFormFieldError(formData, fieldName);
 
@@ -317,11 +406,21 @@ export function createFormA11y(options: FormA11yOptions): FormA11yState {
   };
 
   // 필드 설명 ARIA 속성 생성
-  const getFieldDescriptionProps = (fieldName: string) => {
-    if (!fields.includes(fieldName)) return {};
+  const getFieldDescriptionProps = (
+    fieldName: string
+  ): FieldDescriptionProps => {
+    if (!fields.includes(fieldName)) {
+      return {
+        id: "",
+      };
+    }
 
     const fieldId = fieldIds[fieldName];
-    if (!fieldId) return {};
+    if (!fieldId) {
+      return {
+        id: "",
+      };
+    }
 
     return {
       id: fieldId.desc,
@@ -329,14 +428,22 @@ export function createFormA11y(options: FormA11yOptions): FormA11yState {
   };
 
   // 필드 키보드 이벤트 핸들러 생성
-  const getFieldKeyboardProps = (fieldName: string) => {
-    if (!fields.includes(fieldName)) return {};
+  const getFieldKeyboardProps = (fieldName: string): FieldKeyboardProps => {
+    if (!fields.includes(fieldName)) {
+      return {
+        onKeyDown: () => {},
+      };
+    }
 
     const field = formData[fieldName];
     const fieldId = fieldIds[fieldName];
-    if (!fieldId) return {};
+    if (!fieldId) {
+      return {
+        onKeyDown: () => {},
+      };
+    }
 
-    return createKeyboardPressA11yHandlers({
+    const keyboardHandlers = createKeyboardPressA11yHandlers({
       disabled: false, // Form 필드는 일반적으로 비활성화되지 않음
       onKeyDown: (event) => {
         // Enter 키로 다음 필드로 이동
@@ -360,13 +467,22 @@ export function createFormA11y(options: FormA11yOptions): FormA11yState {
       keyRepeatDelay: keyboardPress.keyRepeatDelay ?? 100,
       keyCombinations: keyboardPress.keyCombinations,
     });
+
+    return {
+      onKeyDown: keyboardHandlers.onKeyDown || (() => {}),
+    };
   };
 
   // 필드 포인터 이벤트 핸들러 생성
-  const getFieldPointerProps = (fieldName: string) => {
-    if (!fields.includes(fieldName)) return {};
+  const getFieldPointerProps = (fieldName: string): FieldPointerProps => {
+    if (!fields.includes(fieldName)) {
+      return {
+        onClick: () => {},
+        onTouchEnd: () => {},
+      };
+    }
 
-    return createPointerActivationA11yHandlers({
+    const pointerHandlers = createPointerActivationA11yHandlers({
       disabled: false,
       onClick: (event) => {
         // 클릭 시 필드 터치
@@ -383,6 +499,11 @@ export function createFormA11y(options: FormA11yOptions): FormA11yState {
       doubleActivationDelay: pointerActivation.doubleActivationDelay ?? 300,
       touchAction: pointerActivation.touchAction ?? "manipulation",
     });
+
+    return {
+      onClick: pointerHandlers.onClick || (() => {}),
+      onTouchEnd: pointerHandlers.onTouchEnd || (() => {}),
+    };
   };
 
   return {
@@ -491,17 +612,17 @@ export interface FormFieldA11yState {
   /** 필드 리셋 함수 */
   reset: () => void;
   /** 필드에 적용할 ARIA 속성 */
-  getFieldProps: () => Record<string, any>;
+  getFieldProps: () => FieldProps;
   /** 필드 라벨에 적용할 ARIA 속성 */
-  getLabelProps: () => Record<string, any>;
+  getLabelProps: () => FieldLabelProps;
   /** 필드 에러에 적용할 ARIA 속성 */
-  getErrorProps: () => Record<string, any>;
+  getErrorProps: () => FieldErrorProps;
   /** 필드 설명에 적용할 ARIA 속성 */
-  getDescriptionProps: () => Record<string, any>;
+  getDescriptionProps: () => FieldDescriptionProps;
   /** 필드에 적용할 키보드 이벤트 핸들러 */
-  getKeyboardProps: () => Record<string, any>;
+  getKeyboardProps: () => FieldKeyboardProps;
   /** 필드에 적용할 포인터 이벤트 핸들러 */
-  getPointerProps: () => Record<string, any>;
+  getPointerProps: () => FieldPointerProps;
 }
 
 export function createFormFieldA11y(
@@ -589,12 +710,13 @@ export function createFormFieldA11y(
   };
 
   // 필드 ARIA 속성 생성
-  const getFieldProps = () => {
+  const getFieldProps = (): FieldProps => {
     const hasError = field.state === "invalid" && !!field.error;
     const fieldErrorId = hasError ? errorId : undefined;
 
     return {
       id: fieldId,
+      name: fieldName,
       type: fieldType,
       value: field.value,
       "aria-invalid": hasError || undefined,
@@ -617,13 +739,13 @@ export function createFormFieldA11y(
   };
 
   // 필드 라벨 ARIA 속성 생성
-  const getLabelProps = () => ({
+  const getLabelProps = (): FieldLabelProps => ({
     id: label,
     htmlFor: fieldId,
   });
 
   // 필드 에러 ARIA 속성 생성
-  const getErrorProps = () => {
+  const getErrorProps = (): FieldErrorProps => {
     const hasError = field.state === "invalid" && !!field.error;
 
     return {
@@ -635,13 +757,13 @@ export function createFormFieldA11y(
   };
 
   // 필드 설명 ARIA 속성 생성
-  const getDescriptionProps = () => ({
+  const getDescriptionProps = (): FieldDescriptionProps => ({
     id: desc,
   });
 
   // 필드 키보드 이벤트 핸들러 생성
-  const getKeyboardProps = () => {
-    return createKeyboardPressA11yHandlers({
+  const getKeyboardProps = (): FieldKeyboardProps => {
+    const keyboardHandlers = createKeyboardPressA11yHandlers({
       disabled: fieldOptions.disabled || false,
       onKeyDown: (event) => {
         // Enter 키로 다음 필드로 이동
@@ -667,11 +789,15 @@ export function createFormFieldA11y(
       keyRepeatDelay: keyboardPress.keyRepeatDelay ?? 100,
       keyCombinations: keyboardPress.keyCombinations,
     });
+
+    return {
+      onKeyDown: keyboardHandlers.onKeyDown || (() => {}),
+    };
   };
 
   // 필드 포인터 이벤트 핸들러 생성
-  const getPointerProps = () => {
-    return createPointerActivationA11yHandlers({
+  const getPointerProps = (): FieldPointerProps => {
+    const pointerHandlers = createPointerActivationA11yHandlers({
       disabled: fieldOptions.disabled || false,
       onClick: (event) => {
         touch();
@@ -686,6 +812,11 @@ export function createFormFieldA11y(
       doubleActivationDelay: pointerActivation.doubleActivationDelay ?? 300,
       touchAction: pointerActivation.touchAction ?? "manipulation",
     });
+
+    return {
+      onClick: pointerHandlers.onClick || (() => {}),
+      onTouchEnd: pointerHandlers.onTouchEnd || (() => {}),
+    };
   };
 
   return {

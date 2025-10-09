@@ -1,7 +1,7 @@
-import * as React from "react";
+import { forwardRef, useMemo } from "react";
 import type { FormMessageProps } from "./types";
 
-export const FormMessage = React.forwardRef<HTMLDivElement, FormMessageProps>(
+export const FormMessage = forwardRef<HTMLDivElement, FormMessageProps>(
   ({ match, children, className, style, ...rest }, ref) => {
     // Context에서 field 정보를 가져옴
     const fieldErrorProps = (rest as any).fieldErrorProps || {};
@@ -22,7 +22,7 @@ export const FormMessage = React.forwardRef<HTMLDivElement, FormMessageProps>(
     } = rest as any;
 
     // match 조건에 따라 메시지를 표시할지 결정
-    const shouldShow = React.useMemo(() => {
+    const shouldShow = useMemo(() => {
       if (!match) return true;
 
       // match가 문자열인 경우 (예: "valueMissing", "typeMismatch")

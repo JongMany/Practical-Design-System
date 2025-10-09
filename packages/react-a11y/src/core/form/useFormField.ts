@@ -138,45 +138,53 @@ export function useFormField(options: UseFormFieldOptions): UseFormFieldReturn {
   // 키보드 이벤트 핸들러 래핑
   const getKeyboardProps = React.useCallback(() => {
     const originalProps = fieldState.getKeyboardProps();
-    return {
-      ...originalProps,
-      onKeyDown: (event: React.KeyboardEvent) => {
-        // Enter 키로 다음 필드로 이동
-        if (event.key === "Enter") {
-          const form = event.currentTarget.closest("form");
-          if (form) {
-            const focusableElements = form.querySelectorAll(
-              'input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), [tabindex]:not([tabindex="-1"])'
-            );
-            const currentIndex = Array.from(focusableElements).indexOf(
-              event.currentTarget
-            );
-            if (currentIndex < focusableElements.length - 1) {
-              const nextElement = focusableElements[
-                currentIndex + 1
-              ] as HTMLElement;
-              nextElement.focus();
-            }
+
+    // DOM 이벤트 핸들러 생성
+    const domOnKeyDown = (event: KeyboardEvent) => {
+      // Enter 키로 다음 필드로 이동
+      if (event.key === "Enter") {
+        const form = (event.target as Element)?.closest("form");
+        if (form) {
+          const focusableElements = form.querySelectorAll(
+            'input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+          );
+          const currentIndex = Array.from(focusableElements).indexOf(
+            event.target as Element
+          );
+          if (currentIndex < focusableElements.length - 1) {
+            const nextElement = focusableElements[
+              currentIndex + 1
+            ] as HTMLElement;
+            nextElement.focus();
           }
         }
-        originalProps.onKeyDown?.(event);
-      },
+      }
+      originalProps.onKeyDown?.(event);
+    };
+
+    return {
+      onKeyDown: domOnKeyDown,
     };
   }, [fieldState]);
 
   // 포인터 이벤트 핸들러 래핑
   const getPointerProps = React.useCallback(() => {
     const originalProps = fieldState.getPointerProps();
+
+    // DOM 이벤트 핸들러 생성
+    const domOnClick = (event: MouseEvent) => {
+      touch();
+      originalProps.onClick?.(event);
+    };
+
+    const domOnTouchEnd = (event: TouchEvent) => {
+      touch();
+      originalProps.onTouchEnd?.(event);
+    };
+
     return {
-      ...originalProps,
-      onClick: (event: React.MouseEvent) => {
-        touch();
-        originalProps.onClick?.(event);
-      },
-      onTouchEnd: (event: React.TouchEvent) => {
-        touch();
-        originalProps.onTouchEnd?.(event);
-      },
+      onClick: domOnClick,
+      onTouchEnd: domOnTouchEnd,
     };
   }, [fieldState, touch]);
 

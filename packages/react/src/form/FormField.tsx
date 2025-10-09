@@ -1,8 +1,8 @@
-import * as React from "react";
+import { forwardRef, Children, isValidElement, cloneElement } from "react";
 import { useFormContext } from "./FormRoot";
 import type { FormFieldProps } from "./types";
 
-export const FormField = React.forwardRef<HTMLDivElement, FormFieldProps>(
+export const FormField = forwardRef<HTMLDivElement, FormFieldProps>(
   ({ name, children, className, style, ...rest }, ref) => {
     const { formState } = useFormContext("FormField");
 
@@ -26,14 +26,14 @@ export const FormField = React.forwardRef<HTMLDivElement, FormFieldProps>(
         data-touched={formState.formData[name]?.touched || undefined}
         data-dirty={formState.formData[name]?.dirty || undefined}
       >
-        {React.Children.map(children, (child) => {
-          if (React.isValidElement(child)) {
+        {Children.map(children, (child) => {
+          if (isValidElement(child)) {
             // React 컴포넌트인지 확인 (DOM 요소가 아닌 경우)
             if (
               typeof child.type === "function" ||
               typeof child.type === "object"
             ) {
-              return React.cloneElement(child, {
+              return cloneElement(child as React.ReactElement<any>, {
                 name,
                 fieldProps,
                 fieldLabelProps,
@@ -42,7 +42,7 @@ export const FormField = React.forwardRef<HTMLDivElement, FormFieldProps>(
                 fieldKeyboardProps,
                 fieldPointerProps,
                 formState,
-              } as any);
+              });
             }
           }
           return child;

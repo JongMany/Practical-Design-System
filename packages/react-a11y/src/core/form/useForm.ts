@@ -23,6 +23,8 @@ export interface UseFormOptions extends FormA11yOptions {
   onFieldTouch?: (fieldName: string) => void;
 }
 
+// a11y 패키지의 타입을 그대로 사용
+
 export interface UseFormReturn {
   /** Form 데이터 */
   formData: FormA11yState["formData"];
@@ -49,19 +51,19 @@ export interface UseFormReturn {
   /** Form 제출 함수 */
   submitForm: () => void;
   /** Form에 적용할 props */
-  getFormProps: () => Record<string, any>;
+  getFormProps: FormA11yState["getFormProps"];
   /** 필드에 적용할 props */
-  getFieldProps: (fieldName: string) => Record<string, any>;
+  getFieldProps: FormA11yState["getFieldProps"];
   /** 필드 라벨에 적용할 props */
-  getFieldLabelProps: (fieldName: string) => Record<string, any>;
+  getFieldLabelProps: FormA11yState["getFieldLabelProps"];
   /** 필드 에러에 적용할 props */
-  getFieldErrorProps: (fieldName: string) => Record<string, any>;
+  getFieldErrorProps: FormA11yState["getFieldErrorProps"];
   /** 필드 설명에 적용할 props */
-  getFieldDescriptionProps: (fieldName: string) => Record<string, any>;
+  getFieldDescriptionProps: FormA11yState["getFieldDescriptionProps"];
   /** 필드에 적용할 키보드 이벤트 props */
-  getFieldKeyboardProps: (fieldName: string) => Record<string, any>;
+  getFieldKeyboardProps: FormA11yState["getFieldKeyboardProps"];
   /** 필드에 적용할 포인터 이벤트 props */
-  getFieldPointerProps: (fieldName: string) => Record<string, any>;
+  getFieldPointerProps: FormA11yState["getFieldPointerProps"];
 }
 
 /**
@@ -122,29 +124,39 @@ export function useForm(options: UseFormOptions): UseFormReturn {
   const getFieldKeyboardProps = React.useCallback(
     (fieldName: string) => {
       const originalProps = formState.getFieldKeyboardProps(fieldName);
-      return {
-        ...originalProps,
-        onKeyDown: (event: React.KeyboardEvent) => {
-          // Enter 키로 다음 필드로 이동
-          if (event.key === "Enter") {
-            const form = event.currentTarget.closest("form");
-            if (form) {
-              const focusableElements = form.querySelectorAll(
-                'input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), [tabindex]:not([tabindex="-1"])'
-              );
-              const currentIndex = Array.from(focusableElements).indexOf(
-                event.currentTarget
-              );
-              if (currentIndex < focusableElements.length - 1) {
-                const nextElement = focusableElements[
-                  currentIndex + 1
-                ] as HTMLElement;
+
+      // DOM 이벤트 핸들러 생성
+      const domOnKeyDown = (event: KeyboardEvent) => {
+        // Enter 키로 다음 필드로 이동
+        if (event.key === "Enter") {
+          const form = (event.target as Element)?.closest("form");
+          if (form) {
+            const focusableElements = form.querySelectorAll(
+              'input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+            );
+            const currentIndex = Array.from(focusableElements).indexOf(
+              event.target as Element
+            );
+            if (currentIndex < focusableElements.length - 1) {
+              const nextElement = focusableElements[currentIndex + 1];
+              if (
+                nextElement &&
+                "focus" in nextElement &&
+                typeof nextElement.focus === "function"
+              ) {
                 nextElement.focus();
               }
             }
           }
-          originalProps.onKeyDown?.(event);
-        },
+        }
+        const originalOnKeyDown = originalProps.onKeyDown;
+        if (typeof originalOnKeyDown === "function") {
+          originalOnKeyDown(event);
+        }
+      };
+
+      return {
+        onKeyDown: domOnKeyDown,
       };
     },
     [formState]
@@ -154,16 +166,27 @@ export function useForm(options: UseFormOptions): UseFormReturn {
   const getFieldPointerProps = React.useCallback(
     (fieldName: string) => {
       const originalProps = formState.getFieldPointerProps(fieldName);
+
+      // DOM 이벤트 핸들러 생성
+      const domOnClick = (event: MouseEvent) => {
+        touchField(fieldName);
+        const originalOnClick = originalProps.onClick;
+        if (typeof originalOnClick === "function") {
+          originalOnClick(event);
+        }
+      };
+
+      const domOnTouchEnd = (event: TouchEvent) => {
+        touchField(fieldName);
+        const originalOnTouchEnd = originalProps.onTouchEnd;
+        if (typeof originalOnTouchEnd === "function") {
+          originalOnTouchEnd(event);
+        }
+      };
+
       return {
-        ...originalProps,
-        onClick: (event: React.MouseEvent) => {
-          touchField(fieldName);
-          originalProps.onClick?.(event);
-        },
-        onTouchEnd: (event: React.TouchEvent) => {
-          touchField(fieldName);
-          originalProps.onTouchEnd?.(event);
-        },
+        onClick: domOnClick,
+        onTouchEnd: domOnTouchEnd,
       };
     },
     [formState, touchField]

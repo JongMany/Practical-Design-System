@@ -1,7 +1,7 @@
-import * as React from "react";
+import { forwardRef } from "react";
 import type { FormLabelProps } from "./types";
 
-export const FormLabel = React.forwardRef<HTMLLabelElement, FormLabelProps>(
+export const FormLabel = forwardRef<HTMLLabelElement, FormLabelProps>(
   ({ children, className, style, ...rest }, ref) => {
     // Context에서 fieldLabelProps를 가져와서 적용
     const fieldLabelProps = (rest as any).fieldLabelProps || {};
