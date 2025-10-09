@@ -1,27 +1,18 @@
 import { forwardRef } from "react";
+import { useFormContext } from "./FormRoot";
 import type { FormLabelProps } from "./types";
 
 export const FormLabel = forwardRef<HTMLLabelElement, FormLabelProps>(
   ({ children, className, style, ...rest }, ref) => {
-    // Context에서 fieldLabelProps를 가져와서 적용
-    const fieldLabelProps = (rest as any).fieldLabelProps || {};
+    const { formState } = useFormContext("FormLabel");
 
-    // DOM에 전달하면 안 되는 props들을 제거
-    const {
-      fieldProps: _fieldProps,
-      fieldKeyboardProps: _fieldKeyboardProps,
-      fieldPointerProps: _fieldPointerProps,
-      fieldLabelProps: _fieldLabelProps,
-      fieldErrorProps: _fieldErrorProps,
-      fieldDescriptionProps: _fieldDescriptionProps,
-      formState: _formState,
-      name: _name,
-      ...domProps
-    } = rest as any;
+    // name은 FormField에서 전달받거나 props로 받을 수 있음
+    const name = (rest as any).name;
+    const fieldLabelProps = name ? formState.getFieldLabelProps(name) : {};
 
     return (
       <label
-        {...domProps}
+        {...rest}
         {...fieldLabelProps}
         ref={ref}
         className={className}

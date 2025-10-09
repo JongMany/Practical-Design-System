@@ -1,25 +1,14 @@
 import { forwardRef, useMemo } from "react";
+import { useFormContext } from "./FormRoot";
 import type { FormMessageProps } from "./types";
 
 export const FormMessage = forwardRef<HTMLDivElement, FormMessageProps>(
   ({ match, children, className, style, ...rest }, ref) => {
-    // Context에서 field 정보를 가져옴
-    const fieldErrorProps = (rest as any).fieldErrorProps || {};
-    const formState = (rest as any).formState;
-    const name = (rest as any).name;
+    const { formState } = useFormContext("FormMessage");
 
-    // DOM에 전달하면 안 되는 props들을 제거
-    const {
-      fieldProps: _fieldProps,
-      fieldKeyboardProps: _fieldKeyboardProps,
-      fieldPointerProps: _fieldPointerProps,
-      fieldLabelProps: _fieldLabelProps,
-      fieldErrorProps: _fieldErrorProps,
-      fieldDescriptionProps: _fieldDescriptionProps,
-      formState: _formState,
-      name: _name,
-      ...domProps
-    } = rest as any;
+    // name은 FormField에서 전달받거나 props로 받을 수 있음
+    const name = (rest as any).name;
+    const fieldErrorProps = name ? formState.getFieldErrorProps(name) : {};
 
     // match 조건에 따라 메시지를 표시할지 결정
     const shouldShow = useMemo(() => {
@@ -54,7 +43,7 @@ export const FormMessage = forwardRef<HTMLDivElement, FormMessageProps>(
 
     return (
       <div
-        {...domProps}
+        {...rest}
         {...fieldErrorProps}
         ref={ref}
         className={className}

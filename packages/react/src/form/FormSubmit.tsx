@@ -44,8 +44,9 @@ export const FormSubmit = forwardRef<HTMLButtonElement, FormSubmitProps>(
         if (typeof ref === "function") {
           ref(node);
         } else if (ref && typeof ref === "object" && "current" in ref) {
-          (ref as React.MutableRefObject<HTMLButtonElement | null>).current =
-            node;
+          const mutableRef =
+            ref as React.MutableRefObject<HTMLButtonElement | null>;
+          mutableRef.current = node;
         }
       },
       [asChild, ref]

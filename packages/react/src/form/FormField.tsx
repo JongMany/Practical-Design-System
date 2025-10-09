@@ -6,13 +6,6 @@ export const FormField = forwardRef<HTMLDivElement, FormFieldProps>(
   ({ name, children, className, style, ...rest }, ref) => {
     const { formState } = useFormContext("FormField");
 
-    const fieldProps = formState.getFieldProps(name);
-    const fieldLabelProps = formState.getFieldLabelProps(name);
-    const fieldErrorProps = formState.getFieldErrorProps(name);
-    const fieldDescriptionProps = formState.getFieldDescriptionProps(name);
-    const fieldKeyboardProps = formState.getFieldKeyboardProps(name);
-    const fieldPointerProps = formState.getFieldPointerProps(name);
-
     return (
       <div
         {...rest}
@@ -35,13 +28,6 @@ export const FormField = forwardRef<HTMLDivElement, FormFieldProps>(
             ) {
               return cloneElement(child as React.ReactElement<any>, {
                 name,
-                fieldProps,
-                fieldLabelProps,
-                fieldErrorProps,
-                fieldDescriptionProps,
-                fieldKeyboardProps,
-                fieldPointerProps,
-                formState,
               });
             }
           }

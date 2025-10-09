@@ -1,39 +1,29 @@
 import { forwardRef, useEffect, useCallback } from "react";
 import { Slot } from "../utils/Slot";
+import { useFormContext } from "./FormRoot";
 import type { FormControlProps } from "./types";
 
 export const FormControl = forwardRef<HTMLElement, FormControlProps>(
   ({ asChild, children, className, style, ...rest }, ref) => {
-    const Comp = asChild ? Slot : "input";
+    const { formState } = useFormContext("FormControl");
 
-    // Context에서 field props들을 가져와서 적용
-    const fieldProps = (rest as any).fieldProps || {};
-    const fieldKeyboardProps = (rest as any).fieldKeyboardProps || {};
-    const fieldPointerProps = (rest as any).fieldPointerProps || {};
-    const formState = (rest as any).formState;
+    // name은 FormField에서 전달받거나 props로 받을 수 있음
     const name = (rest as any).name;
-
-    // DOM에 전달하면 안 되는 props들을 제거
-    const {
-      fieldProps: _fieldProps,
-      fieldKeyboardProps: _fieldKeyboardProps,
-      fieldPointerProps: _fieldPointerProps,
-      fieldLabelProps: _fieldLabelProps,
-      fieldErrorProps: _fieldErrorProps,
-      fieldDescriptionProps: _fieldDescriptionProps,
-      formState: _formState,
-      name: _name,
-      ...domProps
-    } = rest as any;
+    const fieldProps = name ? formState.getFieldProps(name) : {};
+    const fieldKeyboardProps = name
+      ? formState.getFieldKeyboardProps(name)
+      : {};
+    const fieldPointerProps = name ? formState.getFieldPointerProps(name) : {};
+    const Comp = asChild ? Slot : "input";
 
     const handleChange = useCallback(
       (event: React.ChangeEvent<HTMLInputElement>) => {
         if (formState && name) {
           formState.updateField(name, event.target.value);
         }
-        domProps.onChange?.(event);
+        rest.onChange?.(event);
       },
-      [formState, name, domProps.onChange]
+      [formState, name, rest.onChange]
     );
 
     const handleBlur = useCallback(
@@ -41,9 +31,9 @@ export const FormControl = forwardRef<HTMLElement, FormControlProps>(
         if (formState && name) {
           formState.touchField(name);
         }
-        domProps.onBlur?.(event);
+        rest.onBlur?.(event);
       },
-      [formState, name, domProps.onBlur]
+      [formState, name, rest.onBlur]
     );
 
     // 기본 스타일 정의
@@ -54,11 +44,11 @@ export const FormControl = forwardRef<HTMLElement, FormControlProps>(
       boxShadow: "rgba(102, 126, 234, 0.1) 0px 0px 0px 3px",
       outline: "none",
       // input number의 스피너 버튼 완전히 숨기기
-      WebkitAppearance: "none",
-      MozAppearance: "textfield",
-      appearance: "none",
+      WebkitAppearance: "none" as const,
+      MozAppearance: "textfield" as const,
+      appearance: "none" as const,
       // textarea 크기 조절 핸들 완전히 숨기기
-      resize: "none",
+      resize: "none" as const,
       minWidth: "100%",
       maxWidth: "100%",
       // 기본 테두리와 배경
@@ -75,13 +65,13 @@ export const FormControl = forwardRef<HTMLElement, FormControlProps>(
 
     // number input에 대한 추가 스타일
     const numberInputStyles =
-      domProps.type === "number"
+      rest.type === "number"
         ? {
             // Firefox 브라우저용
-            MozAppearance: "textfield",
+            MozAppearance: "textfield" as const,
             // WebKit 브라우저용 (Chrome, Safari, Edge...)
-            WebkitAppearance: "none",
-            appearance: "none",
+            WebkitAppearance: "none" as const,
+            appearance: "none" as const,
           }
         : {};
 
@@ -140,7 +130,7 @@ export const FormControl = forwardRef<HTMLElement, FormControlProps>(
           }
         }
       },
-      [domProps.type, defaultStyles]
+      [rest.type, defaultStyles]
     );
 
     // ref 처리 - asChild일 때는 함수형 ref이므로 다르게 처리
@@ -154,19 +144,28 @@ export const FormControl = forwardRef<HTMLElement, FormControlProps>(
         if (typeof ref === "function") {
           ref(node);
         } else if (ref && typeof ref === "object" && "current" in ref) {
-          (ref as React.MutableRefObject<HTMLElement | null>).current = node;
+          const mutableRef = ref as React.MutableRefObject<HTMLElement | null>;
+          mutableRef.current = node;
         }
       },
       [asChild, applyStylesToElement, ref]
     );
 
+    // fieldKeyboardProps에서 onKeyDown을 제거하고 별도로 처리
+    const { onKeyDown: _onKeyDown, ...restKeyboardProps } = fieldKeyboardProps;
+    const {
+      onClick: _onClick,
+      onTouchEnd: _onTouchEnd,
+      ...restPointerProps
+    } = fieldPointerProps;
+
     // asChild일 때는 value를 전달하지 않음 (자식 요소가 자체적으로 value를 관리)
     const controlProps = asChild
       ? {
-          ...domProps,
+          ...rest,
           ...fieldProps,
-          ...fieldKeyboardProps,
-          ...fieldPointerProps,
+          ...restKeyboardProps,
+          ...restPointerProps,
           ref: handleRef,
           className,
           style: { ...defaultStyles, ...numberInputStyles, ...style },
@@ -174,16 +173,16 @@ export const FormControl = forwardRef<HTMLElement, FormControlProps>(
           onBlur: handleBlur,
         }
       : {
-          ...domProps,
+          ...rest,
           ...fieldProps,
-          ...fieldKeyboardProps,
-          ...fieldPointerProps,
+          ...restKeyboardProps,
+          ...restPointerProps,
           ref: handleRef,
           className,
           style: { ...defaultStyles, ...numberInputStyles, ...style },
           onChange: handleChange,
           onBlur: handleBlur,
-          value: formState?.values[name] || "",
+          value: formState && name ? formState.values[name] || "" : "",
         };
 
     return <Comp {...controlProps}>{children}</Comp>;

@@ -1,5 +1,16 @@
 import * as React from "react";
-import type { UseFormOptions } from "@acme/react-a11y";
+import type { UseFormOptions, UseFormReturn } from "@acme/react-a11y";
+
+// a11y 패키지의 타입들을 import
+type FormProps = ReturnType<UseFormReturn["getFormProps"]>;
+type FieldProps = ReturnType<UseFormReturn["getFieldProps"]>;
+type FieldLabelProps = ReturnType<UseFormReturn["getFieldLabelProps"]>;
+type FieldErrorProps = ReturnType<UseFormReturn["getFieldErrorProps"]>;
+type FieldDescriptionProps = ReturnType<
+  UseFormReturn["getFieldDescriptionProps"]
+>;
+type FieldKeyboardProps = ReturnType<UseFormReturn["getFieldKeyboardProps"]>;
+type FieldPointerProps = ReturnType<UseFormReturn["getFieldPointerProps"]>;
 
 export interface FormRootProps extends UseFormOptions {
   children: React.ReactNode;
@@ -14,6 +25,7 @@ export interface FormFieldProps {
   style?: React.CSSProperties;
 }
 
+// Context를 사용하므로 props로 전달받을 필요가 없음
 export interface FormLabelProps
   extends React.LabelHTMLAttributes<HTMLLabelElement> {
   children: React.ReactNode;
@@ -36,15 +48,14 @@ export interface FormSubmitProps
   children: React.ReactNode;
 }
 
-// Context types
+// Context types - 타입 안전하게 정의
 export interface FormFieldContextValue {
   name: string;
-  fieldProps: Record<string, any>;
-  fieldLabelProps: Record<string, any>;
-  fieldErrorProps: Record<string, any>;
-  fieldDescriptionProps: Record<string, any>;
-  fieldKeyboardProps: Record<string, any>;
-  fieldPointerProps: Record<string, any>;
-  formState: ReturnType<typeof import("@acme/react-a11y").useForm>;
+  fieldProps: FieldProps;
+  fieldLabelProps: FieldLabelProps;
+  fieldErrorProps: FieldErrorProps;
+  fieldDescriptionProps: FieldDescriptionProps;
+  fieldKeyboardProps: FieldKeyboardProps;
+  fieldPointerProps: FieldPointerProps;
+  formState: UseFormReturn;
 }
-
