@@ -3,3 +3,4 @@ export * from "./card";
 export * from "./checkbox";
 export * from "./hooks";
 export * from "./dialog";
+export * from "./form";

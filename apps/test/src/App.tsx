@@ -5,6 +5,8 @@ import {
   Checkbox,
   type DialogRootRef,
 } from "@acme/react";
+import { Form } from "@acme/react";
+import { validators } from "@acme/core";
 import { useRef, useState } from "react";
 import "./App.css";
 
@@ -728,6 +730,706 @@ function App() {
                 </li>
                 <li>Disabled: 항상 비활성화</li>
               </ul>
+            </div>
+          </div>
+        </section>
+
+        {/* Form 예제 섹션 */}
+        <section
+          style={{
+            padding: "48px 32px",
+            borderBottom: "1px solid #e0e0e0",
+            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+            color: "white",
+          }}
+        >
+          <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+            <h2
+              style={{
+                fontSize: "2.5rem",
+                marginBottom: "16px",
+                fontWeight: "700",
+              }}
+            >
+              Form 컴포넌트 예제
+            </h2>
+            <p
+              style={{ fontSize: "1.2rem", opacity: 0.9, marginBottom: "48px" }}
+            >
+              접근성이 완전히 지원되는 아름다운 Form 컴포넌트들입니다.
+            </p>
+
+            <div style={{ display: "grid", gap: "32px", marginTop: "24px" }}>
+              {/* 기본 Form 예제 */}
+              <Card
+                style={{
+                  background: "rgba(255, 255, 255, 0.95)",
+                  backdropFilter: "blur(10px)",
+                  border: "1px solid rgba(255, 255, 255, 0.2)",
+                  borderRadius: "20px",
+                  padding: "32px",
+                  boxShadow: "0 20px 40px rgba(0, 0, 0, 0.1)",
+                }}
+              >
+                <div style={{ marginBottom: "24px" }}>
+                  <h3
+                    style={{
+                      fontSize: "1.5rem",
+                      marginBottom: "8px",
+                      color: "#2d3748",
+                    }}
+                  >
+                    💬 기본 Form 예제
+                  </h3>
+                  <p style={{ color: "#718096", fontSize: "1rem" }}>
+                    이메일과 질문을 입력하는 간단한 폼입니다.
+                  </p>
+                </div>
+
+                <Form.Root
+                  fields={["email", "question"]}
+                  initialValues={{ email: "", question: "" }}
+                  validators={{
+                    email: validators.email,
+                    question: validators.required,
+                  }}
+                  onSubmit={async (values: Record<string, string>) => {
+                    console.log("Form submitted:", values);
+                    alert(
+                      `제출된 데이터:\n이메일: ${values.email}\n질문: ${values.question}`
+                    );
+                  }}
+                >
+                  <div style={{ display: "grid", gap: "24px" }}>
+                    <Form.Field name="email">
+                      <div style={{ marginBottom: "8px" }}>
+                        <Form.Label
+                          style={{
+                            display: "block",
+                            fontSize: "0.875rem",
+                            fontWeight: "600",
+                            color: "#2d3748",
+                            marginBottom: "6px",
+                          }}
+                        >
+                          📧 이메일 주소
+                        </Form.Label>
+                        <Form.Message match="valueMissing">
+                          <span
+                            style={{
+                              color: "#e53e3e",
+                              fontSize: "0.75rem",
+                              fontWeight: "500",
+                            }}
+                          >
+                            이메일을 입력해주세요
+                          </span>
+                        </Form.Message>
+                        <Form.Message match="typeMismatch">
+                          <span
+                            style={{
+                              color: "#e53e3e",
+                              fontSize: "0.75rem",
+                              fontWeight: "500",
+                            }}
+                          >
+                            올바른 이메일 형식을 입력해주세요
+                          </span>
+                        </Form.Message>
+                      </div>
+                      <Form.Control asChild>
+                        <input
+                          type="email"
+                          required
+                          placeholder="example@email.com"
+                          style={{
+                            width: "100%",
+                            padding: "12px 16px",
+                            border: "2px solid #e2e8f0",
+                            borderRadius: "12px",
+                            fontSize: "1rem",
+                            transition: "all 0.2s ease",
+                            outline: "none",
+                            background: "#f7fafc",
+                          }}
+                          onFocus={(e) => {
+                            e.target.style.borderColor = "#667eea";
+                            e.target.style.background = "white";
+                            e.target.style.boxShadow =
+                              "0 0 0 3px rgba(102, 126, 234, 0.1)";
+                          }}
+                          onBlur={(e) => {
+                            e.target.style.borderColor = "#e2e8f0";
+                            e.target.style.background = "#f7fafc";
+                            e.target.style.boxShadow = "none";
+                          }}
+                        />
+                      </Form.Control>
+                    </Form.Field>
+
+                    <Form.Field name="question">
+                      <div style={{ marginBottom: "8px" }}>
+                        <Form.Label
+                          style={{
+                            display: "block",
+                            fontSize: "0.875rem",
+                            fontWeight: "600",
+                            color: "#2d3748",
+                            marginBottom: "6px",
+                          }}
+                        >
+                          ❓ 질문 내용
+                        </Form.Label>
+                        <Form.Message match="valueMissing">
+                          <span
+                            style={{
+                              color: "#e53e3e",
+                              fontSize: "0.75rem",
+                              fontWeight: "500",
+                            }}
+                          >
+                            질문을 입력해주세요
+                          </span>
+                        </Form.Message>
+                      </div>
+                      <Form.Control asChild>
+                        <textarea
+                          required
+                          rows={4}
+                          placeholder="궁금한 내용을 자세히 작성해주세요..."
+                          style={{
+                            width: "100%",
+                            padding: "12px 16px",
+                            border: "2px solid #e2e8f0",
+                            borderRadius: "12px",
+                            fontSize: "1rem",
+                            transition: "all 0.2s ease",
+                            outline: "none",
+                            background: "#f7fafc",
+                            resize: "vertical",
+                            fontFamily: "inherit",
+                          }}
+                          onFocus={(e) => {
+                            e.target.style.borderColor = "#667eea";
+                            e.target.style.background = "white";
+                            e.target.style.boxShadow =
+                              "0 0 0 3px rgba(102, 126, 234, 0.1)";
+                          }}
+                          onBlur={(e) => {
+                            e.target.style.borderColor = "#e2e8f0";
+                            e.target.style.background = "#f7fafc";
+                            e.target.style.boxShadow = "none";
+                          }}
+                        />
+                      </Form.Control>
+                    </Form.Field>
+
+                    <Form.Submit asChild>
+                      <button
+                        style={{
+                          marginTop: "8px",
+                          padding: "14px 28px",
+                          background:
+                            "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                          color: "white",
+                          border: "none",
+                          borderRadius: "12px",
+                          cursor: "pointer",
+                          fontSize: "1rem",
+                          fontWeight: "600",
+                          transition: "all 0.2s ease",
+                          boxShadow: "0 4px 12px rgba(102, 126, 234, 0.3)",
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.transform = "translateY(-2px)";
+                          e.currentTarget.style.boxShadow =
+                            "0 8px 20px rgba(102, 126, 234, 0.4)";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.transform = "translateY(0)";
+                          e.currentTarget.style.boxShadow =
+                            "0 4px 12px rgba(102, 126, 234, 0.3)";
+                        }}
+                      >
+                        🚀 질문 등록하기
+                      </button>
+                    </Form.Submit>
+                  </div>
+                </Form.Root>
+              </Card>
+
+              {/* 고급 Form 예제 */}
+              <Card
+                style={{
+                  background: "rgba(255, 255, 255, 0.95)",
+                  backdropFilter: "blur(10px)",
+                  border: "1px solid rgba(255, 255, 255, 0.2)",
+                  borderRadius: "20px",
+                  padding: "32px",
+                  boxShadow: "0 20px 40px rgba(0, 0, 0, 0.1)",
+                }}
+              >
+                <div style={{ marginBottom: "24px" }}>
+                  <h3
+                    style={{
+                      fontSize: "1.5rem",
+                      marginBottom: "8px",
+                      color: "#2d3748",
+                    }}
+                  >
+                    ⚡ 고급 Form 예제
+                  </h3>
+                  <p style={{ color: "#718096", fontSize: "1rem" }}>
+                    여러 필드 타입과 유효성 검사를 포함한 복잡한 폼입니다.
+                  </p>
+                </div>
+
+                <Form.Root
+                  fields={["name", "email", "phone", "age", "website", "bio"]}
+                  initialValues={{
+                    name: "",
+                    email: "",
+                    phone: "",
+                    age: "",
+                    website: "",
+                    bio: "",
+                  }}
+                  validators={{
+                    name: validators.required,
+                    email: validators.email,
+                    phone: validators.phone,
+                    age: (value: string) => {
+                      if (!value) return null;
+                      const age = parseInt(value);
+                      if (isNaN(age)) return "나이는 숫자여야 합니다";
+                      if (age < 18) return "18세 이상이어야 합니다";
+                      if (age > 100) return "100세 이하여야 합니다";
+                      return null;
+                    },
+                    website: validators.url,
+                    bio: validators.minLength(10),
+                  }}
+                  onSubmit={async (values: Record<string, string>) => {
+                    console.log("Advanced form submitted:", values);
+                    alert(
+                      `제출된 데이터:\n${Object.entries(values)
+                        .map(([key, value]) => `${key}: ${value}`)
+                        .join("\n")}`
+                    );
+                  }}
+                >
+                  <div style={{ display: "grid", gap: "20px" }}>
+                    {/* 이름 필드 */}
+                    <Form.Field name="name">
+                      <div style={{ marginBottom: "8px" }}>
+                        <Form.Label
+                          style={{
+                            display: "block",
+                            fontSize: "0.875rem",
+                            fontWeight: "600",
+                            color: "#2d3748",
+                            marginBottom: "6px",
+                          }}
+                        >
+                          👤 이름 *
+                        </Form.Label>
+                        <Form.Message match="valueMissing">
+                          <span
+                            style={{
+                              color: "#e53e3e",
+                              fontSize: "0.75rem",
+                              fontWeight: "500",
+                            }}
+                          >
+                            이름을 입력해주세요
+                          </span>
+                        </Form.Message>
+                      </div>
+                      <Form.Control asChild>
+                        <input
+                          type="text"
+                          required
+                          placeholder="홍길동"
+                          style={{
+                            width: "100%",
+                            padding: "12px 16px",
+                            border: "2px solid #e2e8f0",
+                            borderRadius: "12px",
+                            fontSize: "1rem",
+                            transition: "all 0.2s ease",
+                            outline: "none",
+                            background: "#f7fafc",
+                          }}
+                          onFocus={(e) => {
+                            e.target.style.borderColor = "#667eea";
+                            e.target.style.background = "white";
+                            e.target.style.boxShadow =
+                              "0 0 0 3px rgba(102, 126, 234, 0.1)";
+                          }}
+                          onBlur={(e) => {
+                            e.target.style.borderColor = "#e2e8f0";
+                            e.target.style.background = "#f7fafc";
+                            e.target.style.boxShadow = "none";
+                          }}
+                        />
+                      </Form.Control>
+                    </Form.Field>
+
+                    {/* 이메일 필드 */}
+                    <Form.Field name="email">
+                      <div style={{ marginBottom: "8px" }}>
+                        <Form.Label
+                          style={{
+                            display: "block",
+                            fontSize: "0.875rem",
+                            fontWeight: "600",
+                            color: "#2d3748",
+                            marginBottom: "6px",
+                          }}
+                        >
+                          📧 이메일 *
+                        </Form.Label>
+                        <Form.Message match="valueMissing">
+                          <span
+                            style={{
+                              color: "#e53e3e",
+                              fontSize: "0.75rem",
+                              fontWeight: "500",
+                            }}
+                          >
+                            이메일을 입력해주세요
+                          </span>
+                        </Form.Message>
+                        <Form.Message match="typeMismatch">
+                          <span
+                            style={{
+                              color: "#e53e3e",
+                              fontSize: "0.75rem",
+                              fontWeight: "500",
+                            }}
+                          >
+                            올바른 이메일 형식을 입력해주세요
+                          </span>
+                        </Form.Message>
+                      </div>
+                      <Form.Control asChild>
+                        <input
+                          type="email"
+                          required
+                          placeholder="example@email.com"
+                          style={{
+                            width: "100%",
+                            padding: "12px 16px",
+                            border: "2px solid #e2e8f0",
+                            borderRadius: "12px",
+                            fontSize: "1rem",
+                            transition: "all 0.2s ease",
+                            outline: "none",
+                            background: "#f7fafc",
+                          }}
+                          onFocus={(e) => {
+                            e.target.style.borderColor = "#667eea";
+                            e.target.style.background = "white";
+                            e.target.style.boxShadow =
+                              "0 0 0 3px rgba(102, 126, 234, 0.1)";
+                          }}
+                          onBlur={(e) => {
+                            e.target.style.borderColor = "#e2e8f0";
+                            e.target.style.background = "#f7fafc";
+                            e.target.style.boxShadow = "none";
+                          }}
+                        />
+                      </Form.Control>
+                    </Form.Field>
+
+                    {/* 전화번호와 나이 필드 - 2열 그리드 */}
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "1fr 1fr",
+                        gap: "20px",
+                      }}
+                    >
+                      <Form.Field name="phone">
+                        <div style={{ marginBottom: "8px" }}>
+                          <Form.Label
+                            style={{
+                              display: "block",
+                              fontSize: "0.875rem",
+                              fontWeight: "600",
+                              color: "#2d3748",
+                              marginBottom: "6px",
+                            }}
+                          >
+                            📱 전화번호
+                          </Form.Label>
+                          <Form.Message match="typeMismatch">
+                            <span
+                              style={{
+                                color: "#e53e3e",
+                                fontSize: "0.75rem",
+                                fontWeight: "500",
+                              }}
+                            >
+                              올바른 전화번호 형식을 입력해주세요
+                            </span>
+                          </Form.Message>
+                        </div>
+                        <Form.Control asChild>
+                          <input
+                            type="tel"
+                            placeholder="010-1234-5678"
+                            style={{
+                              width: "100%",
+                              padding: "12px 16px",
+                              border: "2px solid #e2e8f0",
+                              borderRadius: "12px",
+                              fontSize: "1rem",
+                              transition: "all 0.2s ease",
+                              outline: "none",
+                              background: "#f7fafc",
+                            }}
+                            onFocus={(e) => {
+                              e.target.style.borderColor = "#667eea";
+                              e.target.style.background = "white";
+                              e.target.style.boxShadow =
+                                "0 0 0 3px rgba(102, 126, 234, 0.1)";
+                            }}
+                            onBlur={(e) => {
+                              e.target.style.borderColor = "#e2e8f0";
+                              e.target.style.background = "#f7fafc";
+                              e.target.style.boxShadow = "none";
+                            }}
+                          />
+                        </Form.Control>
+                      </Form.Field>
+
+                      <Form.Field name="age">
+                        <div style={{ marginBottom: "8px" }}>
+                          <Form.Label
+                            style={{
+                              display: "block",
+                              fontSize: "0.875rem",
+                              fontWeight: "600",
+                              color: "#2d3748",
+                              marginBottom: "6px",
+                            }}
+                          >
+                            🎂 나이
+                          </Form.Label>
+                          <Form.Message match="rangeUnderflow">
+                            <span
+                              style={{
+                                color: "#e53e3e",
+                                fontSize: "0.75rem",
+                                fontWeight: "500",
+                              }}
+                            >
+                              18세 이상이어야 합니다
+                            </span>
+                          </Form.Message>
+                          <Form.Message match="rangeOverflow">
+                            <span
+                              style={{
+                                color: "#e53e3e",
+                                fontSize: "0.75rem",
+                                fontWeight: "500",
+                              }}
+                            >
+                              100세 이하여야 합니다
+                            </span>
+                          </Form.Message>
+                        </div>
+                        <Form.Control asChild>
+                          <input
+                            type="number"
+                            min="18"
+                            max="100"
+                            placeholder="25"
+                            style={{
+                              width: "100%",
+                              padding: "12px 16px",
+                              border: "2px solid #e2e8f0",
+                              borderRadius: "12px",
+                              fontSize: "1rem",
+                              transition: "all 0.2s ease",
+                              outline: "none",
+                              background: "#f7fafc",
+                            }}
+                            onFocus={(e) => {
+                              e.target.style.borderColor = "#667eea";
+                              e.target.style.background = "white";
+                              e.target.style.boxShadow =
+                                "0 0 0 3px rgba(102, 126, 234, 0.1)";
+                            }}
+                            onBlur={(e) => {
+                              e.target.style.borderColor = "#e2e8f0";
+                              e.target.style.background = "#f7fafc";
+                              e.target.style.boxShadow = "none";
+                            }}
+                          />
+                        </Form.Control>
+                      </Form.Field>
+                    </div>
+
+                    {/* 웹사이트 필드 */}
+                    <Form.Field name="website">
+                      <div style={{ marginBottom: "8px" }}>
+                        <Form.Label
+                          style={{
+                            display: "block",
+                            fontSize: "0.875rem",
+                            fontWeight: "600",
+                            color: "#2d3748",
+                            marginBottom: "6px",
+                          }}
+                        >
+                          🌐 웹사이트
+                        </Form.Label>
+                        <Form.Message match="typeMismatch">
+                          <span
+                            style={{
+                              color: "#e53e3e",
+                              fontSize: "0.75rem",
+                              fontWeight: "500",
+                            }}
+                          >
+                            올바른 URL 형식을 입력해주세요
+                          </span>
+                        </Form.Message>
+                      </div>
+                      <Form.Control asChild>
+                        <input
+                          type="url"
+                          placeholder="https://example.com"
+                          style={{
+                            width: "100%",
+                            padding: "12px 16px",
+                            border: "2px solid #e2e8f0",
+                            borderRadius: "12px",
+                            fontSize: "1rem",
+                            transition: "all 0.2s ease",
+                            outline: "none",
+                            background: "#f7fafc",
+                          }}
+                          onFocus={(e) => {
+                            e.target.style.borderColor = "#667eea";
+                            e.target.style.background = "white";
+                            e.target.style.boxShadow =
+                              "0 0 0 3px rgba(102, 126, 234, 0.1)";
+                          }}
+                          onBlur={(e) => {
+                            e.target.style.borderColor = "#e2e8f0";
+                            e.target.style.background = "#f7fafc";
+                            e.target.style.boxShadow = "none";
+                          }}
+                        />
+                      </Form.Control>
+                    </Form.Field>
+
+                    {/* 자기소개 필드 */}
+                    <Form.Field name="bio">
+                      <div style={{ marginBottom: "8px" }}>
+                        <Form.Label
+                          style={{
+                            display: "block",
+                            fontSize: "0.875rem",
+                            fontWeight: "600",
+                            color: "#2d3748",
+                            marginBottom: "6px",
+                          }}
+                        >
+                          📝 자기소개 *
+                        </Form.Label>
+                        <Form.Message match="valueMissing">
+                          <span
+                            style={{
+                              color: "#e53e3e",
+                              fontSize: "0.75rem",
+                              fontWeight: "500",
+                            }}
+                          >
+                            자기소개를 입력해주세요
+                          </span>
+                        </Form.Message>
+                        <Form.Message match="tooShort">
+                          <span
+                            style={{
+                              color: "#e53e3e",
+                              fontSize: "0.75rem",
+                              fontWeight: "500",
+                            }}
+                          >
+                            최소 10자 이상 입력해주세요
+                          </span>
+                        </Form.Message>
+                      </div>
+                      <Form.Control asChild>
+                        <textarea
+                          required
+                          rows={4}
+                          placeholder="자신에 대해 간단히 소개해주세요. 최소 10자 이상 입력해주세요."
+                          style={{
+                            width: "100%",
+                            padding: "12px 16px",
+                            border: "2px solid #e2e8f0",
+                            borderRadius: "12px",
+                            fontSize: "1rem",
+                            transition: "all 0.2s ease",
+                            outline: "none",
+                            background: "#f7fafc",
+                            resize: "vertical",
+                            fontFamily: "inherit",
+                          }}
+                          onFocus={(e) => {
+                            e.target.style.borderColor = "#667eea";
+                            e.target.style.background = "white";
+                            e.target.style.boxShadow =
+                              "0 0 0 3px rgba(102, 126, 234, 0.1)";
+                          }}
+                          onBlur={(e) => {
+                            e.target.style.borderColor = "#e2e8f0";
+                            e.target.style.background = "#f7fafc";
+                            e.target.style.boxShadow = "none";
+                          }}
+                        />
+                      </Form.Control>
+                    </Form.Field>
+
+                    {/* 제출 버튼 */}
+                    <Form.Submit asChild>
+                      <button
+                        style={{
+                          marginTop: "8px",
+                          padding: "16px 32px",
+                          background:
+                            "linear-gradient(135deg, #48bb78 0%, #38a169 100%)",
+                          color: "white",
+                          border: "none",
+                          borderRadius: "12px",
+                          cursor: "pointer",
+                          fontSize: "1.1rem",
+                          fontWeight: "600",
+                          transition: "all 0.2s ease",
+                          boxShadow: "0 4px 12px rgba(72, 187, 120, 0.3)",
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.transform = "translateY(-2px)";
+                          e.currentTarget.style.boxShadow =
+                            "0 8px 20px rgba(72, 187, 120, 0.4)";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.transform = "translateY(0)";
+                          e.currentTarget.style.boxShadow =
+                            "0 4px 12px rgba(72, 187, 120, 0.3)";
+                        }}
+                      >
+                        ✨ 정보 제출하기
+                      </button>
+                    </Form.Submit>
+                  </div>
+                </Form.Root>
+              </Card>
             </div>
           </div>
         </section>
