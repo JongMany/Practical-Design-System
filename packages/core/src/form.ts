@@ -116,7 +116,6 @@ export function validateFormField(
 
   const error = validator(field.value);
   const state: FormFieldState = error ? "invalid" : "valid";
-
   return updateFormFieldState(formData, fieldName, state, error || undefined);
 }
 

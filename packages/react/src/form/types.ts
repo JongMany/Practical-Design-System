@@ -12,10 +12,24 @@ type FieldDescriptionProps = ReturnType<
 type FieldKeyboardProps = ReturnType<UseFormReturn["getFieldKeyboardProps"]>;
 type FieldPointerProps = ReturnType<UseFormReturn["getFieldPointerProps"]>;
 
-export interface FormRootProps extends UseFormOptions {
+export interface FormRootProps {
   children: React.ReactNode;
   className?: string;
   style?: React.CSSProperties;
+  fields: string[];
+  initialValues?: Record<string, string>;
+  validators?: Record<string, (value: string) => string | null>;
+  validateOnChange?: boolean;
+  validateOnBlur?: boolean;
+  onSubmit?: (values: Record<string, string>) => void | Promise<void>;
+  onReset?: () => void;
+  onFormStateChange?: (formState: any) => void;
+  onFieldChange?: (fieldName: string, value: string) => void;
+  onFieldTouch?: (fieldName: string) => void;
+  "aria-label"?: string;
+  "aria-labelledby"?: string;
+  "aria-describedby"?: string;
+  idPrefix?: string;
 }
 
 export interface FormFieldProps {

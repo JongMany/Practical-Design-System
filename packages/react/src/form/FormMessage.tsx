@@ -4,7 +4,7 @@ import type { FormMessageProps } from "./types";
 
 export const FormMessage = forwardRef<HTMLDivElement, FormMessageProps>(
   ({ match, children, name, className, style, ...rest }, ref) => {
-    const { formState } = useFormContext("Form");
+    const { getFieldErrorProps, formData } = useFormContext("Form");
 
     // 만약 props에서 name을 받지 못했다면, DOM에서 data-field 또는 data-name 속성으로 찾기
     const fieldName =
@@ -14,16 +14,14 @@ export const FormMessage = forwardRef<HTMLDivElement, FormMessageProps>(
           document.querySelector("[data-name]")?.getAttribute("data-name")
         : null);
 
-    const fieldErrorProps = fieldName
-      ? formState.getFieldErrorProps(fieldName)
-      : {};
+    const fieldErrorProps = fieldName ? getFieldErrorProps(fieldName) : {};
 
     // match 조건에 따라 메시지를 표시할지 결정 (useMemo로 formState 변경 시 재계산)
     const shouldShow = useMemo(() => {
       if (!match) {
         return true;
-      } else if (formState && fieldName) {
-        const field = formState.formData[fieldName];
+      } else if (fieldName) {
+        const field = formData[fieldName];
 
         if (field) {
           // 에러가 있고 invalid 상태일 때만 표시
@@ -64,7 +62,7 @@ export const FormMessage = forwardRef<HTMLDivElement, FormMessageProps>(
         }
       }
       return false;
-    }, [formState, fieldName, match]);
+    }, [formData, fieldName, match]);
 
     if (!shouldShow) {
       return null;

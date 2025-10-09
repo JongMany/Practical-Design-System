@@ -1,11 +1,9 @@
 import * as React from "react";
-import { useForm } from "@acme/react-a11y";
+import { useForm, type UseFormReturn } from "@acme/react-a11y";
 import { createContext } from "../context/createContext";
 import type { FormRootProps } from "./types";
 
-interface FormContextValue {
-  formState: ReturnType<typeof useForm>;
-}
+interface FormContextValue extends UseFormReturn {}
 
 const [FormProvider, useFormContext] = createContext<FormContextValue>("Form");
 
@@ -17,7 +15,7 @@ export const FormRoot = React.forwardRef<HTMLFormElement, FormRootProps>(
       fields,
       initialValues,
       validators,
-      validateOnChange = true,
+      validateOnChange = false,
       validateOnBlur = true,
       onSubmit,
       onReset,
@@ -42,9 +40,11 @@ export const FormRoot = React.forwardRef<HTMLFormElement, FormRootProps>(
       onFormStateChange,
       onFieldChange,
       onFieldTouch,
+      "aria-label": rest["aria-label"],
+      "aria-labelledby": rest["aria-labelledby"],
+      "aria-describedby": rest["aria-describedby"],
+      idPrefix: rest.idPrefix,
     });
-
-    console.log("FormRoot formState:", formState);
 
     const handleSubmit = React.useCallback(
       (event: React.FormEvent<HTMLFormElement>) => {
@@ -57,7 +57,7 @@ export const FormRoot = React.forwardRef<HTMLFormElement, FormRootProps>(
     const formProps = formState.getFormProps();
 
     return (
-      <FormProvider formState={formState}>
+      <FormProvider {...formState}>
         <form
           {...rest}
           {...formProps}

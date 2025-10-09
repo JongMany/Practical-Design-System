@@ -33,7 +33,7 @@ const addNameToChildren = (
 
 export const FormField = forwardRef<HTMLDivElement, FormFieldProps>(
   ({ name, children, className, style, ...rest }, ref) => {
-    const { formState } = useFormContext("Form");
+    const { formData } = useFormContext("Form");
 
     return (
       <div
@@ -42,11 +42,9 @@ export const FormField = forwardRef<HTMLDivElement, FormFieldProps>(
         className={className}
         style={style}
         data-field={name}
-        data-invalid={
-          formState.formData[name]?.state === "invalid" || undefined
-        }
-        data-touched={formState.formData[name]?.touched || undefined}
-        data-dirty={formState.formData[name]?.dirty || undefined}
+        data-invalid={formData[name]?.state === "invalid" || undefined}
+        data-touched={formData[name]?.touched || undefined}
+        data-dirty={formData[name]?.dirty || undefined}
       >
         {addNameToChildren(children, name)}
       </div>

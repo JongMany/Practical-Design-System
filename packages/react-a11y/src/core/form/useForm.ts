@@ -65,6 +65,12 @@ export interface UseFormReturn {
   getFieldKeyboardProps: FormA11yState["getFieldKeyboardProps"];
   /** 필드에 적용할 포인터 이벤트 props */
   getFieldPointerProps: FormA11yState["getFieldPointerProps"];
+  /** Blur 시 유효성 검사 여부 */
+  validateOnBlur: boolean;
+  /** Change 시 유효성 검사 여부 */
+  validateOnChange: boolean;
+  /** 필드별 유효성 검사 함수들 */
+  validators?: Record<string, (value: string) => string | null>;
 }
 
 /**
@@ -109,8 +115,13 @@ export function useForm(options: UseFormOptions): UseFormReturn {
       setFormData((prevFormData) => {
         const newFormData = updateFormField(prevFormData, fieldName, value);
 
-        // 실시간 유효성 검사
-        if (validateOnChange && fieldValidators?.[fieldName]) {
+        // validateOnChange가 true일 때만 실시간 유효성 검사
+        // validateOnBlur만 true인 경우에는 입력 중에는 검사하지 않음
+        if (
+          validateOnChange &&
+          !validateOnBlur &&
+          fieldValidators?.[fieldName]
+        ) {
           return validateFormField(
             newFormData,
             fieldName,
@@ -123,7 +134,7 @@ export function useForm(options: UseFormOptions): UseFormReturn {
 
       onFieldChange?.(fieldName, value);
     },
-    [onFieldChange, validateOnChange, fieldValidators]
+    [onFieldChange, validateOnChange, validateOnBlur, fieldValidators]
   );
 
   // 필드 터치 함수 래핑
@@ -133,8 +144,13 @@ export function useForm(options: UseFormOptions): UseFormReturn {
       setFormData((prevFormData) => {
         let newFormData = prevFormData;
 
-        // 포커스 시 유효성 검사
-        if (validateOnBlur && fieldValidators?.[fieldName]) {
+        // validateOnBlur가 true일 때 blur 시 유효성 검사
+        // validateOnChange가 true인 경우에는 이미 입력 중에 검사했으므로 blur 시에는 검사하지 않음
+        if (
+          validateOnBlur &&
+          !validateOnChange &&
+          fieldValidators?.[fieldName]
+        ) {
           newFormData = validateFormField(
             newFormData,
             fieldName,
@@ -147,7 +163,7 @@ export function useForm(options: UseFormOptions): UseFormReturn {
 
       onFieldTouch?.(fieldName);
     },
-    [onFieldTouch, validateOnBlur, fieldValidators]
+    [onFieldTouch, validateOnBlur, validateOnChange, fieldValidators]
   );
 
   // Form 리셋 함수 래핑
@@ -235,13 +251,22 @@ export function useForm(options: UseFormOptions): UseFormReturn {
     [formState, touchField]
   );
 
+  // formData에서 values 추출
+  const values = React.useMemo(() => {
+    const result: Record<string, string> = {};
+    Object.keys(formData).forEach((key) => {
+      result[key] = formData[key]?.value || "";
+    });
+    return result;
+  }, [formData]);
+
   return {
     formData: formState.formData,
     formState: formState.formState,
     isValid: formState.isValid,
     isDirty: formState.isDirty,
     isTouched: formState.isTouched,
-    values: formState.values,
+    values,
     updateField,
     touchField,
     validateField: formState.validateField,
@@ -255,5 +280,8 @@ export function useForm(options: UseFormOptions): UseFormReturn {
     getFieldDescriptionProps: formState.getFieldDescriptionProps,
     getFieldKeyboardProps,
     getFieldPointerProps,
+    validateOnBlur: validateOnBlur ?? false,
+    validateOnChange: validateOnChange ?? false,
+    validators: fieldValidators,
   };
 }

@@ -5,36 +5,52 @@ import type { FormControlProps } from "./types";
 
 export const FormControl = forwardRef<HTMLElement, FormControlProps>(
   ({ asChild, children, className, name, style, ...rest }, ref) => {
-    const { formState } = useFormContext("Form");
+    const {
+      updateField,
+      touchField,
+      getFieldProps,
+      getFieldKeyboardProps,
+      getFieldPointerProps,
+      values,
+      validateField,
+      validateOnBlur,
+      validators,
+      ...restProps
+    } = useFormContext("Form");
 
     // name은 FormField에서 전달받거나 props로 받을 수 있음
-    const fieldProps = name ? formState.getFieldProps(name) : {};
-    const fieldKeyboardProps = name
-      ? formState.getFieldKeyboardProps(name)
-      : {};
-    const fieldPointerProps = name ? formState.getFieldPointerProps(name) : {};
+    const fieldProps = name ? getFieldProps(name) : {};
+    const fieldKeyboardProps = name ? getFieldKeyboardProps(name) : {};
+    const fieldPointerProps = name ? getFieldPointerProps(name) : {};
     const Comp = asChild ? Slot : "input";
 
     const handleChange = useCallback(
       (event: React.ChangeEvent<HTMLInputElement>) => {
-        if (formState && name) {
-          formState.updateField(name, event.target.value);
+        if (name) {
+          updateField(name, event.target.value);
         }
         rest.onChange?.(event);
       },
-      [formState, name, rest.onChange]
+      [updateField, name, rest.onChange]
     );
 
     const handleBlur = useCallback(
       (event: React.FocusEvent<HTMLInputElement>) => {
-        if (formState && name) {
-          formState.touchField(name);
+        if (name) {
+          touchField(name);
+
+          // validateOnBlur가 true이고 해당 필드에 validator가 있을 때만 유효성 검사 실행
+          console.log(validateOnBlur, name, validateField, validators);
+          if (validateOnBlur && validators && validators[name]) {
+            validateField(name);
+          }
         }
         rest.onBlur?.(event);
       },
-      [formState, name, rest.onBlur]
+      [touchField, validateField, validateOnBlur, validators, name, rest.onBlur]
     );
 
+    console.log("values", values);
     // 기본 스타일 정의
     const defaultStyles = {
       // 기본 padding
@@ -158,32 +174,6 @@ export const FormControl = forwardRef<HTMLElement, FormControlProps>(
       ...restPointerProps
     } = fieldPointerProps;
 
-    // asChild일 때는 value를 전달하지 않음 (자식 요소가 자체적으로 value를 관리)
-    // const controlProps = asChild
-    //   ? {
-    //       ...rest,
-    //       ...fieldProps,
-    //       ...restKeyboardProps,
-    //       ...restPointerProps,
-    //       ref: handleRef,
-    //       className,
-    //       style: { ...defaultStyles, ...numberInputStyles, ...style },
-    //       onChange: handleChange,
-    //       onBlur: handleBlur,
-    //       value: formState && name ? formState.values[name] || "" : "",
-    //     }
-    //   : {
-    //       ...rest,
-    //       ...fieldProps,
-    //       ...restKeyboardProps,
-    //       ...restPointerProps,
-    //       ref: handleRef,
-    //       className,
-    //       style: { ...defaultStyles, ...numberInputStyles, ...style },
-    //       onChange: handleChange,
-    //       onBlur: handleBlur,
-    //       value: formState && name ? formState.values[name] || "" : "",
-    //     };
     const controlProps = {
       ...rest,
       ...fieldProps,
@@ -194,10 +184,9 @@ export const FormControl = forwardRef<HTMLElement, FormControlProps>(
       style: { ...defaultStyles, ...numberInputStyles, ...style },
       onChange: handleChange,
       onBlur: handleBlur,
-      value: formState && name ? formState.formData[name]?.value || "" : "",
+      value: name ? values[name] || "" : "",
     };
 
-    console.log("control", formState, controlProps);
     return <Comp {...controlProps}>{children}</Comp>;
   }
 );

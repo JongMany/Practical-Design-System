@@ -794,7 +794,7 @@ function App() {
                     question: validators.required,
                   }}
                   validateOnBlur={true}
-                  validateOnChange={true}
+                  // validateOnChange={true}
                   onSubmit={async (values: Record<string, string>) => {
                     console.log("Form submitted:", values);
                     alert(
@@ -1012,9 +1012,8 @@ function App() {
                     bio: validators.minLength(10),
                   }}
                   validateOnBlur={true}
-                  validateOnChange={true}
+                  // validateOnChange={true}
                   onSubmit={async (values: Record<string, string>) => {
-                    console.log("Advanced form submitted:", values);
                     alert(
                       `제출된 데이터:\n${Object.entries(values)
                         .map(([key, value]) => `${key}: ${value}`)
