@@ -44,6 +44,8 @@ export const FormRoot = React.forwardRef<HTMLFormElement, FormRootProps>(
       onFieldTouch,
     });
 
+    console.log("FormRoot formState:", formState);
+
     const handleSubmit = React.useCallback(
       (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();

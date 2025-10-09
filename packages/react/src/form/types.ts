@@ -33,11 +33,13 @@ export interface FormLabelProps
 
 export interface FormControlProps
   extends React.InputHTMLAttributes<HTMLInputElement> {
+  name?: string;
   asChild?: boolean;
   children?: React.ReactNode;
 }
 
 export interface FormMessageProps extends React.HTMLAttributes<HTMLDivElement> {
+  name?: string;
   match?: string | (() => boolean);
   children: React.ReactNode;
 }

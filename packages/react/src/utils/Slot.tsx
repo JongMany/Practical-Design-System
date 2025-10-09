@@ -14,20 +14,23 @@ export interface SlotProps extends React.HTMLAttributes<HTMLElement> {
 
 export const Slot = forwardRef<HTMLElement, SlotProps>(
   ({ children, ...props }, ref) => {
+    // children이 배열인 경우 첫 번째 요소를 사용
+    const child = Array.isArray(children) ? children[0] : children;
+
     // ReactElement가 아닌 경우 그대로 반환
-    if (!isValidElement(children)) {
+    if (!isValidElement(child)) {
       return children;
     }
 
     // children의 ref를 안전하게 추출
-    const childRef = hasRef<HTMLElement>(children) ? children.ref : undefined;
+    const childRef = hasRef<HTMLElement>(child) ? child.ref : undefined;
 
     const childProps = {
       ...props,
       ref: mergeRefs(ref, childRef),
     };
 
-    return React.cloneElement(children, childProps);
+    return React.cloneElement(child, childProps);
   }
 );
 

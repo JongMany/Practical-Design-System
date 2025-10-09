@@ -793,6 +793,8 @@ function App() {
                     email: validators.email,
                     question: validators.required,
                   }}
+                  validateOnBlur={true}
+                  validateOnChange={true}
                   onSubmit={async (values: Record<string, string>) => {
                     console.log("Form submitted:", values);
                     alert(
@@ -1009,6 +1011,8 @@ function App() {
                     website: validators.url,
                     bio: validators.minLength(10),
                   }}
+                  validateOnBlur={true}
+                  validateOnChange={true}
                   onSubmit={async (values: Record<string, string>) => {
                     console.log("Advanced form submitted:", values);
                     alert(

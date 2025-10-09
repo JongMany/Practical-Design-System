@@ -4,11 +4,10 @@ import { useFormContext } from "./FormRoot";
 import type { FormControlProps } from "./types";
 
 export const FormControl = forwardRef<HTMLElement, FormControlProps>(
-  ({ asChild, children, className, style, ...rest }, ref) => {
-    const { formState } = useFormContext("FormControl");
+  ({ asChild, children, className, name, style, ...rest }, ref) => {
+    const { formState } = useFormContext("Form");
 
     // name은 FormField에서 전달받거나 props로 받을 수 있음
-    const name = (rest as any).name;
     const fieldProps = name ? formState.getFieldProps(name) : {};
     const fieldKeyboardProps = name
       ? formState.getFieldKeyboardProps(name)
@@ -160,31 +159,45 @@ export const FormControl = forwardRef<HTMLElement, FormControlProps>(
     } = fieldPointerProps;
 
     // asChild일 때는 value를 전달하지 않음 (자식 요소가 자체적으로 value를 관리)
-    const controlProps = asChild
-      ? {
-          ...rest,
-          ...fieldProps,
-          ...restKeyboardProps,
-          ...restPointerProps,
-          ref: handleRef,
-          className,
-          style: { ...defaultStyles, ...numberInputStyles, ...style },
-          onChange: handleChange,
-          onBlur: handleBlur,
-        }
-      : {
-          ...rest,
-          ...fieldProps,
-          ...restKeyboardProps,
-          ...restPointerProps,
-          ref: handleRef,
-          className,
-          style: { ...defaultStyles, ...numberInputStyles, ...style },
-          onChange: handleChange,
-          onBlur: handleBlur,
-          value: formState && name ? formState.values[name] || "" : "",
-        };
+    // const controlProps = asChild
+    //   ? {
+    //       ...rest,
+    //       ...fieldProps,
+    //       ...restKeyboardProps,
+    //       ...restPointerProps,
+    //       ref: handleRef,
+    //       className,
+    //       style: { ...defaultStyles, ...numberInputStyles, ...style },
+    //       onChange: handleChange,
+    //       onBlur: handleBlur,
+    //       value: formState && name ? formState.values[name] || "" : "",
+    //     }
+    //   : {
+    //       ...rest,
+    //       ...fieldProps,
+    //       ...restKeyboardProps,
+    //       ...restPointerProps,
+    //       ref: handleRef,
+    //       className,
+    //       style: { ...defaultStyles, ...numberInputStyles, ...style },
+    //       onChange: handleChange,
+    //       onBlur: handleBlur,
+    //       value: formState && name ? formState.values[name] || "" : "",
+    //     };
+    const controlProps = {
+      ...rest,
+      ...fieldProps,
+      ...restKeyboardProps,
+      ...restPointerProps,
+      ref: handleRef,
+      className,
+      style: { ...defaultStyles, ...numberInputStyles, ...style },
+      onChange: handleChange,
+      onBlur: handleBlur,
+      value: formState && name ? formState.formData[name]?.value || "" : "",
+    };
 
+    console.log("control", formState, controlProps);
     return <Comp {...controlProps}>{children}</Comp>;
   }
 );

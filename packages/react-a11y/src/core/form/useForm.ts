@@ -9,6 +9,7 @@ import {
   type FormA11yOptions,
   type FormA11yState,
 } from "@acme/a11y";
+import { updateFormField, validateFormField } from "@acme/core";
 
 export interface UseFormOptions extends FormA11yOptions {
   /** Form 제출 콜백 */
@@ -76,13 +77,25 @@ export function useForm(options: UseFormOptions): UseFormReturn {
     onFormStateChange,
     onFieldChange,
     onFieldTouch,
+    validateOnChange,
+    validateOnBlur,
+    validators: fieldValidators,
     ...a11yOptions
   } = options;
 
-  // a11y form 상태 생성
+  // React 상태로 formData 관리
+  const [formData, setFormData] = React.useState(() => {
+    const a11yFormState = createFormA11y(a11yOptions);
+    return a11yFormState.formData;
+  });
+
+  // a11y form 상태 생성 (formData 변경 시 재생성)
   const formState = React.useMemo(() => {
-    return createFormA11y(a11yOptions);
-  }, [a11yOptions]);
+    const a11yFormState = createFormA11y(a11yOptions);
+    // formData를 React 상태로 동기화
+    a11yFormState.formData = formData;
+    return a11yFormState;
+  }, [a11yOptions, formData]);
 
   // Form 상태 변경 감지
   React.useEffect(() => {
@@ -92,19 +105,49 @@ export function useForm(options: UseFormOptions): UseFormReturn {
   // 필드 업데이트 함수 래핑
   const updateField = React.useCallback(
     (fieldName: string, value: string) => {
-      formState.updateField(fieldName, value);
+      // React 상태만 업데이트 (성능 최적화)
+      setFormData((prevFormData) => {
+        const newFormData = updateFormField(prevFormData, fieldName, value);
+
+        // 실시간 유효성 검사
+        if (validateOnChange && fieldValidators?.[fieldName]) {
+          return validateFormField(
+            newFormData,
+            fieldName,
+            fieldValidators[fieldName]
+          );
+        }
+
+        return newFormData;
+      });
+
       onFieldChange?.(fieldName, value);
     },
-    [formState, onFieldChange]
+    [onFieldChange, validateOnChange, fieldValidators]
   );
 
   // 필드 터치 함수 래핑
   const touchField = React.useCallback(
     (fieldName: string) => {
-      formState.touchField(fieldName);
+      // React 상태만 업데이트 (성능 최적화)
+      setFormData((prevFormData) => {
+        let newFormData = prevFormData;
+
+        // 포커스 시 유효성 검사
+        if (validateOnBlur && fieldValidators?.[fieldName]) {
+          newFormData = validateFormField(
+            newFormData,
+            fieldName,
+            fieldValidators[fieldName]
+          );
+        }
+
+        return newFormData;
+      });
+
       onFieldTouch?.(fieldName);
     },
-    [formState, onFieldTouch]
+    [onFieldTouch, validateOnBlur, fieldValidators]
   );
 
   // Form 리셋 함수 래핑
