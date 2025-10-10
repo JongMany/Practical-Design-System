@@ -5,3 +5,4 @@ export * from "./hooks";
 export * from "./dialog";
 export * from "./form";
 export * from "./utils";
+export * from "./animation";
