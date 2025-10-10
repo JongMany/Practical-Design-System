@@ -7,3 +7,4 @@ export { FormMessage } from "./FormMessage";
 export { FormSubmit } from "./FormSubmit";
 export { useFormContext } from "./FormRoot";
 export type * from "./types";
+export * from "./styles";

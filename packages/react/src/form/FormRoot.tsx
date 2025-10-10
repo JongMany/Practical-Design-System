@@ -1,7 +1,7 @@
-import * as React from "react";
 import { useForm, type UseFormReturn } from "@acme/react-a11y";
 import { createContext } from "../context/createContext";
 import type { FormRootProps } from "./types";
+import { forwardRef, useCallback } from "react";
 
 interface FormContextValue extends UseFormReturn {}
 
@@ -9,7 +9,7 @@ const [FormProvider, useFormContext] = createContext<FormContextValue>("Form");
 
 export { useFormContext };
 
-export const FormRoot = React.forwardRef<HTMLFormElement, FormRootProps>(
+export const FormRoot = forwardRef<HTMLFormElement, FormRootProps>(
   (
     {
       fields,
@@ -46,7 +46,7 @@ export const FormRoot = React.forwardRef<HTMLFormElement, FormRootProps>(
       idPrefix: rest.idPrefix,
     });
 
-    const handleSubmit = React.useCallback(
+    const handleSubmit = useCallback(
       (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         formState.submitForm();
