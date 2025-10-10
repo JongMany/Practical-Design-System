@@ -21,7 +21,7 @@ import {
   getFormFieldValue,
   resetForm as resetFormCore,
   resetFormField,
-  type FormData,
+  type FormFieldData,
   type FormFieldValue,
   type FormFieldState,
   type FormState,
@@ -113,7 +113,7 @@ interface FieldPointerProps {
 
 export interface FormA11yState {
   /** Form 데이터 */
-  formData: FormData;
+  formData: FormFieldData;
   /** Form 상태 */
   formState: FormState;
   /** Form이 유효한지 */
@@ -203,8 +203,8 @@ export function createFormA11y(options: FormA11yOptions): FormA11yState {
   }
 
   // 상태 업데이트 함수
-  const setFormData = (newFormData: FormData) => {
-    formData = newFormData;
+  const setFormFieldData = (newFormFieldData: FormFieldData) => {
+    formData = newFormFieldData;
   };
 
   const setFormState = (newFormState: FormState) => {
@@ -215,76 +215,76 @@ export function createFormA11y(options: FormA11yOptions): FormA11yState {
   const updateField = (fieldName: string, value: string) => {
     if (!fields.includes(fieldName)) return;
 
-    let newFormData = updateFormField(formData, fieldName, value);
+    let newFormFieldData = updateFormField(formData, fieldName, value);
 
     // 실시간 유효성 검사
     if (validateOnChange && fieldValidators[fieldName]) {
-      newFormData = validateFormField(
-        newFormData,
+      newFormFieldData = validateFormField(
+        newFormFieldData,
         fieldName,
         fieldValidators[fieldName]
       );
     }
 
-    setFormData(newFormData);
+    setFormFieldData(newFormFieldData);
   };
 
   // 필드 터치 함수
   const touchField = (fieldName: string) => {
     if (!fields.includes(fieldName)) return;
 
-    let newFormData = formData;
+    let newFormFieldData = formData;
 
     // 포커스 시 유효성 검사
     if (validateOnBlur && fieldValidators[fieldName]) {
-      newFormData = validateFormField(
-        newFormData,
+      newFormFieldData = validateFormField(
+        newFormFieldData,
         fieldName,
         fieldValidators[fieldName]
       );
     }
 
-    setFormData(newFormData);
+    setFormFieldData(newFormFieldData);
   };
 
   // 필드 에러 설정 함수
   const setFieldError = (fieldName: string, error: string | null) => {
     if (!fields.includes(fieldName)) return;
 
-    const newFormData = setFormFieldError(formData, fieldName, error);
-    setFormData(newFormData);
+    const newFormFieldData = setFormFieldError(formData, fieldName, error);
+    setFormFieldData(newFormFieldData);
   };
 
   // 필드 유효성 검사 함수
   const validateField = (fieldName: string) => {
     if (!fields.includes(fieldName) || !fieldValidators[fieldName]) return;
 
-    const newFormData = validateFormField(
+    const newFormFieldData = validateFormField(
       formData,
       fieldName,
       fieldValidators[fieldName]
     );
-    setFormData(newFormData);
+    setFormFieldData(newFormFieldData);
   };
 
   // 전체 Form 유효성 검사 함수
   const validateForm = () => {
-    const newFormData = validateFormCore(formData, fieldValidators);
-    setFormData(newFormData);
+    const newFormFieldData = validateFormCore(formData, fieldValidators);
+    setFormFieldData(newFormFieldData);
   };
 
   // Form 리셋 함수
   const resetForm = () => {
-    let newFormData = createFormData(fields);
+    let newFormFieldData = createFormData(fields);
 
     // 초기값 복원
     for (const [fieldName, value] of Object.entries(initialValues)) {
       if (fields.includes(fieldName)) {
-        newFormData = updateFormField(newFormData, fieldName, value);
+        newFormFieldData = updateFormField(newFormFieldData, fieldName, value);
       }
     }
 
-    setFormData(newFormData);
+    setFormFieldData(newFormFieldData);
     setFormState("idle");
   };
 
@@ -304,6 +304,7 @@ export function createFormA11y(options: FormA11yOptions): FormA11yState {
 
     try {
       const values = extractFormValues(formData);
+
       await onSubmit(values);
       setFormState("success");
     } catch (error) {

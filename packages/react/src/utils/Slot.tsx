@@ -26,6 +26,7 @@ export const Slot = forwardRef<HTMLElement, SlotProps>(
     const childRef = hasRef<HTMLElement>(child) ? child.ref : undefined;
 
     const childProps = {
+      ...(child.props || {}),
       ...props,
       ref: mergeRefs(ref, childRef),
     };

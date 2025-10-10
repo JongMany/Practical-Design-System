@@ -9,11 +9,12 @@ import {
   type FormA11yOptions,
   type FormA11yState,
 } from "@acme/a11y";
+import type { FormFieldData } from "@acme/core";
 import { updateFormField, validateFormField } from "@acme/core";
 
 export interface UseFormOptions extends FormA11yOptions {
   /** Form 제출 콜백 */
-  onSubmit?: (values: Record<string, string>) => void | Promise<void>;
+  onSubmit?: (formData: FormFieldData) => void | Promise<void>;
   /** Form 리셋 콜백 */
   onReset?: () => void;
   /** Form 상태 변경 콜백 */
@@ -177,9 +178,17 @@ export function useForm(options: UseFormOptions): UseFormReturn {
   // Form 제출 함수 래핑
   const submitForm = React.useCallback(() => {
     if (onSubmit) {
-      formState.submitForm(onSubmit);
+      // a11y 패키지의 formData를 React 상태로 동기화
+      formState.formData = formData;
+
+      // 유효성 검사 후 제출
+      formState.validateForm();
+      if (formState.isValid) {
+        // 전체 formData를 전달 (value, error, touched, dirty, state 포함)
+        onSubmit(formData);
+      }
     }
-  }, [formState, onSubmit]);
+  }, [formData, formState, onSubmit]);
 
   // 키보드 이벤트 핸들러 래핑
   const getFieldKeyboardProps = React.useCallback(

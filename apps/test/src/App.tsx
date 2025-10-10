@@ -795,8 +795,15 @@ function App() {
                   }}
                   validateOnBlur={true}
                   // validateOnChange={true}
-                  onSubmit={async (values: Record<string, string>) => {
-                    console.log("Form submitted:", values);
+                  onSubmit={async (formData) => {
+                    const values = Object.keys(formData).reduce(
+                      (acc, key) => {
+                        acc[key] = formData[key]?.value || "";
+                        return acc;
+                      },
+                      {} as Record<string, string>
+                    );
+
                     alert(
                       `제출된 데이터:\n이메일: ${values.email}\n질문: ${values.question}`
                     );
@@ -983,7 +990,7 @@ function App() {
                     name: validators.required,
                     email: validators.email,
                     phone: validators.phone,
-                    age: (value: string) => {
+                    age: (value) => {
                       if (!value) return null;
                       const age = parseInt(value);
                       if (isNaN(age)) return "나이는 숫자여야 합니다";
@@ -996,7 +1003,26 @@ function App() {
                   }}
                   validateOnBlur={true}
                   // validateOnChange={true}
-                  onSubmit={async (values: Record<string, string>) => {
+                  onSubmit={async (formData) => {                    
+                    console.log("Advanced Form submitted:", formData);
+                    console.log(
+                      "Advanced FormData keys:",
+                      Object.keys(formData)
+                    );
+                    console.log(
+                      "Advanced FormData entries:",
+                      Object.entries(formData)
+                    );
+
+                    // values 추출
+                    const values = Object.keys(formData).reduce(
+                      (acc, key) => {
+                        acc[key] = formData[key]?.value || "";
+                        return acc;
+                      },
+                      {} as Record<string, string>
+                    );
+
                     alert(
                       `제출된 데이터:\n${Object.entries(values)
                         .map(([key, value]) => `${key}: ${value}`)

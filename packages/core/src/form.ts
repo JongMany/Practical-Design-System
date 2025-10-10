@@ -14,7 +14,7 @@ export interface FormFieldValue {
   dirty: boolean;
 }
 
-export interface FormData {
+export interface FormFieldData {
   [key: string]: FormFieldValue;
 }
 
@@ -33,21 +33,21 @@ export function createFormField(initialValue: string = ""): FormFieldValue {
 /**
  * Form 데이터의 초기값을 생성
  */
-export function createFormData(fields: string[]): FormData {
+export function createFormData(fields: string[]): FormFieldData {
   return fields.reduce((acc, field) => {
     acc[field] = createFormField();
     return acc;
-  }, {} as FormData);
+  }, {} as FormFieldData);
 }
 
 /**
  * Form 필드 값을 업데이트
  */
 export function updateFormField(
-  formData: FormData,
+  formData: FormFieldData,
   fieldName: string,
   value: string
-): FormData {
+): FormFieldData {
   const field = formData[fieldName];
   if (!field) return formData;
 
@@ -66,11 +66,11 @@ export function updateFormField(
  * Form 필드 상태를 업데이트
  */
 export function updateFormFieldState(
-  formData: FormData,
+  formData: FormFieldData,
   fieldName: string,
   state: FormFieldState,
   error?: string
-): FormData {
+): FormFieldData {
   const field = formData[fieldName];
   if (!field) return formData;
 
@@ -88,9 +88,9 @@ export function updateFormFieldState(
  * Form 필드를 터치 상태로 설정
  */
 export function touchFormField(
-  formData: FormData,
+  formData: FormFieldData,
   fieldName: string
-): FormData {
+): FormFieldData {
   const field = formData[fieldName];
   if (!field) return formData;
 
@@ -107,10 +107,10 @@ export function touchFormField(
  * Form 필드에 에러 메시지를 직접 설정
  */
 export function setFormFieldError(
-  formData: FormData,
+  formData: FormFieldData,
   fieldName: string,
   error: string | null
-): FormData {
+): FormFieldData {
   const field = formData[fieldName];
   if (!field) return formData;
 
@@ -122,10 +122,10 @@ export function setFormFieldError(
  * Form 필드의 유효성을 검사
  */
 export function validateFormField(
-  formData: FormData,
+  formData: FormFieldData,
   fieldName: string,
   validator: (value: string) => string | null
-): FormData {
+): FormFieldData {
   const field = formData[fieldName];
   if (!field) return formData;
 
@@ -138,9 +138,9 @@ export function validateFormField(
  * 전체 Form의 유효성을 검사
  */
 export function validateForm(
-  formData: FormData,
+  formData: FormFieldData,
   validators: Record<string, (value: string) => string | null>
-): FormData {
+): FormFieldData {
   let result = formData;
 
   for (const [fieldName, validator] of Object.entries(validators)) {
@@ -153,7 +153,7 @@ export function validateForm(
 /**
  * Form이 유효한지 확인
  */
-export function isFormValid(formData: FormData): boolean {
+export function isFormValid(formData: FormFieldData): boolean {
   return Object.values(formData).every(
     (field) => field.state === "valid" || field.state === "pristine"
   );
@@ -162,21 +162,23 @@ export function isFormValid(formData: FormData): boolean {
 /**
  * Form이 더티 상태인지 확인 (값이 변경되었는지)
  */
-export function isFormDirty(formData: FormData): boolean {
+export function isFormDirty(formData: FormFieldData): boolean {
   return Object.values(formData).some((field) => field.dirty);
 }
 
 /**
  * Form이 터치된 상태인지 확인
  */
-export function isFormTouched(formData: FormData): boolean {
+export function isFormTouched(formData: FormFieldData): boolean {
   return Object.values(formData).some((field) => field.touched);
 }
 
 /**
  * Form 데이터에서 실제 값들만 추출
  */
-export function extractFormValues(formData: FormData): Record<string, string> {
+export function extractFormValues(
+  formData: FormFieldData
+): Record<string, string> {
   return Object.entries(formData).reduce(
     (acc, [key, field]) => {
       acc[key] = field.value;
@@ -190,7 +192,7 @@ export function extractFormValues(formData: FormData): Record<string, string> {
  * Form 필드의 에러 메시지를 가져오기
  */
 export function getFormFieldError(
-  formData: FormData,
+  formData: FormFieldData,
   fieldName: string
 ): string | undefined {
   const field = formData[fieldName];
@@ -201,7 +203,7 @@ export function getFormFieldError(
  * Form 필드가 에러 상태인지 확인
  */
 export function hasFormFieldError(
-  formData: FormData,
+  formData: FormFieldData,
   fieldName: string
 ): boolean {
   const field = formData[fieldName];
@@ -212,7 +214,7 @@ export function hasFormFieldError(
  * Form 필드의 상태를 가져오기
  */
 export function getFormFieldState(
-  formData: FormData,
+  formData: FormFieldData,
   fieldName: string
 ): FormFieldState | undefined {
   return formData[fieldName]?.state;
@@ -222,7 +224,7 @@ export function getFormFieldState(
  * Form 필드의 값을 가져오기
  */
 export function getFormFieldValue(
-  formData: FormData,
+  formData: FormFieldData,
   fieldName: string
 ): string {
   return formData[fieldName]?.value || "";
@@ -231,21 +233,21 @@ export function getFormFieldValue(
 /**
  * Form을 리셋
  */
-export function resetForm(formData: FormData): FormData {
+export function resetForm(formData: FormFieldData): FormFieldData {
   return Object.entries(formData).reduce((acc, [key, field]) => {
     acc[key] = createFormField(field.value);
     return acc;
-  }, {} as FormData);
+  }, {} as FormFieldData);
 }
 
 /**
  * Form 필드를 리셋
  */
 export function resetFormField(
-  formData: FormData,
+  formData: FormFieldData,
   fieldName: string,
   initialValue: string = ""
-): FormData {
+): FormFieldData {
   return {
     ...formData,
     [fieldName]: createFormField(initialValue),

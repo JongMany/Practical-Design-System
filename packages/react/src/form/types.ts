@@ -21,7 +21,7 @@ export interface FormRootProps {
   validators?: Record<string, (value: string) => string | null>;
   validateOnChange?: boolean;
   validateOnBlur?: boolean;
-  onSubmit?: (values: Record<string, string>) => void | Promise<void>;
+  onSubmit?: UseFormOptions["onSubmit"];
   onReset?: () => void;
   onFormStateChange?: (formState: any) => void;
   onFieldChange?: (fieldName: string, value: string) => void;
