@@ -40,10 +40,8 @@ export interface FormA11yOptions {
   "aria-describedby"?: string;
   /** ID 접두사 */
   idPrefix?: string;
-  /** 필드명 목록 */
-  fields: string[];
   /** 필드별 초기값 */
-  initialValues?: Record<string, string>;
+  initialValues: Record<string, string>;
   /** 필드별 유효성 검사기 */
   validators?: Record<string, (value: string) => string | null>;
   /** 실시간 유효성 검사 여부 */
@@ -138,7 +136,7 @@ export interface FormA11yState {
   resetForm: () => void;
   /** Form 제출 함수 */
   submitForm: (
-    onSubmit: (values: Record<string, string>) => void | Promise<void>
+    onSubmit: (formData: FormFieldData) => void | Promise<void>
   ) => void;
   /** Form에 적용할 ARIA 속성 */
   getFormProps: () => FormProps;
@@ -161,8 +159,7 @@ export interface FormA11yState {
  */
 export function createFormA11y(options: FormA11yOptions): FormA11yState {
   const {
-    fields,
-    initialValues = {},
+    initialValues,
     validators: fieldValidators = {},
     validateOnChange = true,
     validateOnBlur = true,
@@ -172,15 +169,13 @@ export function createFormA11y(options: FormA11yOptions): FormA11yState {
     ...ariaOptions
   } = options;
 
-  // Form 데이터 초기화
-  let formData = createFormData(fields);
+  // fields를 initialValues에서 추출
+  const fields = Object.keys(initialValues);
 
-  // 초기값 설정
-  for (const [fieldName, value] of Object.entries(initialValues)) {
-    if (fields.includes(fieldName)) {
-      formData = updateFormField(formData, fieldName, value);
-    }
-  }
+  // Form 데이터 초기화
+  let formData = createFormData(initialValues);
+
+  // 초기값 설정 (createFormData에서 이미 설정됨)
 
   let formState: FormState = "idle";
 
@@ -275,14 +270,7 @@ export function createFormA11y(options: FormA11yOptions): FormA11yState {
 
   // Form 리셋 함수
   const resetForm = () => {
-    let newFormFieldData = createFormData(fields);
-
-    // 초기값 복원
-    for (const [fieldName, value] of Object.entries(initialValues)) {
-      if (fields.includes(fieldName)) {
-        newFormFieldData = updateFormField(newFormFieldData, fieldName, value);
-      }
-    }
+    let newFormFieldData = createFormData(initialValues);
 
     setFormFieldData(newFormFieldData);
     setFormState("idle");
@@ -290,7 +278,7 @@ export function createFormA11y(options: FormA11yOptions): FormA11yState {
 
   // Form 제출 함수
   const submitForm = async (
-    onSubmit: (values: Record<string, string>) => void | Promise<void>
+    onSubmit: (formData: FormFieldData) => void | Promise<void>
   ) => {
     // 전체 유효성 검사
     validateForm();
@@ -303,9 +291,7 @@ export function createFormA11y(options: FormA11yOptions): FormA11yState {
     setFormState("submitting");
 
     try {
-      const values = extractFormValues(formData);
-
-      await onSubmit(values);
+      await onSubmit(formData);
       setFormState("success");
     } catch (error) {
       setFormState("error");
@@ -611,7 +597,7 @@ export interface FormFieldA11yState {
   /** 필드 상태 */
   state: FormFieldState;
   /** 필드 에러 */
-  error?: string;
+  error: string | null;
   /** 필드가 터치되었는지 */
   touched: boolean;
   /** 필드가 더티한지 */
@@ -679,7 +665,7 @@ export function createFormFieldA11y(
       newField.state = error
         ? ("invalid" as FormFieldState)
         : ("valid" as FormFieldState);
-      newField.error = error || undefined;
+      newField.error = error;
     }
 
     setField(newField);
@@ -695,7 +681,7 @@ export function createFormFieldA11y(
       newField.state = error
         ? ("invalid" as FormFieldState)
         : ("valid" as FormFieldState);
-      newField.error = error || undefined;
+      newField.error = error;
     }
 
     setField(newField);
@@ -711,7 +697,7 @@ export function createFormFieldA11y(
       state: error
         ? ("invalid" as FormFieldState)
         : ("valid" as FormFieldState),
-      error: error || undefined,
+      error: error,
     };
 
     setField(newField);

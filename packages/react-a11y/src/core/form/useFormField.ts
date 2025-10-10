@@ -16,7 +16,7 @@ export interface UseFormFieldOptions extends FormFieldA11yOptions {
   /** 필드 터치 콜백 */
   onTouch?: () => void;
   /** 필드 유효성 검사 콜백 */
-  onValidate?: (isValid: boolean, error?: string) => void;
+  onValidate?: (isValid: boolean, error: string | null) => void;
   /** 필드 리셋 콜백 */
   onReset?: () => void;
   /** 현재 필드 값 */
@@ -24,7 +24,7 @@ export interface UseFormFieldOptions extends FormFieldA11yOptions {
   /** 현재 필드 상태 */
   state?: FormFieldA11yState["state"];
   /** 현재 필드 에러 */
-  error?: string;
+  error?: string | null;
   /** 현재 필드가 터치되었는지 */
   touched?: boolean;
   /** 현재 필드가 더티한지 */
@@ -37,7 +37,7 @@ export interface UseFormFieldReturn {
   /** 필드 상태 */
   state: FormFieldA11yState["state"];
   /** 필드 에러 */
-  error?: string;
+  error: string | null;
   /** 필드가 터치되었는지 */
   touched: boolean;
   /** 필드가 더티한지 */

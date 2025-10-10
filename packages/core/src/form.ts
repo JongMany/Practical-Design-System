@@ -9,7 +9,7 @@ export type FormState = "idle" | "submitting" | "success" | "error";
 export interface FormFieldValue {
   value: string;
   state: FormFieldState;
-  error?: string;
+  error: string | null;
   touched: boolean;
   dirty: boolean;
 }
@@ -25,6 +25,7 @@ export function createFormField(initialValue: string = ""): FormFieldValue {
   return {
     value: initialValue,
     state: "pristine",
+    error: null,
     touched: false,
     dirty: false,
   };
@@ -33,9 +34,11 @@ export function createFormField(initialValue: string = ""): FormFieldValue {
 /**
  * Form 데이터의 초기값을 생성
  */
-export function createFormData(fields: string[]): FormFieldData {
-  return fields.reduce((acc, field) => {
-    acc[field] = createFormField();
+export function createFormData<T extends Record<string, any>>(
+  initialValues: T
+): FormFieldData {
+  return Object.keys(initialValues).reduce((acc, field) => {
+    acc[field] = createFormField(initialValues[field] || "");
     return acc;
   }, {} as FormFieldData);
 }
@@ -69,7 +72,7 @@ export function updateFormFieldState(
   formData: FormFieldData,
   fieldName: string,
   state: FormFieldState,
-  error?: string
+  error: string | null = null
 ): FormFieldData {
   const field = formData[fieldName];
   if (!field) return formData;
@@ -115,7 +118,7 @@ export function setFormFieldError(
   if (!field) return formData;
 
   const state: FormFieldState = error ? "invalid" : "valid";
-  return updateFormFieldState(formData, fieldName, state, error || undefined);
+  return updateFormFieldState(formData, fieldName, state, error);
 }
 
 /**
@@ -194,9 +197,9 @@ export function extractFormValues(
 export function getFormFieldError(
   formData: FormFieldData,
   fieldName: string
-): string | undefined {
+): string | null {
   const field = formData[fieldName];
-  return field?.error;
+  return field?.error || null;
 }
 
 /**

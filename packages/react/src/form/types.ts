@@ -1,5 +1,6 @@
 import * as React from "react";
 import type { UseFormOptions, UseFormReturn } from "@acme/react-a11y";
+import type { FormFieldValue, FormFieldData } from "@acme/core";
 
 // a11y 패키지의 타입들을 import
 type FormProps = ReturnType<UseFormReturn["getFormProps"]>;
@@ -12,24 +13,51 @@ type FieldDescriptionProps = ReturnType<
 type FieldKeyboardProps = ReturnType<UseFormReturn["getFieldKeyboardProps"]>;
 type FieldPointerProps = ReturnType<UseFormReturn["getFieldPointerProps"]>;
 
-export interface FormRootProps {
+// initialValues의 키값을 추론해서 validators의 키값을 제한하는 타입
+type InferValidatorsFromInitialValues<T> =
+  T extends Record<string, any>
+    ? Partial<Record<keyof T, (value: string) => string | null>>
+    : Record<string, (value: string) => string | null>;
+
+// initialValues를 기반으로 formData 타입을 추론하는 타입
+type InferFormDataFromInitialValues<T> =
+  T extends Record<string, any>
+    ? { [K in keyof T]: FormFieldValue }
+    : Record<string, FormFieldValue>;
+
+// 기본 FormRootProps 인터페이스
+export interface BaseFormRootProps {
   children: React.ReactNode;
   className?: string;
   style?: React.CSSProperties;
-  fields: string[];
-  initialValues?: Record<string, string>;
-  validators?: Record<string, (value: string) => string | null>;
   validateOnChange?: boolean;
   validateOnBlur?: boolean;
-  onSubmit?: UseFormOptions["onSubmit"];
   onReset?: () => void;
-  onFormStateChange?: (formState: any) => void;
   onFieldChange?: (fieldName: string, value: string) => void;
   onFieldTouch?: (fieldName: string) => void;
   "aria-label"?: string;
   "aria-labelledby"?: string;
   "aria-describedby"?: string;
   idPrefix?: string;
+}
+
+// 타입 추론이 가능한 FormRootProps
+export interface FormRootProps<T = Record<string, string>>
+  extends BaseFormRootProps {
+  initialValues: T;
+  validators?: Partial<Record<keyof T, (value: string) => string | null>>;
+  onSubmit?: (formData: {
+    [K in keyof T]: FormFieldValue;
+  }) => void | Promise<void>;
+  onFormStateChange?: (formState: {
+    formData: { [K in keyof T]: FormFieldValue };
+    formState: "idle" | "submitting" | "success" | "error";
+    isValid: boolean;
+    isDirty: boolean;
+    isTouched: boolean;
+    values: Record<keyof T, string>;
+    errors: Record<keyof T, string | null>;
+  }) => void;
 }
 
 export interface FormFieldProps {

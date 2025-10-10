@@ -9,16 +9,30 @@ import {
   type FormA11yOptions,
   type FormA11yState,
 } from "@acme/a11y";
-import type { FormFieldData } from "@acme/core";
+import type { FormFieldData, FormFieldValue } from "@acme/core";
 import { updateFormField, validateFormField } from "@acme/core";
 
-export interface UseFormOptions extends FormA11yOptions {
+export interface UseFormOptions<
+  T extends Record<string, any> = Record<string, any>,
+> extends Omit<FormA11yOptions, "fields" | "validators"> {
+  /** 필드별 유효성 검사기 */
+  validators?: Partial<Record<keyof T, (value: string) => string | null>>;
   /** Form 제출 콜백 */
-  onSubmit?: (formData: FormFieldData) => void | Promise<void>;
+  onSubmit?: (formData: {
+    [K in keyof T]: FormFieldValue;
+  }) => void | Promise<void>;
   /** Form 리셋 콜백 */
   onReset?: () => void;
   /** Form 상태 변경 콜백 */
-  onFormStateChange?: (formState: FormA11yState["formState"]) => void;
+  onFormStateChange?: (formState: {
+    formData: { [K in keyof T]: FormFieldValue };
+    formState: "idle" | "submitting" | "success" | "error";
+    isValid: boolean;
+    isDirty: boolean;
+    isTouched: boolean;
+    values: Record<keyof T, string>;
+    errors: Record<keyof T, string | null>;
+  }) => void;
   /** 필드 값 변경 콜백 */
   onFieldChange?: (fieldName: string, value: string) => void;
   /** 필드 터치 콜백 */
@@ -79,7 +93,9 @@ export interface UseFormReturn {
 /**
  * React용 Form 훅
  */
-export function useForm(options: UseFormOptions): UseFormReturn {
+export function useForm<T extends Record<string, any>>(
+  options: UseFormOptions<T>
+): UseFormReturn {
   const {
     onSubmit,
     onReset,
@@ -94,22 +110,57 @@ export function useForm(options: UseFormOptions): UseFormReturn {
 
   // React 상태로 formData 관리
   const [formData, setFormData] = React.useState(() => {
-    const a11yFormState = createFormA11y(a11yOptions);
+    const a11yFormState = createFormA11y({
+      ...a11yOptions,
+      validators: fieldValidators as
+        | Record<string, (value: string) => string | null>
+        | undefined,
+    });
     return a11yFormState.formData;
   });
 
   // a11y form 상태 생성 (formData 변경 시 재생성)
   const formState = React.useMemo(() => {
-    const a11yFormState = createFormA11y(a11yOptions);
+    const a11yFormState = createFormA11y({
+      ...a11yOptions,
+      validators: fieldValidators as
+        | Record<string, (value: string) => string | null>
+        | undefined,
+    });
     // formData를 React 상태로 동기화
     a11yFormState.formData = formData;
     return a11yFormState;
-  }, [a11yOptions, formData]);
+  }, [a11yOptions, fieldValidators, formData]);
 
   // Form 상태 변경 감지
   React.useEffect(() => {
-    onFormStateChange?.(formState.formState);
-  }, [formState.formState, onFormStateChange]);
+    // errors를 formData에서 추출
+    const errors = Object.keys(formData).reduce(
+      (acc, key) => {
+        acc[key as keyof T] = formData[key]?.error || null;
+        return acc;
+      },
+      {} as Record<keyof T, string | null>
+    );
+
+    onFormStateChange?.({
+      formData: formData as { [K in keyof T]: FormFieldValue },
+      formState: formState.formState,
+      isValid: formState.isValid,
+      isDirty: formState.isDirty,
+      isTouched: formState.isTouched,
+      values: formState.values as Record<keyof T, string>,
+      errors,
+    });
+  }, [
+    formState.formState,
+    formState.isValid,
+    formState.isDirty,
+    formState.isTouched,
+    formState.values,
+    formData,
+    onFormStateChange,
+  ]);
 
   // 필드 업데이트 함수 래핑
   const updateField = React.useCallback(
@@ -185,7 +236,7 @@ export function useForm(options: UseFormOptions): UseFormReturn {
       formState.validateForm();
       if (formState.isValid) {
         // 전체 formData를 전달 (value, error, touched, dirty, state 포함)
-        onSubmit(formData);
+        onSubmit(formData as { [K in keyof T]: FormFieldValue });
       }
     }
   }, [formData, formState, onSubmit]);
@@ -294,6 +345,8 @@ export function useForm(options: UseFormOptions): UseFormReturn {
     getFieldPointerProps,
     validateOnBlur: validateOnBlur ?? false,
     validateOnChange: validateOnChange ?? false,
-    validators: fieldValidators,
+    validators: fieldValidators as
+      | Record<string, (value: string) => string | null>
+      | undefined,
   };
 }

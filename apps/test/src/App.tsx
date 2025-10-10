@@ -787,7 +787,6 @@ function App() {
                 </div>
 
                 <Form.Root
-                  fields={["email", "question"]}
                   initialValues={{ email: "", question: "" }}
                   validators={{
                     email: validators.email,
@@ -798,7 +797,8 @@ function App() {
                   onSubmit={async (formData) => {
                     const values = Object.keys(formData).reduce(
                       (acc, key) => {
-                        acc[key] = formData[key]?.value || "";
+                        acc[key] =
+                          formData[key as keyof typeof formData]?.value || "";
                         return acc;
                       },
                       {} as Record<string, string>
@@ -977,7 +977,6 @@ function App() {
                 </div>
 
                 <Form.Root
-                  fields={["name", "email", "phone", "age", "website", "bio"]}
                   initialValues={{
                     name: "",
                     email: "",
@@ -1003,7 +1002,8 @@ function App() {
                   }}
                   validateOnBlur={true}
                   // validateOnChange={true}
-                  onSubmit={async (formData) => {                    
+                  onSubmit={async (formData) => {
+                    
                     console.log("Advanced Form submitted:", formData);
                     console.log(
                       "Advanced FormData keys:",
@@ -1017,7 +1017,8 @@ function App() {
                     // values 추출
                     const values = Object.keys(formData).reduce(
                       (acc, key) => {
-                        acc[key] = formData[key]?.value || "";
+                        acc[key] =
+                          formData[key as keyof typeof formData]?.value || "";
                         return acc;
                       },
                       {} as Record<string, string>
