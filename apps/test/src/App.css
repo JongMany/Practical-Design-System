@@ -1,9 +1,10 @@
-@import "tailwindcss";
+/* Import design tokens (includes both light and dark themes) */
+
+/* @import "tailwindcss"; */
+/* @import "@acme/tokens/css"; */
+@import "./index.css";
 
 @import "@acme/adapter-tailwind/theme";
-
-/* Import design tokens (includes both light and dark themes) */
-@import "@acme/tokens/css";
 
 /* App styles using design tokens */
 .app {

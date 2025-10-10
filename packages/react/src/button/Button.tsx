@@ -25,7 +25,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ) => {
     const pointerActivation = usePointerActivation({
       disabled: disabled || loading,
-      onClick: onClick,
+      // onClick을 usePointerActivation에 전달하지 않음
     });
 
     // 이벤트 핸들러 조합

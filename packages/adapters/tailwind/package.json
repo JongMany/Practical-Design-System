@@ -13,6 +13,7 @@
     "preset.cjs"
   ],
   "scripts": {
+    "generate-theme": "node generate-theme.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
