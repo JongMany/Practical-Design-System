@@ -816,28 +816,14 @@ function App() {
                         >
                           📧 이메일 주소
                         </Form.Label>
-                        <Form.Message match="valueMissing">
-                          <span
-                            style={{
-                              color: "#e53e3e",
-                              fontSize: "0.75rem",
-                              fontWeight: "500",
-                            }}
-                          >
-                            이메일을 입력해주세요
-                          </span>
-                        </Form.Message>
-                        <Form.Message match="typeMismatch">
-                          <span
-                            style={{
-                              color: "#e53e3e",
-                              fontSize: "0.75rem",
-                              fontWeight: "500",
-                            }}
-                          >
-                            올바른 이메일 형식을 입력해주세요
-                          </span>
-                        </Form.Message>
+                        <Form.Message
+                          touched={true}
+                          style={{
+                            color: "#e53e3e",
+                            fontSize: "0.75rem",
+                            fontWeight: "500",
+                          }}
+                        />
                       </div>
                       <Form.Control asChild>
                         <input
@@ -882,17 +868,14 @@ function App() {
                         >
                           ❓ 질문 내용
                         </Form.Label>
-                        <Form.Message match="valueMissing">
-                          <span
-                            style={{
-                              color: "#e53e3e",
-                              fontSize: "0.75rem",
-                              fontWeight: "500",
-                            }}
-                          >
-                            질문을 입력해주세요
-                          </span>
-                        </Form.Message>
+                        <Form.Message
+                          touched={true}
+                          style={{
+                            color: "#e53e3e",
+                            fontSize: "0.75rem",
+                            fontWeight: "500",
+                          }}
+                        />
                       </div>
                       <Form.Control asChild>
                         <textarea
@@ -1036,17 +1019,14 @@ function App() {
                         >
                           👤 이름 *
                         </Form.Label>
-                        <Form.Message match="valueMissing">
-                          <span
-                            style={{
-                              color: "#e53e3e",
-                              fontSize: "0.75rem",
-                              fontWeight: "500",
-                            }}
-                          >
-                            이름을 입력해주세요
-                          </span>
-                        </Form.Message>
+                        <Form.Message
+                          touched={true}
+                          style={{
+                            color: "#e53e3e",
+                            fontSize: "0.75rem",
+                            fontWeight: "500",
+                          }}
+                        />
                       </div>
                       <Form.Control asChild>
                         <input
@@ -1092,28 +1072,14 @@ function App() {
                         >
                           📧 이메일 *
                         </Form.Label>
-                        <Form.Message match="valueMissing">
-                          <span
-                            style={{
-                              color: "#e53e3e",
-                              fontSize: "0.75rem",
-                              fontWeight: "500",
-                            }}
-                          >
-                            이메일을 입력해주세요
-                          </span>
-                        </Form.Message>
-                        <Form.Message match="typeMismatch">
-                          <span
-                            style={{
-                              color: "#e53e3e",
-                              fontSize: "0.75rem",
-                              fontWeight: "500",
-                            }}
-                          >
-                            올바른 이메일 형식을 입력해주세요
-                          </span>
-                        </Form.Message>
+                        <Form.Message
+                          touched={true}
+                          style={{
+                            color: "#e53e3e",
+                            fontSize: "0.75rem",
+                            fontWeight: "500",
+                          }}
+                        />
                       </div>
                       <Form.Control asChild>
                         <input
@@ -1166,17 +1132,14 @@ function App() {
                           >
                             📱 전화번호
                           </Form.Label>
-                          <Form.Message match="typeMismatch">
-                            <span
-                              style={{
-                                color: "#e53e3e",
-                                fontSize: "0.75rem",
-                                fontWeight: "500",
-                              }}
-                            >
-                              올바른 전화번호 형식을 입력해주세요
-                            </span>
-                          </Form.Message>
+                          <Form.Message
+                            touched={true}
+                            style={{
+                              color: "#e53e3e",
+                              fontSize: "0.75rem",
+                              fontWeight: "500",
+                            }}
+                          />
                         </div>
                         <Form.Control asChild>
                           <input
@@ -1220,28 +1183,14 @@ function App() {
                           >
                             🎂 나이
                           </Form.Label>
-                          <Form.Message match="rangeUnderflow">
-                            <span
-                              style={{
-                                color: "#e53e3e",
-                                fontSize: "0.75rem",
-                                fontWeight: "500",
-                              }}
-                            >
-                              18세 이상이어야 합니다
-                            </span>
-                          </Form.Message>
-                          <Form.Message match="rangeOverflow">
-                            <span
-                              style={{
-                                color: "#e53e3e",
-                                fontSize: "0.75rem",
-                                fontWeight: "500",
-                              }}
-                            >
-                              100세 이하여야 합니다
-                            </span>
-                          </Form.Message>
+                          <Form.Message
+                            touched={true}
+                            style={{
+                              color: "#e53e3e",
+                              fontSize: "0.75rem",
+                              fontWeight: "500",
+                            }}
+                          />
                         </div>
                         <Form.Control asChild>
                           <input
@@ -1289,17 +1238,14 @@ function App() {
                         >
                           🌐 웹사이트
                         </Form.Label>
-                        <Form.Message match="typeMismatch">
-                          <span
-                            style={{
-                              color: "#e53e3e",
-                              fontSize: "0.75rem",
-                              fontWeight: "500",
-                            }}
-                          >
-                            올바른 URL 형식을 입력해주세요
-                          </span>
-                        </Form.Message>
+                        <Form.Message
+                          touched={true}
+                          style={{
+                            color: "#e53e3e",
+                            fontSize: "0.75rem",
+                            fontWeight: "500",
+                          }}
+                        />
                       </div>
                       <Form.Control asChild>
                         <input
@@ -1344,28 +1290,14 @@ function App() {
                         >
                           📝 자기소개 *
                         </Form.Label>
-                        <Form.Message match="valueMissing">
-                          <span
-                            style={{
-                              color: "#e53e3e",
-                              fontSize: "0.75rem",
-                              fontWeight: "500",
-                            }}
-                          >
-                            자기소개를 입력해주세요
-                          </span>
-                        </Form.Message>
-                        <Form.Message match="tooShort">
-                          <span
-                            style={{
-                              color: "#e53e3e",
-                              fontSize: "0.75rem",
-                              fontWeight: "500",
-                            }}
-                          >
-                            최소 10자 이상 입력해주세요
-                          </span>
-                        </Form.Message>
+                        <Form.Message
+                          touched={true}
+                          style={{
+                            color: "#e53e3e",
+                            fontSize: "0.75rem",
+                            fontWeight: "500",
+                          }}
+                        />
                       </div>
                       <Form.Control asChild>
                         <textarea

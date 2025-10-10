@@ -3,66 +3,63 @@ import { useFormContext } from "./FormRoot";
 import type { FormMessageProps } from "./types";
 
 export const FormMessage = forwardRef<HTMLDivElement, FormMessageProps>(
-  ({ match, children, name, className, style, ...rest }, ref) => {
+  (
+    {
+      touched,
+      dirty,
+      invalid,
+      hasError,
+      always = true,
+      name,
+      className,
+      style,
+      ...rest
+    },
+    ref
+  ) => {
     const { getFieldErrorProps, formData } = useFormContext("Form");
 
-    // 만약 props에서 name을 받지 못했다면, DOM에서 data-field 또는 data-name 속성으로 찾기
-    const fieldName =
-      name ||
-      (typeof window !== "undefined"
-        ? document.querySelector("[data-field]")?.getAttribute("data-field") ||
-          document.querySelector("[data-name]")?.getAttribute("data-name")
-        : null);
+    // fieldName이 없으면 DOM에서 찾기 (fallback)
+    const fieldName = useMemo(() => {
+      if (name) return name;
+
+      // SSR 환경에서는 DOM 접근 불가
+      if (typeof window === "undefined") return null;
+
+      // data-field 또는 data-name 속성으로 찾기
+      const fieldElement =
+        document.querySelector("[data-field]") ||
+        document.querySelector("[data-name]");
+      return (
+        fieldElement?.getAttribute("data-field") ||
+        fieldElement?.getAttribute("data-name") ||
+        null
+      );
+    }, [name]);
 
     const fieldErrorProps = fieldName ? getFieldErrorProps(fieldName) : {};
 
-    // match 조건에 따라 메시지를 표시할지 결정 (useMemo로 formState 변경 시 재계산)
+    // 메시지 표시 여부 결정
     const shouldShow = useMemo(() => {
-      if (!match) {
-        return true;
-      } else if (fieldName) {
-        const field = formData[fieldName];
+      // fieldName이 없으면 표시하지 않음
+      if (!fieldName) return false;
 
-        if (field) {
-          // 에러가 있고 invalid 상태일 때만 표시
-          if (field.error && field.state === "invalid") {
-            // match가 문자열인 경우
-            if (typeof match === "string") {
-              // 특정 에러 타입별 매칭 로직
-              const result = (() => {
-                switch (match) {
-                  case "valueMissing":
-                    return (
-                      field.error.includes("필수") ||
-                      field.error.includes("입력")
-                    );
-                  case "typeMismatch":
-                    return (
-                      field.error.includes("형식") ||
-                      field.error.includes("올바른")
-                    );
-                  case "required":
-                    return field.error.includes("필수");
-                  case "email":
-                    return field.error.includes("이메일");
-                  default:
-                    // 기본적으로 에러가 있으면 표시
-                    return true;
-                }
-              })();
-              return result;
-            } else if (typeof match === "function") {
-              // match가 함수인 경우
-              return match();
-            } else {
-              // 기본적으로 에러가 있으면 표시
-              return true;
-            }
-          }
-        }
-      }
-      return false;
-    }, [formData, fieldName, match]);
+      const field = formData[fieldName];
+      if (!field) return false;
+
+      // always가 false이면 표시하지 않음
+      if (always === false) return false;
+
+      // 각 조건별 체크
+      if (touched !== undefined && field.touched !== touched) return false;
+      if (dirty !== undefined && field.dirty !== dirty) return false;
+      if (invalid !== undefined && (field.state === "invalid") !== invalid)
+        return false;
+      if (hasError !== undefined && !!field.error !== hasError) return false;
+
+      // 기본적으로 에러가 있을 때만 표시
+      return !!field.error;
+    }, [formData, fieldName, touched, dirty, invalid, hasError, always]);
 
     if (!shouldShow) {
       return null;
@@ -78,7 +75,7 @@ export const FormMessage = forwardRef<HTMLDivElement, FormMessageProps>(
         role="alert"
         aria-live="polite"
       >
-        {children}
+        {fieldName ? formData[fieldName]?.error : null}
       </div>
     );
   }

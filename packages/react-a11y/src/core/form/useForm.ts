@@ -43,6 +43,8 @@ export interface UseFormReturn {
   updateField: (fieldName: string, value: string) => void;
   /** Form 필드 터치 함수 */
   touchField: (fieldName: string) => void;
+  /** Form 필드 에러 설정 함수 */
+  setFieldError: (fieldName: string, error: string | null) => void;
   /** Form 유효성 검사 함수 */
   validateField: (fieldName: string) => void;
   /** 전체 Form 유효성 검사 함수 */
@@ -269,6 +271,7 @@ export function useForm(options: UseFormOptions): UseFormReturn {
     values,
     updateField,
     touchField,
+    setFieldError: formState.setFieldError,
     validateField: formState.validateField,
     validateForm: formState.validateForm,
     resetForm,

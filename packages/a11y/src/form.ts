@@ -8,6 +8,7 @@ import {
   createFormField,
   updateFormField,
   updateFormFieldState,
+  setFormFieldError,
   validateFormField,
   validateForm as validateFormCore,
   isFormValid,
@@ -127,6 +128,8 @@ export interface FormA11yState {
   updateField: (fieldName: string, value: string) => void;
   /** Form 필드 터치 함수 */
   touchField: (fieldName: string) => void;
+  /** Form 필드 에러 설정 함수 */
+  setFieldError: (fieldName: string, error: string | null) => void;
   /** Form 유효성 검사 함수 */
   validateField: (fieldName: string) => void;
   /** 전체 Form 유효성 검사 함수 */
@@ -241,6 +244,14 @@ export function createFormA11y(options: FormA11yOptions): FormA11yState {
       );
     }
 
+    setFormData(newFormData);
+  };
+
+  // 필드 에러 설정 함수
+  const setFieldError = (fieldName: string, error: string | null) => {
+    if (!fields.includes(fieldName)) return;
+
+    const newFormData = setFormFieldError(formData, fieldName, error);
     setFormData(newFormData);
   };
 
@@ -515,6 +526,7 @@ export function createFormA11y(options: FormA11yOptions): FormA11yState {
     values: extractFormValues(formData),
     updateField,
     touchField,
+    setFieldError,
     validateField,
     validateForm,
     resetForm,

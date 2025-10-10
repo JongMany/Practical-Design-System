@@ -104,6 +104,21 @@ export function touchFormField(
 }
 
 /**
+ * Form 필드에 에러 메시지를 직접 설정
+ */
+export function setFormFieldError(
+  formData: FormData,
+  fieldName: string,
+  error: string | null
+): FormData {
+  const field = formData[fieldName];
+  if (!field) return formData;
+
+  const state: FormFieldState = error ? "invalid" : "valid";
+  return updateFormFieldState(formData, fieldName, state, error || undefined);
+}
+
+/**
  * Form 필드의 유효성을 검사
  */
 export function validateFormField(

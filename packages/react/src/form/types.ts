@@ -54,8 +54,16 @@ export interface FormControlProps
 
 export interface FormMessageProps extends React.HTMLAttributes<HTMLDivElement> {
   name?: string;
-  match?: string | (() => boolean);
-  children: React.ReactNode;
+  /** 터치된 상태일 때만 표시 */
+  touched?: boolean;
+  /** 더티 상태일 때만 표시 */
+  dirty?: boolean;
+  /** 유효하지 않은 상태일 때만 표시 */
+  invalid?: boolean;
+  /** 에러가 있을 때만 표시 */
+  hasError?: boolean;
+  /** 항상 표시 (기본값: true) */
+  always?: boolean;
 }
 
 export interface FormSubmitProps
