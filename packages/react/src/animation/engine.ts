@@ -3,6 +3,7 @@
  * 토스의 Rally 시스템을 기반으로 한 애니메이션 엔진
  */
 
+import React from "react";
 import type {
   AnimationEngine,
   AnimationEvent,
@@ -293,6 +294,13 @@ class MotionImpl implements Motion {
       return `scale(${value})`;
     }
 
+    if (from.includes("rotate") && to.includes("rotate")) {
+      const fromValue = this.extractNumber(from);
+      const toValue = this.extractNumber(to);
+      const value = fromValue + (toValue - fromValue) * progress;
+      return `rotate(${value}deg)`;
+    }
+
     return to;
   }
 
@@ -337,12 +345,16 @@ class RallyImpl implements Rally {
   public state: AnimationState = "idle";
   public motions: Motion[] = [];
   private eventManager = new EventManager();
+  private initialStates: Map<string, any> = new Map();
 
   constructor(spec: RallySpec) {
     this.spec = spec;
     this.motions = spec.motions.map(
       (motionSpec) => new MotionImpl(motionSpec, spec.target)
     );
+
+    // 초기 상태 저장
+    this.saveInitialStates();
   }
 
   async start(): Promise<void> {
@@ -363,6 +375,9 @@ class RallyImpl implements Rally {
 
     this.state = "finished";
     this.emit({ type: "end", timestamp: performance.now() });
+
+    // endBehavior 처리
+    this.handleEndBehavior();
   }
 
   pause(): void {
@@ -403,6 +418,146 @@ class RallyImpl implements Rally {
 
   private emit(event: AnimationEvent): void {
     this.eventManager.emit(event);
+  }
+
+  private saveInitialStates(): void {
+    const element = this.getElement();
+    if (!element) return;
+
+    this.spec.motions.forEach((motion) => {
+      const property = motion.property;
+      let initialValue: any;
+
+      switch (property) {
+        case "opacity":
+          initialValue =
+            element.style.opacity || getComputedStyle(element).opacity || "1";
+          break;
+        case "transform":
+          initialValue =
+            element.style.transform ||
+            getComputedStyle(element).transform ||
+            "none";
+          break;
+        case "backgroundColor":
+          initialValue =
+            element.style.backgroundColor ||
+            getComputedStyle(element).backgroundColor ||
+            "";
+          break;
+        case "color":
+          initialValue =
+            element.style.color || getComputedStyle(element).color || "";
+          break;
+        case "width":
+          initialValue =
+            element.style.width || getComputedStyle(element).width || "";
+          break;
+        case "height":
+          initialValue =
+            element.style.height || getComputedStyle(element).height || "";
+          break;
+        default:
+          initialValue = (element.style as any)[property] || "";
+      }
+
+      this.initialStates.set(property, initialValue);
+      console.log(`Saved initial state for ${property}:`, initialValue);
+    });
+  }
+
+  private getElement(): HTMLElement | null {
+    if (typeof this.spec.target === "string") {
+      return document.querySelector(this.spec.target) as HTMLElement;
+    }
+    return this.spec.target;
+  }
+
+  private handleEndBehavior(): void {
+    const endBehavior = this.spec.endBehavior || "maintain";
+    console.log(`Handling end behavior: ${endBehavior}`);
+
+    switch (endBehavior) {
+      case "reset":
+        console.log("Executing reset behavior");
+        this.resetToInitialState();
+        break;
+      case "reverse":
+        console.log("Executing reverse behavior");
+        // 비동기 함수이지만 await 없이 실행 (백그라운드에서 실행)
+        this.reverseAnimation().catch(console.error);
+        break;
+      case "maintain":
+      default:
+        console.log("Maintaining final state");
+        // 최종 상태 유지 (아무것도 하지 않음)
+        break;
+    }
+  }
+
+  private resetToInitialState(): void {
+    const element = this.getElement();
+    if (!element) return;
+
+    console.log("Resetting to initial states:", this.initialStates);
+
+    // transition을 일시적으로 제거하여 즉시 리셋
+    const originalTransition = element.style.transition;
+    element.style.transition = "none";
+
+    this.initialStates.forEach((value, property) => {
+      console.log(`Resetting ${property} to:`, value);
+      switch (property) {
+        case "opacity":
+          element.style.opacity = value;
+          break;
+        case "transform":
+          element.style.transform = value;
+          break;
+        case "backgroundColor":
+          element.style.backgroundColor = value;
+          break;
+        case "color":
+          element.style.color = value;
+          break;
+        case "width":
+          element.style.width = value;
+          break;
+        case "height":
+          element.style.height = value;
+          break;
+        default:
+          (element.style as any)[property] = value;
+      }
+    });
+
+    // transition 복원
+    setTimeout(() => {
+      element.style.transition = originalTransition;
+    }, 10);
+  }
+
+  private async reverseAnimation(): Promise<void> {
+    const element = this.getElement();
+    if (!element) return;
+
+    console.log("Starting reverse animation");
+
+    // 역재생을 위한 새로운 Rally 생성
+    const reverseMotions = this.spec.motions.map((motion) => ({
+      ...motion,
+      from: motion.to,
+      to: motion.from,
+    }));
+
+    const reverseRally = new RallyImpl({
+      ...this.spec,
+      motions: reverseMotions,
+      endBehavior: "maintain", // 역재생은 한 번만 실행
+    });
+
+    await reverseRally.start();
+    console.log("Reverse animation completed");
   }
 }
 

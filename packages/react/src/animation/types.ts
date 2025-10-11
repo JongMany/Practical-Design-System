@@ -65,10 +65,16 @@ export interface MotionSpec {
   direction?: "normal" | "reverse" | "alternate" | "alternate-reverse";
 }
 
+// 애니메이션 종료 시 동작 타입
+export type AnimationEndBehavior =
+  | "maintain" // 최종 상태 유지
+  | "reset" // 초기 상태로 리셋
+  | "reverse"; // 역재생으로 되돌아가기
+
 // 랠리 스펙 - 하나의 대상에 대한 애니메이션 시퀀스
 export interface RallySpec {
-  /** 대상 식별자 (CSS 선택자, ref 등) */
-  target: string;
+  /** 대상 식별자 (CSS 선택자, HTMLElement) */
+  target: string | HTMLElement;
   /** 실행할 모션들 */
   motions: MotionSpec[];
   /** 모션들을 병렬로 실행할지 여부 */
@@ -77,6 +83,8 @@ export interface RallySpec {
   delay?: number;
   /** 랠리 반복 횟수 */
   iterationCount?: number | "infinite";
+  /** 애니메이션 종료 시 동작 */
+  endBehavior?: AnimationEndBehavior;
 }
 
 // 타임라인 스펙 - 여러 랠리의 스케줄링

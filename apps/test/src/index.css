@@ -1,2 +1,3 @@
 @import "tailwindcss";
 @import "@acme/tokens/css";
+@import "@acme/adapter-tailwind/theme";

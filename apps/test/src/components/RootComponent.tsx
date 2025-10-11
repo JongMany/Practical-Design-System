@@ -26,89 +26,89 @@ const RootComponent = ({ queryClient }: RootComponentProps) => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="app">
-        <header className="flex justify-between items-center p-ds-md border-b border-ds-border bg-ds-bg-subtle">
-          <h1 className="text-ds-heading font-bold text-gray-00">
+      <div className="min-h-screen bg-gray-100 data-[theme=dark]:bg-gray-900">
+        <header className="flex justify-between items-center p-4 border-b border-gray-200 data-[theme=dark]:border-gray-700 bg-white data-[theme=dark]:bg-gray-800">
+          <h1 className="text-2xl font-bold text-gray-900 data-[theme=dark]:text-gray-100">
             Design System Demo
           </h1>
-          <div className="flex items-center gap-ds-lg">
-            <nav className="flex gap-2 flex-wrap">
+          <div className="flex items-center gap-6">
+            <nav className="flex gap-4 flex-wrap">
               <Link
                 to="/"
-                className="text-ds-text-subtle hover:text-ds-text hover:bg-ds-bg px-ds-sm py-ds-xs rounded-ds text-ds-caption font-medium transition-colors"
+                className="px-3 py-2 rounded-md text-sm font-medium transition-colors text-gray-600 data-[theme=dark]:text-gray-400 hover:text-gray-900 data-[theme=dark]:hover:text-gray-100 hover:bg-gray-100 data-[theme=dark]:hover:bg-gray-700"
               >
                 홈
               </Link>
               <Link
                 to="/button"
-                className="text-ds-text-subtle hover:text-ds-text hover:bg-ds-bg px-ds-sm py-ds-xs rounded-ds text-ds-caption font-medium transition-colors"
+                className="px-3 py-2 rounded-md text-sm font-medium transition-colors text-gray-600 data-[theme=dark]:text-gray-400 hover:text-gray-900 data-[theme=dark]:hover:text-gray-100 hover:bg-gray-100 data-[theme=dark]:hover:bg-gray-700"
               >
                 버튼
               </Link>
               <Link
                 to="/card"
-                className="text-ds-text-subtle hover:text-ds-text hover:bg-ds-bg px-ds-sm py-ds-xs rounded-ds text-ds-caption font-medium transition-colors"
+                className="px-3 py-2 rounded-md text-sm font-medium transition-colors text-gray-600 data-[theme=dark]:text-gray-400 hover:text-gray-900 data-[theme=dark]:hover:text-gray-100 hover:bg-gray-100 data-[theme=dark]:hover:bg-gray-700"
               >
                 카드
               </Link>
               <Link
                 to="/checkbox"
-                className="text-ds-text-subtle hover:text-ds-text hover:bg-ds-bg px-ds-sm py-ds-xs rounded-ds text-ds-caption font-medium transition-colors"
+                className="px-3 py-2 rounded-md text-sm font-medium transition-colors text-gray-600 data-[theme=dark]:text-gray-400 hover:text-gray-900 data-[theme=dark]:hover:text-gray-100 hover:bg-gray-100 data-[theme=dark]:hover:bg-gray-700"
               >
                 체크박스
               </Link>
               <Link
                 to="/dialog"
-                className="text-ds-text-subtle hover:text-ds-text hover:bg-ds-bg px-ds-sm py-ds-xs rounded-ds text-ds-caption font-medium transition-colors"
+                className="px-3 py-2 rounded-md text-sm font-medium transition-colors text-gray-600 data-[theme=dark]:text-gray-400 hover:text-gray-900 data-[theme=dark]:hover:text-gray-100 hover:bg-gray-100 data-[theme=dark]:hover:bg-gray-700"
               >
                 다이얼로그
               </Link>
               <Link
                 to="/form"
-                className="text-ds-text-subtle hover:text-ds-text hover:bg-ds-bg px-ds-sm py-ds-xs rounded-ds text-ds-caption font-medium transition-colors"
+                className="px-3 py-2 rounded-md text-sm font-medium transition-colors text-gray-600 data-[theme=dark]:text-gray-400 hover:text-gray-900 data-[theme=dark]:hover:text-gray-100 hover:bg-gray-100 data-[theme=dark]:hover:bg-gray-700"
               >
                 폼
               </Link>
               <Link
                 to="/typography"
-                className="text-ds-text-subtle hover:text-ds-text hover:bg-ds-bg px-ds-sm py-ds-xs rounded-ds text-ds-caption font-medium transition-colors"
+                className="px-3 py-2 rounded-md text-sm font-medium transition-colors text-gray-600 data-[theme=dark]:text-gray-400 hover:text-gray-900 data-[theme=dark]:hover:text-gray-100 hover:bg-gray-100 data-[theme=dark]:hover:bg-gray-700"
               >
                 타이포그래피
               </Link>
               <Link
                 to="/animation"
-                className="text-ds-text-subtle hover:text-ds-text hover:bg-ds-bg px-ds-sm py-ds-xs rounded-ds text-ds-caption font-medium transition-colors"
+                className="px-3 py-2 rounded-md text-sm font-medium transition-colors text-gray-600 data-[theme=dark]:text-gray-400 hover:text-gray-900 data-[theme=dark]:hover:text-gray-100 hover:bg-gray-100 data-[theme=dark]:hover:bg-gray-700"
               >
                 애니메이션
               </Link>
               <Link
                 to="/interactive-animation"
-                className="text-ds-text-subtle hover:text-ds-text hover:bg-ds-bg px-ds-sm py-ds-xs rounded-ds text-ds-caption font-medium transition-colors"
+                className="px-3 py-2 rounded-md text-sm font-medium transition-colors text-gray-600 data-[theme=dark]:text-gray-400 hover:text-gray-900 data-[theme=dark]:hover:text-gray-100 hover:bg-gray-100 data-[theme=dark]:hover:bg-gray-700"
               >
                 인터랙티브 애니메이션
               </Link>
               <Link
                 to="/timeline-animation"
-                className="text-ds-text-subtle hover:text-ds-text hover:bg-ds-bg px-ds-sm py-ds-xs rounded-ds text-ds-caption font-medium transition-colors"
+                className="px-3 py-2 rounded-md text-sm font-medium transition-colors text-gray-600 data-[theme=dark]:text-gray-400 hover:text-gray-900 data-[theme=dark]:hover:text-gray-100 hover:bg-gray-100 data-[theme=dark]:hover:bg-gray-700"
               >
                 타임라인 애니메이션
               </Link>
               <Link
                 to="/chained-animation"
-                className="text-ds-text-subtle hover:text-ds-text hover:bg-ds-bg px-ds-sm py-ds-xs rounded-ds text-ds-caption font-medium transition-colors"
+                className="px-3 py-2 rounded-md text-sm font-medium transition-colors text-gray-600 data-[theme=dark]:text-gray-400 hover:text-gray-900 data-[theme=dark]:hover:text-gray-100 hover:bg-gray-100 data-[theme=dark]:hover:bg-gray-700"
               >
                 연쇄 애니메이션
               </Link>
               <Link
                 to="/interactive-timeline"
-                className="text-ds-text-subtle hover:text-ds-text hover:bg-ds-bg px-ds-sm py-ds-xs rounded-ds text-ds-caption font-medium transition-colors"
+                className="px-3 py-2 rounded-md text-sm font-medium transition-colors text-gray-600 data-[theme=dark]:text-gray-400 hover:text-gray-900 data-[theme=dark]:hover:text-gray-100 hover:bg-gray-100 data-[theme=dark]:hover:bg-gray-700"
               >
                 인터랙션 대기 타임라인
               </Link>
             </nav>
             <Button
               onClick={toggleTheme}
-              className="bg-ds-primary-bg hover:opacity-90 text-white px-ds-md py-ds-sm rounded-ds font-semibold transition-all rounded-0-5"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors"
             >
               🌙 Toggle Theme
             </Button>
