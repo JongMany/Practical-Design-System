@@ -1,5 +1,5 @@
-import { useRef, useEffect, useState } from "react";
-import { rallyEngine, RallyPresets } from "@acme/react";
+import { useRef } from "react";
+import { Rally, Timeline, Ease, Spring, Bezier, Stagger } from "@acme/react";
 
 export default function AnimationPage() {
   // 페이드 인 refs
@@ -22,184 +22,325 @@ export default function AnimationPage() {
   const rotateResetRef = useRef<HTMLDivElement>(null);
   const rotateReverseRef = useRef<HTMLDivElement>(null);
 
-  const [, setIsReady] = useState(false);
-
-  useEffect(() => {
-    if (
-      fadeInMaintainRef.current &&
-      fadeInResetRef.current &&
-      fadeInReverseRef.current &&
-      slideUpMaintainRef.current &&
-      slideUpResetRef.current &&
-      slideUpReverseRef.current &&
-      scaleMaintainRef.current &&
-      scaleResetRef.current &&
-      scaleReverseRef.current &&
-      rotateMaintainRef.current &&
-      rotateResetRef.current &&
-      rotateReverseRef.current
-    ) {
-      setIsReady(true);
-    }
-  }, []);
+  // 복합 애니메이션 refs
+  const complexRef1 = useRef<HTMLDivElement>(null);
+  const complexRef2 = useRef<HTMLDivElement>(null);
+  const complexRef3 = useRef<HTMLDivElement>(null);
 
   // 페이드 인 애니메이션 함수들
-  const playFadeInMaintain = () => {
+  const playFadeInMaintain = async () => {
     if (fadeInMaintainRef.current) {
-      const rally = rallyEngine.createRally({
-        target: fadeInMaintainRef.current,
-        motions: [RallyPresets.fadeIn(600, "ease-out")],
-        endBehavior: "maintain",
-      });
-      rally.start();
+      const rally = Rally(
+        fadeInMaintainRef.current,
+        1,
+        [
+          {
+            easing: Ease.easeOut,
+            duration: 0.6,
+            opacity: { from: 0, to: 1 },
+          },
+        ],
+        "maintain"
+      );
+      await rally.play();
     }
   };
 
-  const playFadeInReset = () => {
+  const playFadeInReset = async () => {
     if (fadeInResetRef.current) {
-      const rally = rallyEngine.createRally({
-        target: fadeInResetRef.current,
-        motions: [RallyPresets.fadeIn(600, "ease-out")],
-        endBehavior: "reset",
-      });
-      rally.start();
+      const rally = Rally(
+        fadeInResetRef.current,
+        1,
+        [
+          {
+            easing: Ease.easeOut,
+            duration: 0.6,
+            opacity: { from: 0, to: 1 },
+          },
+        ],
+        "reset"
+      );
+      await rally.play();
     }
   };
 
-  const playFadeInReverse = () => {
+  const playFadeInReverse = async () => {
     if (fadeInReverseRef.current) {
-      const rally = rallyEngine.createRally({
-        target: fadeInReverseRef.current,
-        motions: [RallyPresets.fadeIn(600, "ease-out")],
-        endBehavior: "reverse",
-      });
-      rally.start();
+      const rally = Rally(
+        fadeInReverseRef.current,
+        1,
+        [
+          {
+            easing: Ease.easeOut,
+            duration: 0.6,
+            opacity: { from: 0, to: 1 },
+          },
+        ],
+        "reverse"
+      );
+      await rally.play();
     }
   };
 
   // 슬라이드 업 애니메이션 함수들
-  const playSlideUpMaintain = () => {
+  const playSlideUpMaintain = async () => {
     if (slideUpMaintainRef.current) {
-      const rally = rallyEngine.createRally({
-        target: slideUpMaintainRef.current,
-        motions: [RallyPresets.slideUp(600, "ease-out")],
-        endBehavior: "maintain",
-      });
-      rally.start();
+      const rally = Rally(
+        slideUpMaintainRef.current,
+        1,
+        [
+          {
+            easing: Ease.easeOut,
+            duration: 0.6,
+            translateY: { from: 20, to: 0 },
+          },
+        ],
+        "maintain"
+      );
+      await rally.play();
     }
   };
 
-  const playSlideUpReset = () => {
+  const playSlideUpReset = async () => {
     if (slideUpResetRef.current) {
-      const rally = rallyEngine.createRally({
-        target: slideUpResetRef.current,
-        motions: [RallyPresets.slideUp(600, "ease-out")],
-        endBehavior: "reset",
-      });
-      rally.start();
+      const rally = Rally(
+        slideUpResetRef.current,
+        1,
+        [
+          {
+            easing: Ease.easeOut,
+            duration: 0.6,
+            translateY: { from: 20, to: 0 },
+          },
+        ],
+        "reset"
+      );
+      await rally.play();
     }
   };
 
-  const playSlideUpReverse = () => {
+  const playSlideUpReverse = async () => {
     if (slideUpReverseRef.current) {
-      const rally = rallyEngine.createRally({
-        target: slideUpReverseRef.current,
-        motions: [RallyPresets.slideUp(600, "ease-out")],
-        endBehavior: "reverse",
-      });
-      rally.start();
+      const rally = Rally(
+        slideUpReverseRef.current,
+        1,
+        [
+          {
+            easing: Ease.easeOut,
+            duration: 0.6,
+            translateY: { from: 20, to: 0 },
+          },
+        ],
+        "reverse"
+      );
+      await rally.play();
     }
   };
 
   // 스케일 애니메이션 함수들
-  const playScaleMaintain = () => {
+  const playScaleMaintain = async () => {
     if (scaleMaintainRef.current) {
-      const rally = rallyEngine.createRally({
-        target: scaleMaintainRef.current,
-        motions: [RallyPresets.scaleIn(600, "ease-out")],
-        endBehavior: "maintain",
-      });
-      rally.start();
+      const rally = Rally(
+        scaleMaintainRef.current,
+        1,
+        [
+          {
+            easing: Ease.easeOut,
+            duration: 0.6,
+            scale: { from: 0.8, to: 1 },
+          },
+        ],
+        "maintain"
+      );
+      await rally.play();
     }
   };
 
-  const playScaleReset = () => {
+  const playScaleReset = async () => {
     if (scaleResetRef.current) {
-      const rally = rallyEngine.createRally({
-        target: scaleResetRef.current,
-        motions: [RallyPresets.scaleIn(600, "ease-out")],
-        endBehavior: "reset",
-      });
-      rally.start();
+      const rally = Rally(
+        scaleResetRef.current,
+        1,
+        [
+          {
+            easing: Ease.easeOut,
+            duration: 0.6,
+            scale: { from: 0.8, to: 1 },
+          },
+        ],
+        "reset"
+      );
+      await rally.play();
     }
   };
 
-  const playScaleReverse = () => {
+  const playScaleReverse = async () => {
     if (scaleReverseRef.current) {
-      const rally = rallyEngine.createRally({
-        target: scaleReverseRef.current,
-        motions: [RallyPresets.scaleIn(600, "ease-out")],
-        endBehavior: "reverse",
-      });
-      rally.start();
+      const rally = Rally(
+        scaleReverseRef.current,
+        1,
+        [
+          {
+            easing: Ease.easeOut,
+            duration: 0.6,
+            scale: { from: 0.8, to: 1 },
+          },
+        ],
+        "reverse"
+      );
+      await rally.play();
     }
   };
 
   // 회전 애니메이션 함수들
-  const playRotateMaintain = () => {
+  const playRotateMaintain = async () => {
     if (rotateMaintainRef.current) {
-      const rally = rallyEngine.createRally({
-        target: rotateMaintainRef.current,
-        motions: [
+      const rally = Rally(
+        rotateMaintainRef.current,
+        1,
+        [
           {
-            property: "transform" as const,
-            from: "rotate(0deg)",
-            to: "rotate(360deg)",
-            duration: 600,
-            easing: "ease-in-out",
+            easing: Ease.easeInOut,
+            duration: 0.6,
+            rotate: { from: 0, to: 360 },
           },
         ],
-        endBehavior: "maintain",
-      });
-      rally.start();
+        "maintain"
+      );
+      await rally.play();
     }
   };
 
-  const playRotateReset = () => {
+  const playRotateReset = async () => {
     if (rotateResetRef.current) {
-      const rally = rallyEngine.createRally({
-        target: rotateResetRef.current,
-        motions: [
+      const rally = Rally(
+        rotateResetRef.current,
+        1,
+        [
           {
-            property: "transform" as const,
-            from: "rotate(0deg)",
-            to: "rotate(360deg)",
-            duration: 600,
-            easing: "ease-in-out",
+            easing: Ease.easeInOut,
+            duration: 0.6,
+            rotate: { from: 0, to: 360 },
           },
         ],
-        endBehavior: "reset",
-      });
-      rally.start();
+        "reset"
+      );
+      await rally.play();
     }
   };
 
-  const playRotateReverse = () => {
+  const playRotateReverse = async () => {
     if (rotateReverseRef.current) {
-      const rally = rallyEngine.createRally({
-        target: rotateReverseRef.current,
-        motions: [
+      const rally = Rally(
+        rotateReverseRef.current,
+        1,
+        [
           {
-            property: "transform" as const,
-            from: "rotate(0deg)",
-            to: "rotate(360deg)",
-            duration: 600,
-            easing: "ease-in-out",
+            easing: Ease.easeInOut,
+            duration: 0.6,
+            rotate: { from: 0, to: 360 },
           },
         ],
-        endBehavior: "reverse",
-      });
-      rally.start();
+        "reverse"
+      );
+      await rally.play();
+    }
+  };
+
+  // 복합 애니메이션 함수들
+  const playComplexAnimation = async () => {
+    if (complexRef1.current && complexRef2.current && complexRef3.current) {
+      const timeline = Timeline("serial", [
+        Rally(complexRef1.current, 1, [
+          {
+            easing: Ease.easeOut,
+            duration: 0.4,
+            opacity: { from: 0, to: 1 },
+            translateY: { from: 20, to: 0 },
+          },
+        ]),
+        Rally(complexRef2.current, 1, [
+          {
+            easing: Spring.basic,
+            duration: 0.5,
+            scale: { from: 0.8, to: 1 },
+            rotate: { from: 0, to: 180 },
+          },
+        ]),
+        Rally(complexRef3.current, 1, [
+          {
+            easing: Ease.easeInOut,
+            duration: 0.4,
+            backgroundColor: { from: "#3B82F6", to: "#EF4444" },
+            translateX: { from: 20, to: 0 },
+          },
+        ]),
+      ]);
+      await timeline.play();
+    }
+  };
+
+  const playStaggerAnimation = async () => {
+    if (complexRef1.current && complexRef2.current && complexRef3.current) {
+      const timeline = Timeline(
+        { type: "stagger", staggerDelay: Stagger.normal },
+        [
+          Rally(complexRef1.current, 1, [
+            {
+              easing: Ease.easeOut,
+              duration: 0.4,
+              opacity: { from: 0, to: 1 },
+            },
+          ]),
+          Rally(complexRef2.current, 1, [
+            {
+              easing: Ease.easeOut,
+              duration: 0.4,
+              translateY: { from: 20, to: 0 },
+            },
+          ]),
+          Rally(complexRef3.current, 1, [
+            {
+              easing: Ease.easeOut,
+              duration: 0.4,
+              scale: { from: 0.8, to: 1 },
+            },
+          ]),
+        ]
+      );
+      await timeline.play();
+    }
+  };
+
+  const playParallelAnimation = async () => {
+    if (complexRef1.current && complexRef2.current && complexRef3.current) {
+      const timeline = Timeline("parallel", [
+        Rally(complexRef1.current, 1, [
+          {
+            easing: Bezier.out,
+            duration: 0.6,
+            opacity: { from: 0, to: 1 },
+            translateY: { from: 30, to: 0 },
+          },
+        ]),
+        Rally(complexRef2.current, 1, [
+          {
+            easing: Spring.wobbly,
+            duration: 0.8,
+            scale: { from: 0.5, to: 1 },
+            rotate: { from: 0, to: 180 },
+          },
+        ]),
+        Rally(complexRef3.current, 1, [
+          {
+            easing: Spring.gentle,
+            duration: 0.7,
+            backgroundColor: { from: "#3B82F6", to: "#EF4444" },
+            translateX: { from: -50, to: 0 },
+          },
+        ]),
+      ]);
+      await timeline.play();
     }
   };
 
@@ -468,6 +609,74 @@ export default function AnimationPage() {
             </div>
             <p className="text-sm text-gray-600 data-[theme=dark]:text-gray-400">
               역재생
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* 복합 애니메이션 */}
+      <section className="mb-12">
+        <h2 className="text-3xl mb-6 text-green-500 data-[theme=dark]:text-green-400">
+          복합 애니메이션
+        </h2>
+        <div className="flex gap-4 justify-center mb-8">
+          <button
+            onClick={playComplexAnimation}
+            className="px-6 py-3 bg-green-500 hover:bg-green-600 text-white rounded-xl font-medium transition-colors"
+          >
+            순차 실행
+          </button>
+          <button
+            onClick={playStaggerAnimation}
+            className="px-6 py-3 bg-green-400 hover:bg-green-500 text-white rounded-xl font-medium transition-colors"
+          >
+            지연 실행
+          </button>
+          <button
+            onClick={playParallelAnimation}
+            className="px-6 py-3 bg-green-300 hover:bg-green-400 text-white rounded-xl font-medium transition-colors"
+          >
+            병렬 실행
+          </button>
+        </div>
+        <div className="flex gap-6 justify-center">
+          <div className="text-center">
+            <div
+              ref={complexRef1}
+              className="w-24 h-24 bg-gradient-to-br from-green-400 to-emerald-400 rounded-xl flex items-center justify-center text-xl font-bold text-white shadow-lg mb-2"
+              style={{ opacity: 0, transform: "translateY(20px)" }}
+            >
+              1
+            </div>
+            <p className="text-sm text-gray-600 data-[theme=dark]:text-gray-400">
+              순차
+            </p>
+          </div>
+          <div className="text-center">
+            <div
+              ref={complexRef2}
+              className="w-24 h-24 bg-gradient-to-br from-green-400 to-emerald-400 rounded-xl flex items-center justify-center text-xl font-bold text-white shadow-lg mb-2"
+              style={{ transform: "scale(0.8) rotate(0deg)" }}
+            >
+              2
+            </div>
+            <p className="text-sm text-gray-600 data-[theme=dark]:text-gray-400">
+              지연
+            </p>
+          </div>
+          <div className="text-center">
+            <div
+              ref={complexRef3}
+              className="w-24 h-24 bg-gradient-to-br from-green-400 to-emerald-400 rounded-xl flex items-center justify-center text-xl font-bold text-white shadow-lg mb-2"
+              style={{
+                backgroundColor: "#3B82F6",
+                transform: "translateX(20px)",
+              }}
+            >
+              3
+            </div>
+            <p className="text-sm text-gray-600 data-[theme=dark]:text-gray-400">
+              병렬
             </p>
           </div>
         </div>

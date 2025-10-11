@@ -18,15 +18,19 @@ export type AnimationProperty =
   | "scaleX"
   | "scaleY";
 
-// 이징 함수 타입
+// Toss 스타일 이징 함수 타입
 export type EasingType =
-  | "spring"
-  | "cubic-bezier"
   | "linear"
   | "ease"
   | "ease-in"
   | "ease-out"
-  | "ease-in-out";
+  | "ease-in-out"
+  | "spring.basic"
+  | "spring.large"
+  | "spring.quick"
+  | "bezier.out"
+  | "bezier.in"
+  | "bezier.in-out";
 
 // 스프링 설정
 export interface SpringConfig {
@@ -45,24 +49,36 @@ export interface BezierConfig {
 // 이징 설정
 export type EasingConfig = SpringConfig | BezierConfig | { type: EasingType };
 
-// 모션 스펙 - 애니메이션의 최소 단위
+// Toss 스타일 모션 스펙
 export interface MotionSpec {
-  /** 애니메이션할 속성 */
-  property: AnimationProperty;
-  /** 시작 값 */
-  from: any;
-  /** 끝 값 */
-  to: any;
-  /** 지속 시간 (ms) */
+  /** 지속 시간 (초) */
   duration: number;
   /** 이징 함수 */
-  easing: string | EasingConfig;
-  /** 지연 시간 (ms) */
+  easing: EasingType;
+  /** 지연 시간 (초) */
   delay?: number;
-  /** 반복 횟수 */
-  iterationCount?: number | "infinite";
-  /** 반복 방향 */
-  direction?: "normal" | "reverse" | "alternate" | "alternate-reverse";
+  /** CSS transition 속성 */
+  transition?: string;
+
+  // 개별 속성들
+  /** X축 이동 */
+  translateX?: { from?: number; to: number };
+  /** Y축 이동 */
+  translateY?: { from?: number; to: number };
+  /** 스케일 */
+  scale?: { from?: number; to: number };
+  /** 투명도 */
+  opacity?: { from?: number; to: number };
+  /** 회전 */
+  rotate?: { from?: number; to: number };
+  /** 배경색 */
+  backgroundColor?: { from?: string; to: string };
+  /** 색상 */
+  color?: { from?: string; to: string };
+  /** 너비 */
+  width?: { from?: number; to: number };
+  /** 높이 */
+  height?: { from?: number; to: number };
 }
 
 // 애니메이션 종료 시 동작 타입
@@ -71,35 +87,29 @@ export type AnimationEndBehavior =
   | "reset" // 초기 상태로 리셋
   | "reverse"; // 역재생으로 되돌아가기
 
-// 랠리 스펙 - 하나의 대상에 대한 애니메이션 시퀀스
+// Toss 스타일 랠리 스펙
 export interface RallySpec {
-  /** 대상 식별자 (CSS 선택자, HTMLElement) */
+  /** 대상 식별자 (CSS 선택자 또는 HTMLElement) */
   target: string | HTMLElement;
+  /** 반복 횟수 */
+  playCount?: number | "infinite";
   /** 실행할 모션들 */
   motions: MotionSpec[];
-  /** 모션들을 병렬로 실행할지 여부 */
-  parallel?: boolean;
-  /** 전체 랠리의 지연 시간 */
-  delay?: number;
-  /** 랠리 반복 횟수 */
-  iterationCount?: number | "infinite";
   /** 애니메이션 종료 시 동작 */
   endBehavior?: AnimationEndBehavior;
 }
 
-// 타임라인 스펙 - 여러 랠리의 스케줄링
+// Toss 스타일 타임라인 스펙
 export interface TimelineSpec {
-  /** 실행할 랠리들 */
-  rallies: RallySpec[];
-  /** 실행 방식 */
-  sequence: "parallel" | "sequential" | "staggered";
-  /** 순차 실행 시 지연 시간 (ms) */
-  staggerDelay?: number;
-  /** 전체 타임라인의 지연 시간 */
-  delay?: number;
-  /** 타임라인 반복 횟수 */
-  iterationCount?: number | "infinite";
+  /** 재생 방식 */
+  playback: "serial" | "parallel" | { type: "stagger"; staggerDelay: number };
+  /** 실행할 랠리들 (중첩된 Timeline 지원) */
+  rallies: (RallySpec | TimelineSpec)[];
 }
+
+// Toss 스타일 API 함수들
+export type RallyFunction = (spec: RallySpec) => Rally;
+export type TimelineFunction = (spec: TimelineSpec) => Timeline;
 
 // 조건부 타임라인 스펙
 export interface ConditionalTimelineSpec {
@@ -189,6 +199,7 @@ export interface Rally {
   resume(): void;
   stop(): void;
   cancel(): void;
+  backward(): Rally;
   on(event: string, callback: (event: AnimationEvent) => void): void;
   off(event: string, callback: (event: AnimationEvent) => void): void;
 }
@@ -197,12 +208,13 @@ export interface Rally {
 export interface Timeline {
   spec: TimelineSpec;
   state: AnimationState;
-  rallies: Rally[];
+  rallies: (Rally | Timeline)[];
   start(): Promise<void>;
   pause(): void;
   resume(): void;
   stop(): void;
   cancel(): void;
+  backward(): Timeline;
   on(event: string, callback: (event: AnimationEvent) => void): void;
   off(event: string, callback: (event: AnimationEvent) => void): void;
 }

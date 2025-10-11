@@ -15,6 +15,7 @@ import DialogPage from "./pages/DialogPage";
 import FormPage from "./pages/FormPage";
 import TypographyPage from "./pages/TypographyPage";
 import AnimationPage from "./pages/AnimationPage";
+import AdvancedAnimationPage from "./pages/AdvancedAnimationPage";
 import InteractiveAnimationPage from "./pages/InteractiveAnimationPage";
 import TimelineAnimationPage from "./pages/TimelineAnimationPage";
 import ChainedAnimationPage from "./pages/ChainedAnimationPage";
@@ -85,6 +86,13 @@ const animationRoute = createRoute({
   component: AnimationPage,
 });
 
+// 고급 애니메이션 페이지 라우트
+const advancedAnimationRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/advanced-animation",
+  component: AdvancedAnimationPage,
+});
+
 // 인터랙티브 애니메이션 페이지 라우트
 const interactiveAnimationRoute = createRoute({
   getParentRoute: () => rootRoute,
@@ -123,6 +131,7 @@ const routeTree = rootRoute.addChildren([
   formRoute,
   typographyRoute,
   animationRoute,
+  advancedAnimationRoute,
   interactiveAnimationRoute,
   timelineAnimationRoute,
   chainedAnimationRoute,

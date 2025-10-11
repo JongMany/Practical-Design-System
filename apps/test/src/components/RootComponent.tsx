@@ -82,6 +82,12 @@ const RootComponent = ({ queryClient }: RootComponentProps) => {
                 애니메이션
               </Link>
               <Link
+                to="/advanced-animation"
+                className="px-3 py-2 rounded-md text-sm font-medium transition-colors text-gray-600 data-[theme=dark]:text-gray-400 hover:text-gray-900 data-[theme=dark]:hover:text-gray-100 hover:bg-gray-100 data-[theme=dark]:hover:bg-gray-700"
+              >
+                고급 애니메이션
+              </Link>
+              <Link
                 to="/interactive-animation"
                 className="px-3 py-2 rounded-md text-sm font-medium transition-colors text-gray-600 data-[theme=dark]:text-gray-400 hover:text-gray-900 data-[theme=dark]:hover:text-gray-100 hover:bg-gray-100 data-[theme=dark]:hover:bg-gray-700"
               >

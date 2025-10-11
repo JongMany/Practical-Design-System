@@ -180,8 +180,7 @@ export function useAnimationSequence(
         };
       }
     }),
-    sequence: "staggered",
-    staggerDelay,
+    playback: { type: "stagger", staggerDelay },
   };
 
   return useTimeline(timelineSpec, animationOptions);
@@ -203,7 +202,7 @@ export function useAnimationParallel(
         };
       }
     }),
-    sequence: "parallel",
+    playback: "parallel",
   };
 
   return useTimeline(timelineSpec, options);

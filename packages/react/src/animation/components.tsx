@@ -1,6 +1,6 @@
 /**
  * Rally Animation Components
- * React 컴포넌트 기반 애니메이션
+ * Toss 스타일 React 컴포넌트 기반 애니메이션
  */
 
 import React, {
@@ -15,10 +15,8 @@ import type {
   RallySpec,
   TimelineSpec,
   UseAnimationOptions,
-  EasingConfig,
 } from "./types";
 import { useMotion, useRally, useTimeline, useAnimationRef } from "./hooks";
-import { createMotionSpec } from "./presets";
 
 // 애니메이션 컴포넌트의 ref 타입
 export interface AnimationRef {
@@ -30,86 +28,141 @@ export interface AnimationRef {
   restart: () => Promise<void>;
 }
 
-// Motion 컴포넌트 props
+// Toss 스타일 Motion 컴포넌트 props
 export interface MotionProps extends UseAnimationOptions {
-  /** 애니메이션할 속성 */
-  property: MotionSpec["property"];
-  /** 시작 값 */
-  from: any;
-  /** 끝 값 */
-  to: any;
-  /** 지속 시간 (ms) */
+  /** 애니메이션 완료 후 콜백 (onComplete의 별칭) */
+  onEnd?: () => void;
+  /** 지속 시간 (초) */
   duration: number;
   /** 이징 함수 */
-  easing?: string | EasingConfig;
-  /** 지연 시간 (ms) */
+  easing: string;
+  /** 지연 시간 (초) */
   delay?: number;
+
+  // Toss 스타일 속성들
+  /** X축 이동 */
+  translateX?: { from?: number; to: number };
+  /** Y축 이동 */
+  translateY?: { from?: number; to: number };
+  /** 스케일 */
+  scale?: { from?: number; to: number };
+  /** 투명도 */
+  opacity?: { from?: number; to: number };
+  /** 회전 */
+  rotate?: { from?: number; to: number };
+  /** 배경색 */
+  backgroundColor?: { from?: string; to: string };
+  /** 색상 */
+  color?: { from?: string; to: string };
+  /** 너비 */
+  width?: { from?: number; to: number };
+  /** 높이 */
+  height?: { from?: number; to: number };
+
   /** 자동 실행 여부 */
   autoPlay?: boolean;
   /** 자식 요소 */
   children: ReactNode;
-  /** 추가 스타일 */
-  style?: React.CSSProperties;
-  /** CSS 클래스 */
-  className?: string;
 }
 
-// Motion 컴포넌트
+// Toss 스타일 Rally 컴포넌트 props
+export interface RallyProps extends UseAnimationOptions {
+  /** 애니메이션 완료 후 콜백 (onComplete의 별칭) */
+  onEnd?: () => void;
+  /** 대상 식별자 (CSS 선택자 또는 HTMLElement) */
+  target: string | HTMLElement;
+  /** 반복 횟수 */
+  playCount?: number | "infinite";
+  /** 실행할 모션들 */
+  motions: MotionSpec[];
+  /** 자동 실행 여부 */
+  autoPlay?: boolean;
+  /** 자식 요소 */
+  children: ReactNode;
+}
+
+// Toss 스타일 Timeline 컴포넌트 props
+export interface TimelineProps extends UseAnimationOptions {
+  /** 애니메이션 완료 후 콜백 (onComplete의 별칭) */
+  onEnd?: () => void;
+  /** 재생 방식 */
+  playback: "serial" | "parallel" | { type: "stagger"; staggerDelay: number };
+  /** 실행할 랠리들 */
+  rallies: RallySpec[];
+  /** 자동 실행 여부 */
+  autoPlay?: boolean;
+  /** 자식 요소 */
+  children: ReactNode;
+}
+
+// Toss 스타일 Motion 컴포넌트
 export const Motion = forwardRef<AnimationRef, MotionProps>(
   (
     {
-      property,
-      from,
-      to,
       duration,
-      easing = "spring.quick",
-      delay,
+      easing,
+      delay = 0,
+      translateX,
+      translateY,
+      scale,
+      opacity,
+      rotate,
+      backgroundColor,
+      color,
+      width,
+      height,
       autoPlay = false,
       children,
-      style,
-      className,
-      ...options
+      onStart,
+      onEnd,
+      onPause,
+      onResume,
+      onCancel,
+      onComplete = onEnd,
+      ...rest
     },
     ref
   ) => {
-    const { ref: elementRef, getElement } = useAnimationRef<HTMLDivElement>();
-
+    const motionRef = useRef<HTMLDivElement>(null);
     const motionSpec: MotionSpec = {
-      property,
-      from,
-      to,
       duration,
-      easing,
+      easing: easing as any,
       delay,
+      translateX,
+      translateY,
+      scale,
+      opacity,
+      rotate,
+      backgroundColor,
+      color,
+      width,
+      height,
     };
 
-    const animation = useMotion(motionSpec, {
-      ...options,
-      autoPlay,
-    });
+    const motion = useMotion(motionSpec, { onComplete });
 
     useImperativeHandle(ref, () => ({
-      play: animation.play,
-      pause: animation.pause,
-      resume: animation.resume,
-      stop: animation.stop,
-      cancel: animation.cancel,
-      restart: animation.restart,
+      play: () => motion.play(),
+      pause: () => motion.pause(),
+      resume: () => motion.resume(),
+      stop: () => motion.stop(),
+      cancel: () => motion.cancel(),
+      restart: async () => {
+        motion.stop();
+        await motion.play();
+      },
     }));
 
-    // 애니메이션 실행 시 요소에 적용
     useEffect(() => {
-      if (getElement()) {
-        // 애니메이션 엔진에 요소 전달
-        const motion = animation as any;
-        if (motion.animationRef?.current) {
-          motion.animationRef.current.element = getElement();
-        }
+      if (autoPlay) {
+        motion.play();
       }
-    }, [getElement, animation]);
+    }, [autoPlay, motion]);
+
+    // 이벤트 핸들러는 UseAnimationOptions를 통해 처리됨
 
     return (
-      <div ref={elementRef} style={style} className={className}>
+      <div ref={motionRef} {...rest}>
         {children}
       </div>
     );
@@ -118,61 +171,56 @@ export const Motion = forwardRef<AnimationRef, MotionProps>(
 
 Motion.displayName = "Motion";
 
-// Rally 컴포넌트 props
-export interface RallyProps extends UseAnimationOptions {
-  /** 대상 선택자 */
-  target: string;
-  /** 모션 스펙들 */
-  motions: MotionSpec[];
-  /** 병렬 실행 여부 */
-  parallel?: boolean;
-  /** 자동 실행 여부 */
-  autoPlay?: boolean;
-  /** 자식 요소 */
-  children: ReactNode;
-  /** 추가 스타일 */
-  style?: React.CSSProperties;
-  /** CSS 클래스 */
-  className?: string;
-}
-
-// Rally 컴포넌트
+// Toss 스타일 Rally 컴포넌트
 export const Rally = forwardRef<AnimationRef, RallyProps>(
   (
     {
       target,
+      playCount,
       motions,
-      parallel = false,
       autoPlay = false,
       children,
-      style,
-      className,
-      ...options
+      onStart,
+      onEnd,
+      onPause,
+      onResume,
+      onCancel,
+      onComplete = onEnd,
+      ...rest
     },
     ref
   ) => {
+    const rallyRef = useRef<HTMLDivElement>(null);
     const rallySpec: RallySpec = {
       target,
+      playCount,
       motions,
-      parallel,
     };
 
-    const animation = useRally(rallySpec, {
-      ...options,
-      autoPlay,
-    });
+    const rally = useRally(rallySpec, { onComplete });
 
     useImperativeHandle(ref, () => ({
-      play: animation.play,
-      pause: animation.pause,
-      resume: animation.resume,
-      stop: animation.stop,
-      cancel: animation.cancel,
-      restart: animation.restart,
+      play: () => rally.play(),
+      pause: () => rally.pause(),
+      resume: () => rally.resume(),
+      stop: () => rally.stop(),
+      cancel: () => rally.cancel(),
+      restart: async () => {
+        rally.stop();
+        await rally.play();
+      },
     }));
 
+    useEffect(() => {
+      if (autoPlay) {
+        rally.play();
+      }
+    }, [autoPlay, rally]);
+
+    // 이벤트 핸들러는 UseAnimationOptions를 통해 처리됨
+
     return (
-      <div style={style} className={className}>
+      <div ref={rallyRef} {...rest}>
         {children}
       </div>
     );
@@ -181,61 +229,54 @@ export const Rally = forwardRef<AnimationRef, RallyProps>(
 
 Rally.displayName = "Rally";
 
-// Timeline 컴포넌트 props
-export interface TimelineProps extends UseAnimationOptions {
-  /** 랠리 스펙들 */
-  rallies: RallySpec[];
-  /** 실행 방식 */
-  sequence: "parallel" | "sequential" | "staggered";
-  /** 순차 실행 시 지연 시간 */
-  staggerDelay?: number;
-  /** 자동 실행 여부 */
-  autoPlay?: boolean;
-  /** 자식 요소 */
-  children: ReactNode;
-  /** 추가 스타일 */
-  style?: React.CSSProperties;
-  /** CSS 클래스 */
-  className?: string;
-}
-
-// Timeline 컴포넌트
+// Toss 스타일 Timeline 컴포넌트
 export const Timeline = forwardRef<AnimationRef, TimelineProps>(
   (
     {
+      playback,
       rallies,
-      sequence,
-      staggerDelay,
       autoPlay = false,
       children,
-      style,
-      className,
-      ...options
+      onStart,
+      onEnd,
+      onPause,
+      onResume,
+      onCancel,
+      onComplete = onEnd,
+      ...rest
     },
     ref
   ) => {
+    const timelineRef = useRef<HTMLDivElement>(null);
     const timelineSpec: TimelineSpec = {
+      playback,
       rallies,
-      sequence,
-      staggerDelay,
     };
 
-    const animation = useTimeline(timelineSpec, {
-      ...options,
-      autoPlay,
-    });
+    const timeline = useTimeline(timelineSpec, { onComplete });
 
     useImperativeHandle(ref, () => ({
-      play: animation.play,
-      pause: animation.pause,
-      resume: animation.resume,
-      stop: animation.stop,
-      cancel: animation.cancel,
-      restart: animation.restart,
+      play: () => timeline.play(),
+      pause: () => timeline.pause(),
+      resume: () => timeline.resume(),
+      stop: () => timeline.stop(),
+      cancel: () => timeline.cancel(),
+      restart: async () => {
+        timeline.stop();
+        await timeline.play();
+      },
     }));
 
+    useEffect(() => {
+      if (autoPlay) {
+        timeline.play();
+      }
+    }, [autoPlay, timeline]);
+
+    // 이벤트 핸들러는 UseAnimationOptions를 통해 처리됨
+
     return (
-      <div style={style} className={className}>
+      <div ref={timelineRef} {...rest}>
         {children}
       </div>
     );
@@ -243,268 +284,3 @@ export const Timeline = forwardRef<AnimationRef, TimelineProps>(
 );
 
 Timeline.displayName = "Timeline";
-
-// Animate 컴포넌트 props - 프리셋 기반
-export interface AnimateProps extends UseAnimationOptions {
-  /** 프리셋 이름 */
-  preset: string;
-  /** 애니메이션할 속성 */
-  property?: MotionSpec["property"];
-  /** 자동 실행 여부 */
-  autoPlay?: boolean;
-  /** 자식 요소 */
-  children: ReactNode;
-  /** 추가 스타일 */
-  style?: React.CSSProperties;
-  /** CSS 클래스 */
-  className?: string;
-}
-
-// Animate 컴포넌트 - 프리셋 기반 애니메이션
-export const Animate = forwardRef<AnimationRef, AnimateProps>(
-  (
-    {
-      preset,
-      property = "opacity",
-      autoPlay = false,
-      children,
-      style,
-      className,
-      ...options
-    },
-    ref
-  ) => {
-    const motionSpec = createMotionSpec(property, preset);
-
-    return (
-      <Motion
-        ref={ref}
-        {...motionSpec}
-        autoPlay={autoPlay}
-        style={style}
-        className={className}
-        {...options}
-      >
-        {children}
-      </Motion>
-    );
-  }
-);
-
-Animate.displayName = "Animate";
-
-// FadeIn 컴포넌트
-export interface FadeInProps extends UseAnimationOptions {
-  /** 지속 시간 */
-  duration?: number;
-  /** 이징 함수 */
-  easing?: string;
-  /** 지연 시간 */
-  delay?: number;
-  /** 자동 실행 여부 */
-  autoPlay?: boolean;
-  /** 자식 요소 */
-  children: ReactNode;
-  /** 추가 스타일 */
-  style?: React.CSSProperties;
-  /** CSS 클래스 */
-  className?: string;
-}
-
-export const FadeIn = forwardRef<AnimationRef, FadeInProps>(
-  (
-    {
-      duration = 300,
-      easing = "spring.quick",
-      delay,
-      autoPlay = true,
-      children,
-      style,
-      className,
-      ...options
-    },
-    ref
-  ) => {
-    return (
-      <Motion
-        ref={ref}
-        property="opacity"
-        from={0}
-        to={1}
-        duration={duration}
-        easing={easing}
-        delay={delay}
-        autoPlay={autoPlay}
-        style={style}
-        className={className}
-        {...options}
-      >
-        {children}
-      </Motion>
-    );
-  }
-);
-
-FadeIn.displayName = "FadeIn";
-
-// FadeOut 컴포넌트
-export interface FadeOutProps extends UseAnimationOptions {
-  /** 지속 시간 */
-  duration?: number;
-  /** 이징 함수 */
-  easing?: string;
-  /** 지연 시간 */
-  delay?: number;
-  /** 자동 실행 여부 */
-  autoPlay?: boolean;
-  /** 자식 요소 */
-  children: ReactNode;
-  /** 추가 스타일 */
-  style?: React.CSSProperties;
-  /** CSS 클래스 */
-  className?: string;
-}
-
-export const FadeOut = forwardRef<AnimationRef, FadeOutProps>(
-  (
-    {
-      duration = 300,
-      easing = "spring.quick",
-      delay,
-      autoPlay = false,
-      children,
-      style,
-      className,
-      ...options
-    },
-    ref
-  ) => {
-    return (
-      <Motion
-        ref={ref}
-        property="opacity"
-        from={1}
-        to={0}
-        duration={duration}
-        easing={easing}
-        delay={delay}
-        autoPlay={autoPlay}
-        style={style}
-        className={className}
-        {...options}
-      >
-        {children}
-      </Motion>
-    );
-  }
-);
-
-FadeOut.displayName = "FadeOut";
-
-// SlideUp 컴포넌트
-export interface SlideUpProps extends UseAnimationOptions {
-  /** 지속 시간 */
-  duration?: number;
-  /** 이징 함수 */
-  easing?: string;
-  /** 지연 시간 */
-  delay?: number;
-  /** 자동 실행 여부 */
-  autoPlay?: boolean;
-  /** 자식 요소 */
-  children: ReactNode;
-  /** 추가 스타일 */
-  style?: React.CSSProperties;
-  /** CSS 클래스 */
-  className?: string;
-}
-
-export const SlideUp = forwardRef<AnimationRef, SlideUpProps>(
-  (
-    {
-      duration = 300,
-      easing = "spring.quick",
-      delay,
-      autoPlay = true,
-      children,
-      style,
-      className,
-      ...options
-    },
-    ref
-  ) => {
-    return (
-      <Motion
-        ref={ref}
-        property="transform"
-        from="translateY(20px)"
-        to="translateY(0)"
-        duration={duration}
-        easing={easing}
-        delay={delay}
-        autoPlay={autoPlay}
-        style={style}
-        className={className}
-        {...options}
-      >
-        {children}
-      </Motion>
-    );
-  }
-);
-
-SlideUp.displayName = "SlideUp";
-
-// ScaleIn 컴포넌트
-export interface ScaleInProps extends UseAnimationOptions {
-  /** 지속 시간 */
-  duration?: number;
-  /** 이징 함수 */
-  easing?: string;
-  /** 지연 시간 */
-  delay?: number;
-  /** 자동 실행 여부 */
-  autoPlay?: boolean;
-  /** 자식 요소 */
-  children: ReactNode;
-  /** 추가 스타일 */
-  style?: React.CSSProperties;
-  /** CSS 클래스 */
-  className?: string;
-}
-
-export const ScaleIn = forwardRef<AnimationRef, ScaleInProps>(
-  (
-    {
-      duration = 300,
-      easing = "spring.quick",
-      delay,
-      autoPlay = true,
-      children,
-      style,
-      className,
-      ...options
-    },
-    ref
-  ) => {
-    return (
-      <Motion
-        ref={ref}
-        property="transform"
-        from="scale(0.8)"
-        to="scale(1)"
-        duration={duration}
-        easing={easing}
-        delay={delay}
-        autoPlay={autoPlay}
-        style={style}
-        className={className}
-        {...options}
-      >
-        {children}
-      </Motion>
-    );
-  }
-);
-
-ScaleIn.displayName = "ScaleIn";

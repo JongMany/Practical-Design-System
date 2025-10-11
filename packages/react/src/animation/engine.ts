@@ -14,6 +14,8 @@ import type {
   RallySpec,
   Timeline,
   TimelineSpec,
+  RallyFunction,
+  TimelineFunction,
 } from "./types";
 import { getEasingConfig } from "./presets";
 
@@ -50,7 +52,7 @@ class EventManager {
   }
 }
 
-// 모션 구현 클래스
+// Toss 스타일 모션 구현 클래스
 class MotionImpl implements Motion {
   public spec: MotionSpec;
   public state: AnimationState = "idle";
@@ -59,6 +61,7 @@ class MotionImpl implements Motion {
   private startTime: number = 0;
   private pausedTime: number = 0;
   private element: HTMLElement | null = null;
+  private initialValues: Map<string, any> = new Map();
 
   constructor(spec: MotionSpec, target?: string | HTMLElement) {
     this.spec = spec;
@@ -66,9 +69,76 @@ class MotionImpl implements Motion {
     if (target) {
       if (typeof target === "string") {
         this.element = document.querySelector(target) as HTMLElement;
+        if (!this.element) {
+          console.warn(
+            `Motion: Target element not found for selector "${target}"`
+          );
+        }
       } else {
         this.element = target;
       }
+
+      if (this.element) {
+        try {
+          this.saveInitialValues();
+        } catch (error) {
+          console.error("Motion: Error saving initial values:", error);
+        }
+      }
+    }
+  }
+
+  private saveInitialValues(): void {
+    if (!this.element) return;
+
+    // 각 속성의 초기값 저장
+    const computedStyle = getComputedStyle(this.element);
+
+    if (this.spec.translateX) {
+      const transform = computedStyle.transform;
+      const matrix = new DOMMatrix(transform);
+      this.initialValues.set("translateX", matrix.m41);
+    }
+
+    if (this.spec.translateY) {
+      const transform = computedStyle.transform;
+      const matrix = new DOMMatrix(transform);
+      this.initialValues.set("translateY", matrix.m42);
+    }
+
+    if (this.spec.scale) {
+      const transform = computedStyle.transform;
+      const matrix = new DOMMatrix(transform);
+      this.initialValues.set("scale", matrix.a);
+    }
+
+    if (this.spec.opacity) {
+      this.initialValues.set("opacity", parseFloat(computedStyle.opacity));
+    }
+
+    if (this.spec.rotate) {
+      const transform = computedStyle.transform;
+      const matrix = new DOMMatrix(transform);
+      this.initialValues.set(
+        "rotate",
+        Math.atan2(matrix.b, matrix.a) * (180 / Math.PI)
+      );
+    }
+
+    if (this.spec.backgroundColor) {
+      this.initialValues.set("backgroundColor", computedStyle.backgroundColor);
+    }
+
+    if (this.spec.color) {
+      this.initialValues.set("color", computedStyle.color);
+    }
+
+    if (this.spec.width) {
+      this.initialValues.set("width", parseFloat(computedStyle.width));
+    }
+
+    if (this.spec.height) {
+      this.initialValues.set("height", parseFloat(computedStyle.height));
     }
   }
 
@@ -148,9 +218,8 @@ class MotionImpl implements Motion {
     if (!this.element) return;
 
     const startTime = this.startTime;
-    const duration = this.spec.duration;
-    const delay = this.spec.delay || 0;
-    const totalDuration = duration + delay;
+    const duration = this.spec.duration * 1000; // 초를 밀리초로 변환
+    const delay = (this.spec.delay || 0) * 1000; // 초를 밀리초로 변환
 
     return new Promise((resolve) => {
       const animate = (currentTime: number) => {
@@ -170,7 +239,7 @@ class MotionImpl implements Motion {
         const progress = Math.min((elapsed - delay) / duration, 1);
         const easedProgress = this.ease(progress);
 
-        this.updateElement(easedProgress);
+        this.updateElementTossStyle(easedProgress);
 
         if (progress >= 1) {
           this.state = "finished";
@@ -249,31 +318,6 @@ class MotionImpl implements Motion {
     return 3 * uu * t * y1 + 3 * u * tt * y2 + ttt;
   }
 
-  private updateElement(progress: number): void {
-    if (!this.element) return;
-
-    const from = this.spec.from;
-    const to = this.spec.to;
-    const property = this.spec.property;
-
-    let value: any;
-
-    if (typeof from === "number" && typeof to === "number") {
-      value = from + (to - from) * progress;
-    } else if (typeof from === "string" && typeof to === "string") {
-      // transform 속성 처리
-      if (property === "transform") {
-        value = this.interpolateTransform(from, to, progress);
-      } else {
-        value = to; // 간단한 문자열 보간은 복잡하므로 끝 값 사용
-      }
-    } else {
-      value = to;
-    }
-
-    this.applyProperty(property, value);
-  }
-
   private interpolateTransform(
     from: string,
     to: string,
@@ -309,6 +353,217 @@ class MotionImpl implements Motion {
     return match ? parseFloat(match[0]) : 0;
   }
 
+  // 색상 보간 함수
+  private interpolateColor(from: string, to: string, progress: number): string {
+    // 간단한 색상 보간 (hex 색상만 지원)
+    if (from.startsWith("#") && to.startsWith("#")) {
+      const fromRgb = this.hexToRgb(from);
+      const toRgb = this.hexToRgb(to);
+
+      if (fromRgb && toRgb) {
+        const r = Math.round(fromRgb.r + (toRgb.r - fromRgb.r) * progress);
+        const g = Math.round(fromRgb.g + (toRgb.g - fromRgb.g) * progress);
+        const b = Math.round(fromRgb.b + (toRgb.b - fromRgb.b) * progress);
+        return `rgb(${r}, ${g}, ${b})`;
+      }
+    }
+
+    // 기본적으로 to 색상 반환
+    return to;
+  }
+
+  // hex 색상을 RGB로 변환
+  private hexToRgb(hex: string): { r: number; g: number; b: number } | null {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result && result[1] && result[2] && result[3]
+      ? {
+          r: parseInt(result[1], 16),
+          g: parseInt(result[2], 16),
+          b: parseInt(result[3], 16),
+        }
+      : null;
+  }
+
+  private updateElementTossStyle(progress: number): void {
+    if (!this.element) return;
+
+    const transforms: string[] = [];
+    let currentTransform = this.element.style.transform || "";
+
+    // 기존 transform 파싱
+    const existingTransforms = this.parseTransform(currentTransform || "");
+    const newTransforms: Record<string, number> = {};
+
+    // translateX 처리
+    if (this.spec.translateX) {
+      const from =
+        this.spec.translateX.from ?? this.initialValues.get("translateX") ?? 0;
+      const to = this.spec.translateX.to;
+      const value = from + (to - from) * progress;
+      newTransforms.translateX = value;
+    } else if (existingTransforms.translateX !== undefined) {
+      newTransforms.translateX = existingTransforms.translateX;
+    }
+
+    // translateY 처리
+    if (this.spec.translateY) {
+      const from =
+        this.spec.translateY.from ?? this.initialValues.get("translateY") ?? 0;
+      const to = this.spec.translateY.to;
+      const value = from + (to - from) * progress;
+      newTransforms.translateY = value;
+    } else if (existingTransforms.translateY !== undefined) {
+      newTransforms.translateY = existingTransforms.translateY;
+    }
+
+    // scale 처리
+    if (this.spec.scale) {
+      const from = this.spec.scale.from ?? this.initialValues.get("scale") ?? 1;
+      const to = this.spec.scale.to;
+      const value = from + (to - from) * progress;
+      newTransforms.scale = value;
+    } else if (existingTransforms.scale !== undefined) {
+      newTransforms.scale = existingTransforms.scale;
+    }
+
+    // rotate 처리
+    if (this.spec.rotate) {
+      const from =
+        this.spec.rotate.from ?? this.initialValues.get("rotate") ?? 0;
+      const to = this.spec.rotate.to;
+      const value = from + (to - from) * progress;
+      newTransforms.rotate = value;
+    } else if (existingTransforms.rotate !== undefined) {
+      newTransforms.rotate = existingTransforms.rotate;
+    }
+
+    // Transform 속성들을 순서대로 적용
+    if (newTransforms.translateX !== undefined) {
+      transforms.push(`translateX(${newTransforms.translateX}px)`);
+    }
+    if (newTransforms.translateY !== undefined) {
+      transforms.push(`translateY(${newTransforms.translateY}px)`);
+    }
+    if (newTransforms.scale !== undefined) {
+      transforms.push(`scale(${newTransforms.scale})`);
+    }
+    if (newTransforms.rotate !== undefined) {
+      transforms.push(`rotate(${newTransforms.rotate}deg)`);
+    }
+
+    // transform 적용
+    if (transforms.length > 0) {
+      this.element.style.transform = transforms.join(" ");
+    }
+
+    // opacity 처리
+    if (this.spec.opacity) {
+      const from =
+        this.spec.opacity.from ?? this.initialValues.get("opacity") ?? 1;
+      const to = this.spec.opacity.to;
+      const value = from + (to - from) * progress;
+      this.element.style.opacity = value.toString();
+    }
+
+    // backgroundColor 처리
+    if (this.spec.backgroundColor) {
+      const from =
+        this.spec.backgroundColor.from ??
+        this.initialValues.get("backgroundColor") ??
+        "";
+      const to = this.spec.backgroundColor.to;
+      // 색상 보간 적용
+      if (from && to) {
+        const interpolatedColor = this.interpolateColor(from, to, progress);
+        this.element.style.backgroundColor = interpolatedColor;
+      } else {
+        this.element.style.backgroundColor = to;
+      }
+    }
+
+    // color 처리
+    if (this.spec.color) {
+      const from =
+        this.spec.color.from ?? this.initialValues.get("color") ?? "";
+      const to = this.spec.color.to;
+      // 색상 보간 적용
+      if (from && to) {
+        const interpolatedColor = this.interpolateColor(from, to, progress);
+        this.element.style.color = interpolatedColor;
+      } else {
+        this.element.style.color = to;
+      }
+    }
+
+    // width 처리
+    if (this.spec.width) {
+      const from = this.spec.width.from ?? this.initialValues.get("width") ?? 0;
+      const to = this.spec.width.to;
+      const value = from + (to - from) * progress;
+      this.element.style.width = `${value}px`;
+    }
+
+    // height 처리
+    if (this.spec.height) {
+      const from =
+        this.spec.height.from ?? this.initialValues.get("height") ?? 0;
+      const to = this.spec.height.to;
+      const value = from + (to - from) * progress;
+      this.element.style.height = `${value}px`;
+    }
+
+    // transition 처리
+    if (this.spec.transition) {
+      this.element.style.transition = this.spec.transition;
+    }
+  }
+
+  private parseTransform(transform: string): Record<string, number> {
+    const result: Record<string, number> = {};
+
+    if (!transform) return result;
+
+    // translateX 파싱
+    const translateXMatch = transform.match(/translateX\(([^)]+)\)/);
+    if (translateXMatch && translateXMatch[1]) {
+      result.translateX = parseFloat(translateXMatch[1]);
+    }
+
+    // translateY 파싱
+    const translateYMatch = transform.match(/translateY\(([^)]+)\)/);
+    if (translateYMatch && translateYMatch[1]) {
+      result.translateY = parseFloat(translateYMatch[1]);
+    }
+
+    // scale 파싱 (scale(x) 또는 scale(x, y) 형태)
+    const scaleMatch = transform.match(/scale\(([^)]+)\)/);
+    if (scaleMatch && scaleMatch[1]) {
+      const scaleValues = scaleMatch[1]
+        .split(",")
+        .map((v) => parseFloat(v.trim()));
+      result.scale = scaleValues[0] || 1;
+    }
+
+    // rotate 파싱
+    const rotateMatch = transform.match(/rotate\(([^)]+)\)/);
+    if (rotateMatch && rotateMatch[1]) {
+      result.rotate = parseFloat(rotateMatch[1]);
+    }
+
+    return result;
+  }
+
+  // Transform 속성을 안전하게 병합하는 함수
+  private mergeTransforms(
+    existingTransforms: Record<string, number>,
+    newTransforms: Record<string, number>
+  ): Record<string, number> {
+    return {
+      ...existingTransforms,
+      ...newTransforms,
+    };
+  }
+
   private applyProperty(property: string, value: any): void {
     if (!this.element) return;
 
@@ -339,22 +594,48 @@ class MotionImpl implements Motion {
   }
 }
 
-// 랠리 구현 클래스
+// Toss 스타일 랠리 구현 클래스
 class RallyImpl implements Rally {
   public spec: RallySpec;
   public state: AnimationState = "idle";
   public motions: Motion[] = [];
   private eventManager = new EventManager();
-  private initialStates: Map<string, any> = new Map();
+  private element: HTMLElement | null = null;
 
   constructor(spec: RallySpec) {
     this.spec = spec;
-    this.motions = spec.motions.map(
-      (motionSpec) => new MotionImpl(motionSpec, spec.target)
-    );
 
-    // 초기 상태 저장
-    this.saveInitialStates();
+    // 타겟 요소 찾기
+    if (typeof spec.target === "string") {
+      this.element = document.querySelector(spec.target) as HTMLElement;
+      if (!this.element) {
+        console.warn(
+          `Rally: Target element not found for selector "${spec.target}"`
+        );
+      }
+    } else {
+      this.element = spec.target;
+    }
+
+    // 모션들 생성 (안전성 검사 추가)
+    if (!spec.motions || !Array.isArray(spec.motions)) {
+      console.warn("Rally: No motions provided or motions is not an array");
+      this.motions = [];
+    } else {
+      this.motions = spec.motions
+        .map((motionSpec, index) => {
+          try {
+            return new MotionImpl(motionSpec, this.element || undefined);
+          } catch (error) {
+            console.error(
+              `Rally: Error creating motion at index ${index}:`,
+              error
+            );
+            return null;
+          }
+        })
+        .filter(Boolean) as Motion[];
+    }
   }
 
   async start(): Promise<void> {
@@ -363,13 +644,35 @@ class RallyImpl implements Rally {
     this.state = "running";
     this.emit({ type: "start", timestamp: performance.now() });
 
-    if (this.spec.parallel) {
-      // 병렬 실행
-      await Promise.all(this.motions.map((motion) => motion.start()));
-    } else {
-      // 순차 실행
+    if (!this.element) {
+      console.warn("No target element found for rally");
+      this.state = "finished";
+      this.emit({ type: "end", timestamp: performance.now() });
+      return;
+    }
+
+    // playCount 처리
+    const playCount = this.spec.playCount || 1;
+    const isInfinite = playCount === "infinite";
+
+    let currentPlay = 0;
+
+    while (isInfinite || currentPlay < playCount) {
+      // 모션들을 순차적으로 실행
       for (const motion of this.motions) {
-        await motion.start();
+        try {
+          await motion.start();
+        } catch (error) {
+          console.error("Rally: Error executing motion:", error);
+          // 개별 모션 에러가 발생해도 전체 애니메이션은 계속 진행
+        }
+      }
+
+      currentPlay++;
+
+      // 무한 반복이 아니고 마지막 반복이면 종료
+      if (!isInfinite && currentPlay >= playCount) {
+        break;
       }
     }
 
@@ -377,7 +680,18 @@ class RallyImpl implements Rally {
     this.emit({ type: "end", timestamp: performance.now() });
 
     // endBehavior 처리
-    this.handleEndBehavior();
+    const endBehavior = this.spec.endBehavior || "maintain";
+    if (endBehavior === "reset") {
+      // 즉시 초기 상태로 리셋 (애니메이션 없이)
+      this.resetToInitialState();
+    } else if (endBehavior === "reverse") {
+      // 역재생 애니메이션으로 초기 상태로 되돌아가기
+      // 상태를 다시 running으로 변경
+      this.state = "running";
+      await this.reverseAnimation();
+      this.state = "finished";
+    }
+    // "maintain"은 기본값이므로 별도 처리 불필요
   }
 
   pause(): void {
@@ -408,6 +722,58 @@ class RallyImpl implements Rally {
     this.stop();
   }
 
+  backward(): Rally {
+    // 역방향 애니메이션을 위한 새로운 Rally 인스턴스 생성
+    const reversedSpec = {
+      ...this.spec,
+      motions: this.spec.motions
+        .slice()
+        .reverse()
+        .map((motionSpec) => ({
+          ...motionSpec,
+          // from과 to를 뒤바꿈
+          translateX: motionSpec.translateX
+            ? {
+                from: motionSpec.translateX.to,
+                to: motionSpec.translateX.from ?? 0,
+              }
+            : undefined,
+          translateY: motionSpec.translateY
+            ? {
+                from: motionSpec.translateY.to,
+                to: motionSpec.translateY.from ?? 0,
+              }
+            : undefined,
+          scale: motionSpec.scale
+            ? { from: motionSpec.scale.to, to: motionSpec.scale.from ?? 1 }
+            : undefined,
+          opacity: motionSpec.opacity
+            ? { from: motionSpec.opacity.to, to: motionSpec.opacity.from ?? 1 }
+            : undefined,
+          rotate: motionSpec.rotate
+            ? { from: motionSpec.rotate.to, to: motionSpec.rotate.from ?? 0 }
+            : undefined,
+          backgroundColor: motionSpec.backgroundColor
+            ? {
+                from: motionSpec.backgroundColor.to,
+                to: motionSpec.backgroundColor.from ?? "",
+              }
+            : undefined,
+          color: motionSpec.color
+            ? { from: motionSpec.color.to, to: motionSpec.color.from ?? "" }
+            : undefined,
+          width: motionSpec.width
+            ? { from: motionSpec.width.to, to: motionSpec.width.from ?? 0 }
+            : undefined,
+          height: motionSpec.height
+            ? { from: motionSpec.height.to, to: motionSpec.height.from ?? 0 }
+            : undefined,
+        })),
+    };
+
+    return new RallyImpl(reversedSpec);
+  }
+
   on(event: string, callback: EventListener): void {
     this.eventManager.on(event, callback);
   }
@@ -420,157 +786,212 @@ class RallyImpl implements Rally {
     this.eventManager.emit(event);
   }
 
-  private saveInitialStates(): void {
-    const element = this.getElement();
-    if (!element) return;
-
-    this.spec.motions.forEach((motion) => {
-      const property = motion.property;
-      let initialValue: any;
-
-      switch (property) {
-        case "opacity":
-          initialValue =
-            element.style.opacity || getComputedStyle(element).opacity || "1";
-          break;
-        case "transform":
-          initialValue =
-            element.style.transform ||
-            getComputedStyle(element).transform ||
-            "none";
-          break;
-        case "backgroundColor":
-          initialValue =
-            element.style.backgroundColor ||
-            getComputedStyle(element).backgroundColor ||
-            "";
-          break;
-        case "color":
-          initialValue =
-            element.style.color || getComputedStyle(element).color || "";
-          break;
-        case "width":
-          initialValue =
-            element.style.width || getComputedStyle(element).width || "";
-          break;
-        case "height":
-          initialValue =
-            element.style.height || getComputedStyle(element).height || "";
-          break;
-        default:
-          initialValue = (element.style as any)[property] || "";
-      }
-
-      this.initialStates.set(property, initialValue);
-      console.log(`Saved initial state for ${property}:`, initialValue);
-    });
-  }
-
-  private getElement(): HTMLElement | null {
-    if (typeof this.spec.target === "string") {
-      return document.querySelector(this.spec.target) as HTMLElement;
-    }
-    return this.spec.target;
-  }
-
-  private handleEndBehavior(): void {
-    const endBehavior = this.spec.endBehavior || "maintain";
-    console.log(`Handling end behavior: ${endBehavior}`);
-
-    switch (endBehavior) {
-      case "reset":
-        console.log("Executing reset behavior");
-        this.resetToInitialState();
-        break;
-      case "reverse":
-        console.log("Executing reverse behavior");
-        // 비동기 함수이지만 await 없이 실행 (백그라운드에서 실행)
-        this.reverseAnimation().catch(console.error);
-        break;
-      case "maintain":
-      default:
-        console.log("Maintaining final state");
-        // 최종 상태 유지 (아무것도 하지 않음)
-        break;
-    }
-  }
-
+  // 초기 상태로 리셋
   private resetToInitialState(): void {
-    const element = this.getElement();
-    if (!element) return;
+    if (!this.element) return;
 
-    console.log("Resetting to initial states:", this.initialStates);
+    // transition을 일시적으로 비활성화하여 즉시 리셋
+    this.element.style.transition = "none";
 
-    // transition을 일시적으로 제거하여 즉시 리셋
-    const originalTransition = element.style.transition;
-    element.style.transition = "none";
+    // 모든 애니메이션 속성을 초기값으로 리셋
+    const transforms: string[] = [];
+    let hasTransform = false;
 
-    this.initialStates.forEach((value, property) => {
-      console.log(`Resetting ${property} to:`, value);
-      switch (property) {
-        case "opacity":
-          element.style.opacity = value;
-          break;
-        case "transform":
-          element.style.transform = value;
-          break;
-        case "backgroundColor":
-          element.style.backgroundColor = value;
-          break;
-        case "color":
-          element.style.color = value;
-          break;
-        case "width":
-          element.style.width = value;
-          break;
-        case "height":
-          element.style.height = value;
-          break;
-        default:
-          (element.style as any)[property] = value;
+    if (this.spec.motions) {
+      for (const motion of this.spec.motions) {
+        // opacity 리셋
+        if (motion.opacity) {
+          this.element.style.opacity = motion.opacity.from?.toString() || "1";
+        }
+
+        // transform 속성들 수집
+        if (motion.translateX) {
+          transforms.push(`translateX(${motion.translateX.from || 0}px)`);
+          hasTransform = true;
+        }
+        if (motion.translateY) {
+          transforms.push(`translateY(${motion.translateY.from || 0}px)`);
+          hasTransform = true;
+        }
+        if (motion.scale) {
+          transforms.push(`scale(${motion.scale.from || 1})`);
+          hasTransform = true;
+        }
+        if (motion.rotate) {
+          transforms.push(`rotate(${motion.rotate.from || 0}deg)`);
+          hasTransform = true;
+        }
+
+        // backgroundColor 리셋
+        if (motion.backgroundColor) {
+          this.element.style.backgroundColor =
+            motion.backgroundColor.from || "";
+        }
+
+        // color 리셋
+        if (motion.color) {
+          this.element.style.color = motion.color.from || "";
+        }
+
+        // width 리셋
+        if (motion.width) {
+          this.element.style.width = motion.width.from
+            ? `${motion.width.from}px`
+            : "";
+        }
+
+        // height 리셋
+        if (motion.height) {
+          this.element.style.height = motion.height.from
+            ? `${motion.height.from}px`
+            : "";
+        }
       }
-    });
+    }
+
+    // transform 적용
+    if (hasTransform) {
+      this.element.style.transform = transforms.join(" ");
+    }
+
+    // 강제 리플로우
+    void (this.element as HTMLElement).offsetHeight;
 
     // transition 복원
-    setTimeout(() => {
-      element.style.transition = originalTransition;
-    }, 10);
+    this.element.style.transition = "";
   }
 
+  // 역방향 애니메이션 실행
   private async reverseAnimation(): Promise<void> {
-    const element = this.getElement();
-    if (!element) return;
+    if (!this.element) return;
 
-    console.log("Starting reverse animation");
+    console.log("🔄 Starting reverse animation for element:", this.element);
+    console.log("🔄 Original spec:", this.spec);
 
-    // 역재생을 위한 새로운 Rally 생성
-    const reverseMotions = this.spec.motions.map((motion) => ({
-      ...motion,
-      from: motion.to,
-      to: motion.from,
-    }));
+    // 역방향 Rally를 생성하여 실행
+    const reversedSpec: RallySpec = {
+      target: this.element, // target을 현재 element로 설정
+      playCount: 1, // 한 번만 실행
+      endBehavior: "maintain", // reverse는 maintain으로 설정 (무한 루프 방지)
+      motions: this.spec.motions
+        .slice()
+        .reverse()
+        .map((motionSpec) => {
+          const reversedMotion = { ...motionSpec };
 
-    const reverseRally = new RallyImpl({
-      ...this.spec,
-      motions: reverseMotions,
-      endBehavior: "maintain", // 역재생은 한 번만 실행
-    });
+          // from과 to를 뒤바꿈
+          if (motionSpec.translateX) {
+            reversedMotion.translateX = {
+              from: motionSpec.translateX.to,
+              to: motionSpec.translateX.from ?? 0,
+            };
+          }
 
+          if (motionSpec.translateY) {
+            reversedMotion.translateY = {
+              from: motionSpec.translateY.to,
+              to: motionSpec.translateY.from ?? 0,
+            };
+          }
+
+          if (motionSpec.scale) {
+            reversedMotion.scale = {
+              from: motionSpec.scale.to,
+              to: motionSpec.scale.from ?? 1,
+            };
+          }
+
+          if (motionSpec.opacity) {
+            reversedMotion.opacity = {
+              from: motionSpec.opacity.to,
+              to: motionSpec.opacity.from ?? 0, // opacity의 기본값은 0 (투명)
+            };
+          }
+
+          if (motionSpec.rotate) {
+            reversedMotion.rotate = {
+              from: motionSpec.rotate.to,
+              to: motionSpec.rotate.from ?? 0,
+            };
+          }
+
+          if (motionSpec.backgroundColor) {
+            reversedMotion.backgroundColor = {
+              from: motionSpec.backgroundColor.to,
+              to: motionSpec.backgroundColor.from ?? "",
+            };
+          }
+
+          if (motionSpec.color) {
+            reversedMotion.color = {
+              from: motionSpec.color.to,
+              to: motionSpec.color.from ?? "",
+            };
+          }
+
+          if (motionSpec.width) {
+            reversedMotion.width = {
+              from: motionSpec.width.to,
+              to: motionSpec.width.from ?? 0,
+            };
+          }
+
+          if (motionSpec.height) {
+            reversedMotion.height = {
+              from: motionSpec.height.to,
+              to: motionSpec.height.from ?? 0,
+            };
+          }
+
+          return reversedMotion;
+        }),
+    };
+
+    console.log("🔄 Reversed spec:", reversedSpec);
+
+    // 새로운 Rally 인스턴스를 생성하여 역방향 애니메이션 실행
+    const reverseRally = new RallyImpl(reversedSpec);
     await reverseRally.start();
-    console.log("Reverse animation completed");
+
+    console.log("🔄 Reverse animation completed");
   }
 }
 
-// 타임라인 구현 클래스
+// Toss 스타일 타임라인 구현 클래스
 class TimelineImpl implements Timeline {
   public spec: TimelineSpec;
   public state: AnimationState = "idle";
-  public rallies: Rally[] = [];
+  public rallies: (Rally | Timeline)[] = [];
   private eventManager = new EventManager();
 
   constructor(spec: TimelineSpec) {
     this.spec = spec;
-    this.rallies = spec.rallies.map((rallySpec) => new RallyImpl(rallySpec));
+
+    if (!spec.rallies || !Array.isArray(spec.rallies)) {
+      console.warn("Timeline: No rallies provided or rallies is not an array");
+      this.rallies = [];
+    } else {
+      this.rallies = spec.rallies
+        .map((item, index) => {
+          try {
+            // RallySpec인지 TimelineSpec인지 구분
+            if ("target" in item && "motions" in item) {
+              // RallySpec인 경우
+              return new RallyImpl(item as RallySpec);
+            } else {
+              // TimelineSpec인 경우 (중첩된 Timeline)
+              return new TimelineImpl(item as TimelineSpec);
+            }
+          } catch (error) {
+            console.error(
+              `Timeline: Error creating rally/timeline at index ${index}:`,
+              error
+            );
+            return null;
+          }
+        })
+        .filter(Boolean) as (Rally | Timeline)[];
+    }
   }
 
   async start(): Promise<void> {
@@ -579,25 +1000,59 @@ class TimelineImpl implements Timeline {
     this.state = "running";
     this.emit({ type: "start", timestamp: performance.now() });
 
-    switch (this.spec.sequence) {
+    switch (this.spec.playback) {
       case "parallel":
-        await Promise.all(this.rallies.map((rally) => rally.start()));
-        break;
-      case "sequential":
-        for (const rally of this.rallies) {
-          await rally.start();
+        try {
+          await Promise.all(
+            this.rallies.map((rally) => {
+              if (rally) {
+                return rally.start();
+              }
+              return Promise.resolve();
+            })
+          );
+        } catch (error) {
+          console.error("Timeline: Error in parallel execution:", error);
         }
         break;
-      case "staggered":
-        for (let i = 0; i < this.rallies.length; i++) {
-          const rally = this.rallies[i];
-          if (i > 0 && this.spec.staggerDelay) {
-            await new Promise((resolve) =>
-              setTimeout(resolve, this.spec.staggerDelay)
-            );
-          }
+      case "serial":
+        for (const rally of this.rallies) {
           if (rally) {
-            await rally.start();
+            try {
+              await rally.start();
+            } catch (error) {
+              console.error("Timeline: Error in serial execution:", error);
+              // 개별 rally 에러가 발생해도 다음 rally는 계속 실행
+            }
+          }
+        }
+        break;
+      default:
+        // stagger 타입
+        if (
+          typeof this.spec.playback === "object" &&
+          this.spec.playback.type === "stagger"
+        ) {
+          const staggerPlayback = this.spec.playback;
+          for (let i = 0; i < this.rallies.length; i++) {
+            const rally = this.rallies[i];
+            if (i > 0) {
+              await new Promise(
+                (resolve) =>
+                  setTimeout(resolve, staggerPlayback.staggerDelay * 1000) // 초를 밀리초로 변환
+              );
+            }
+            if (rally) {
+              try {
+                await rally.start();
+              } catch (error) {
+                console.error(
+                  `Timeline: Error in stagger execution at index ${i}:`,
+                  error
+                );
+                // 개별 rally 에러가 발생해도 다음 rally는 계속 실행
+              }
+            }
           }
         }
         break;
@@ -633,6 +1088,72 @@ class TimelineImpl implements Timeline {
 
   cancel(): void {
     this.stop();
+  }
+
+  backward(): Timeline {
+    // 역방향 애니메이션을 위한 새로운 Timeline 인스턴스 생성
+    const reversedSpec = {
+      ...this.spec,
+      rallies: this.spec.rallies
+        .slice()
+        .reverse()
+        .map((rallySpec) => {
+          if ("target" in rallySpec && "motions" in rallySpec) {
+            // RallySpec인 경우
+            return {
+              ...rallySpec,
+              motions: rallySpec.motions
+                .slice()
+                .reverse()
+                .map((motion) => ({
+                  ...motion,
+                  // from과 to를 뒤바꿈
+                  translateX: motion.translateX
+                    ? {
+                        from: motion.translateX.to,
+                        to: motion.translateX.from || 0,
+                      }
+                    : undefined,
+                  translateY: motion.translateY
+                    ? {
+                        from: motion.translateY.to,
+                        to: motion.translateY.from || 0,
+                      }
+                    : undefined,
+                  scale: motion.scale
+                    ? { from: motion.scale.to, to: motion.scale.from || 1 }
+                    : undefined,
+                  opacity: motion.opacity
+                    ? { from: motion.opacity.to, to: motion.opacity.from || 1 }
+                    : undefined,
+                  rotate: motion.rotate
+                    ? { from: motion.rotate.to, to: motion.rotate.from || 0 }
+                    : undefined,
+                  backgroundColor: motion.backgroundColor
+                    ? {
+                        from: motion.backgroundColor.to,
+                        to: motion.backgroundColor.from || "",
+                      }
+                    : undefined,
+                  color: motion.color
+                    ? { from: motion.color.to, to: motion.color.from || "" }
+                    : undefined,
+                  width: motion.width
+                    ? { from: motion.width.to, to: motion.width.from || 0 }
+                    : undefined,
+                  height: motion.height
+                    ? { from: motion.height.to, to: motion.height.from || 0 }
+                    : undefined,
+                })),
+            };
+          } else {
+            // TimelineSpec인 경우 (중첩된 Timeline)
+            return rallySpec;
+          }
+        }),
+    };
+
+    return new TimelineImpl(reversedSpec);
   }
 
   on(event: string, callback: EventListener): void {
@@ -680,6 +1201,15 @@ export class RallyAnimationEngine implements AnimationEngine {
 
   cancel(timeline: Timeline): void {
     timeline.cancel();
+  }
+
+  // Toss 스타일 API 함수들
+  Rally(spec: RallySpec): Rally {
+    return this.createRally(spec);
+  }
+
+  Timeline(spec: TimelineSpec): Timeline {
+    return this.createTimeline(spec);
   }
 }
 
