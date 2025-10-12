@@ -72,6 +72,8 @@ export interface MotionSpec {
   width?: { from?: number; to: number };
   /** 높이 */
   height?: { from?: number; to: number };
+  /** 테두리 반지름 */
+  borderRadius?: { from?: string; to: string };
 }
 
 // 애니메이션 종료 시 동작 타입 (enum에서 import)

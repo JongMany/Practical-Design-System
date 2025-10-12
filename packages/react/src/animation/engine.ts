@@ -139,6 +139,10 @@ class MotionImpl implements Motion {
     if (this.spec.height) {
       this.initialValues.set("height", parseFloat(computedStyle.height));
     }
+
+    if (this.spec.borderRadius) {
+      this.initialValues.set("borderRadius", computedStyle.borderRadius);
+    }
   }
 
   async start(): Promise<void> {
@@ -506,6 +510,21 @@ class MotionImpl implements Motion {
       this.element.style.height = `${value}px`;
     }
 
+    // borderRadius 처리
+    if (this.spec.borderRadius) {
+      const from =
+        this.spec.borderRadius.from ??
+        this.initialValues.get("borderRadius") ??
+        "0px";
+      const to = this.spec.borderRadius.to;
+      // borderRadius는 문자열이므로 간단한 보간은 어려우므로 단계별로 처리
+      if (progress < 0.5) {
+        this.element.style.borderRadius = from;
+      } else {
+        this.element.style.borderRadius = to;
+      }
+    }
+
     // transition 처리
     if (this.spec.transition) {
       this.element.style.transition = this.spec.transition;
@@ -633,7 +652,17 @@ class RallyImpl implements Rally {
   }
 
   async start(): Promise<void> {
-    if (this.state === AnimationState.RUNNING) return;
+    if (this.state === AnimationState.RUNNING) {
+      console.warn(
+        "Rally: Animation is already running, ignoring start request"
+      );
+      return;
+    }
+
+    // 이전 애니메이션이 있다면 정리
+    if (this.state === AnimationState.PAUSED) {
+      this.stop();
+    }
 
     this.state = AnimationState.RUNNING;
     this.emit({ type: "start", timestamp: performance.now() });
@@ -840,6 +869,11 @@ class RallyImpl implements Rally {
             ? `${motion.height.from}px`
             : "";
         }
+
+        // borderRadius 리셋
+        if (motion.borderRadius) {
+          this.element.style.borderRadius = motion.borderRadius.from || "0px";
+        }
       }
     }
 
@@ -937,6 +971,13 @@ class RallyImpl implements Rally {
             };
           }
 
+          if (motionSpec.borderRadius) {
+            reversedMotion.borderRadius = {
+              from: motionSpec.borderRadius.to,
+              to: motionSpec.borderRadius.from ?? "0px",
+            };
+          }
+
           return reversedMotion;
         }),
     };
@@ -989,7 +1030,17 @@ class TimelineImpl implements Timeline {
   }
 
   async start(): Promise<void> {
-    if (this.state === AnimationState.RUNNING) return;
+    if (this.state === AnimationState.RUNNING) {
+      console.warn(
+        "Timeline: Animation is already running, ignoring start request"
+      );
+      return;
+    }
+
+    // 이전 애니메이션이 있다면 정리
+    if (this.state === AnimationState.PAUSED) {
+      this.stop();
+    }
 
     this.state = AnimationState.RUNNING;
     this.emit({ type: "start", timestamp: performance.now() });

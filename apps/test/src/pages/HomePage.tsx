@@ -92,6 +92,12 @@ export default function HomePage() {
             >
               → 인터랙션 대기 타임라인
             </Link>
+            <Link
+              to="/complex-interaction"
+              className="text-gray-700 data-[theme=dark]:text-gray-300 hover:text-pink-600 data-[theme=dark]:hover:text-pink-400 no-underline py-2 px-3 rounded-lg hover:bg-pink-100 data-[theme=dark]:hover:bg-pink-800/30 transition-all duration-200 hover:translate-x-1"
+            >
+              → 복합 인터랙션
+            </Link>
           </div>
         </div>
       </div>

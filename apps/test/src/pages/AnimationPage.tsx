@@ -1,5 +1,14 @@
 import { useRef } from "react";
-import { Rally, Timeline, Ease, Spring, Bezier, Stagger } from "@acme/react";
+import {
+  Rally,
+  Timeline,
+  Ease,
+  Spring,
+  Bezier,
+  Stagger,
+  AnimationEndBehavior,
+  TimelineMode,
+} from "@acme/react";
 
 export default function AnimationPage() {
   // 페이드 인 refs
@@ -40,7 +49,7 @@ export default function AnimationPage() {
             opacity: { from: 0, to: 1 },
           },
         ],
-        "maintain"
+        AnimationEndBehavior.MAINTAIN
       );
       await rally.play();
     }
@@ -58,7 +67,7 @@ export default function AnimationPage() {
             opacity: { from: 0, to: 1 },
           },
         ],
-        "reset"
+        AnimationEndBehavior.RESET
       );
       await rally.play();
     }
@@ -76,7 +85,7 @@ export default function AnimationPage() {
             opacity: { from: 0, to: 1 },
           },
         ],
-        "reverse"
+        AnimationEndBehavior.REVERSE
       );
       await rally.play();
     }
@@ -95,7 +104,7 @@ export default function AnimationPage() {
             translateY: { from: 20, to: 0 },
           },
         ],
-        "maintain"
+        AnimationEndBehavior.MAINTAIN
       );
       await rally.play();
     }
@@ -113,7 +122,7 @@ export default function AnimationPage() {
             translateY: { from: 20, to: 0 },
           },
         ],
-        "reset"
+        AnimationEndBehavior.RESET
       );
       await rally.play();
     }
@@ -131,7 +140,7 @@ export default function AnimationPage() {
             translateY: { from: 20, to: 0 },
           },
         ],
-        "reverse"
+        AnimationEndBehavior.REVERSE
       );
       await rally.play();
     }
@@ -150,7 +159,7 @@ export default function AnimationPage() {
             scale: { from: 0.8, to: 1 },
           },
         ],
-        "maintain"
+        AnimationEndBehavior.MAINTAIN
       );
       await rally.play();
     }
@@ -168,7 +177,7 @@ export default function AnimationPage() {
             scale: { from: 0.8, to: 1 },
           },
         ],
-        "reset"
+        AnimationEndBehavior.RESET
       );
       await rally.play();
     }
@@ -186,7 +195,7 @@ export default function AnimationPage() {
             scale: { from: 0.8, to: 1 },
           },
         ],
-        "reverse"
+        AnimationEndBehavior.REVERSE
       );
       await rally.play();
     }
@@ -205,7 +214,7 @@ export default function AnimationPage() {
             rotate: { from: 0, to: 360 },
           },
         ],
-        "maintain"
+        AnimationEndBehavior.MAINTAIN
       );
       await rally.play();
     }
@@ -223,7 +232,7 @@ export default function AnimationPage() {
             rotate: { from: 0, to: 360 },
           },
         ],
-        "reset"
+        AnimationEndBehavior.RESET
       );
       await rally.play();
     }
@@ -241,7 +250,7 @@ export default function AnimationPage() {
             rotate: { from: 0, to: 360 },
           },
         ],
-        "reverse"
+        AnimationEndBehavior.REVERSE
       );
       await rally.play();
     }
@@ -250,7 +259,7 @@ export default function AnimationPage() {
   // 복합 애니메이션 함수들
   const playComplexAnimation = async () => {
     if (complexRef1.current && complexRef2.current && complexRef3.current) {
-      const timeline = Timeline("serial", [
+      const timeline = Timeline([
         Rally(complexRef1.current, 1, [
           {
             easing: Ease.easeOut,
@@ -283,7 +292,6 @@ export default function AnimationPage() {
   const playStaggerAnimation = async () => {
     if (complexRef1.current && complexRef2.current && complexRef3.current) {
       const timeline = Timeline(
-        { type: "stagger", staggerDelay: Stagger.normal },
         [
           Rally(complexRef1.current, 1, [
             {
@@ -306,7 +314,8 @@ export default function AnimationPage() {
               scale: { from: 0.8, to: 1 },
             },
           ]),
-        ]
+        ],
+        { type: "stagger", staggerDelay: Stagger.normal }
       );
       await timeline.play();
     }
@@ -314,32 +323,35 @@ export default function AnimationPage() {
 
   const playParallelAnimation = async () => {
     if (complexRef1.current && complexRef2.current && complexRef3.current) {
-      const timeline = Timeline("parallel", [
-        Rally(complexRef1.current, 1, [
-          {
-            easing: Bezier.out,
-            duration: 0.6,
-            opacity: { from: 0, to: 1 },
-            translateY: { from: 30, to: 0 },
-          },
-        ]),
-        Rally(complexRef2.current, 1, [
-          {
-            easing: Spring.wobbly,
-            duration: 0.8,
-            scale: { from: 0.5, to: 1 },
-            rotate: { from: 0, to: 180 },
-          },
-        ]),
-        Rally(complexRef3.current, 1, [
-          {
-            easing: Spring.gentle,
-            duration: 0.7,
-            backgroundColor: { from: "#3B82F6", to: "#EF4444" },
-            translateX: { from: -50, to: 0 },
-          },
-        ]),
-      ]);
+      const timeline = Timeline(
+        [
+          Rally(complexRef1.current, 1, [
+            {
+              easing: Bezier.out,
+              duration: 0.6,
+              opacity: { from: 0, to: 1 },
+              translateY: { from: 30, to: 0 },
+            },
+          ]),
+          Rally(complexRef2.current, 1, [
+            {
+              easing: Spring.wobbly,
+              duration: 0.8,
+              scale: { from: 0.5, to: 1 },
+              rotate: { from: 0, to: 180 },
+            },
+          ]),
+          Rally(complexRef3.current, 1, [
+            {
+              easing: Spring.gentle,
+              duration: 0.7,
+              backgroundColor: { from: "#3B82F6", to: "#EF4444" },
+              translateX: { from: -50, to: 0 },
+            },
+          ]),
+        ],
+        TimelineMode.PARALLEL
+      );
       await timeline.play();
     }
   };

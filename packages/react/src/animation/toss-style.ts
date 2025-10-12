@@ -126,12 +126,24 @@ export class TossMotion {
   }
 
   // 스펙 반환
-  toSpec() {
+  toSpec(): any {
+    const spec = { ...this.spec };
     return {
-      duration: this.spec.duration || 0.3,
-      easing: this.spec.easing ? EasingMap[this.spec.easing] : "ease-out",
-      delay: this.spec.delay,
-      ...this.spec,
+      duration: spec.duration || 0.3,
+      easing: spec.easing
+        ? EasingMap[spec.easing]
+        : EasingMap[EasingType.EASE_OUT],
+      delay: spec.delay,
+      translateX: spec.translateX,
+      translateY: spec.translateY,
+      scale: spec.scale,
+      opacity: spec.opacity,
+      rotate: spec.rotate,
+      backgroundColor: spec.backgroundColor,
+      color: spec.color,
+      width: spec.width,
+      height: spec.height,
+      transition: spec.transition,
     };
   }
 }
@@ -166,7 +178,7 @@ export class TossRally {
   }
 
   // 스펙 반환
-  toSpec() {
+  toSpec(): any {
     return {
       target: this.target,
       playCount: this.playCount,
@@ -364,7 +376,7 @@ export class TossTimeline {
   rally(
     target: string | HTMLElement,
     playCount: number | "infinite" = 1,
-    endBehavior: "maintain" | "reset" | "reverse" = "maintain"
+    endBehavior: AnimationEndBehavior = AnimationEndBehavior.MAINTAIN
   ): TossRally {
     const rally = new TossRally(target, playCount, endBehavior);
     this.rallies.push(rally);
@@ -373,7 +385,7 @@ export class TossTimeline {
 
   // Timeline 추가 메서드 (중첩 Timeline 지원)
   timeline(
-    playback: "serial" | "parallel" | { type: "stagger"; staggerDelay: number }
+    playback: TimelineMode | { type: "stagger"; staggerDelay: number }
   ): TossTimeline {
     const timeline = new TossTimeline(playback);
     this.rallies.push(timeline);
@@ -471,15 +483,13 @@ export function Rally(
 
 // Rally React 스타일 Timeline API - Rally들을 속성으로 받는 방식
 export function Timeline(
-  playback: TimelineMode | { type: "stagger"; staggerDelay: number },
-  rallies?: (TossRally | TossTimeline)[]
+  rallies: (TossRally | TossTimeline)[],
+  playback:
+    | TimelineMode
+    | { type: "stagger"; staggerDelay: number } = TimelineMode.SERIAL
 ): TossTimeline {
   const timeline = new TossTimeline(playback);
-
-  if (rallies) {
-    timeline.rallies = rallies;
-  }
-
+  timeline.rallies = rallies;
   return timeline;
 }
 

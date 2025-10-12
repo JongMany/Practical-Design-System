@@ -21,6 +21,7 @@ import InteractiveAnimationPage from "./pages/InteractiveAnimationPage";
 import TimelineAnimationPage from "./pages/TimelineAnimationPage";
 import ChainedAnimationPage from "./pages/ChainedAnimationPage";
 import InteractiveTimelinePage from "./pages/InteractiveTimelinePage";
+import ComplexInteractionPage from "./pages/ComplexInteractionPage";
 import "./App.css";
 
 // QueryClient 인스턴스 생성
@@ -129,6 +130,13 @@ const interactiveTimelineRoute = createRoute({
   component: InteractiveTimelinePage,
 });
 
+// 복합 인터랙션 페이지 라우트
+const complexInteractionRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/complex-interaction",
+  component: ComplexInteractionPage,
+});
+
 // 라우트 트리 생성
 const routeTree = rootRoute.addChildren([
   indexRoute,
@@ -145,6 +153,7 @@ const routeTree = rootRoute.addChildren([
   timelineAnimationRoute,
   chainedAnimationRoute,
   interactiveTimelineRoute,
+  complexInteractionRoute,
 ]);
 
 // 라우터 생성
