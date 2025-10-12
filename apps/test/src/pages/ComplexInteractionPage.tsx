@@ -6,6 +6,7 @@ import {
   AnimationEffects,
   AnimationEndBehavior,
   TimelineMode,
+  EasingType,
 } from "@acme/react";
 
 const ComplexInteractionPage = () => {
@@ -29,7 +30,7 @@ const ComplexInteractionPage = () => {
     setIsResetting(true);
 
     // CSS transition을 일시적으로 비활성화하여 즉시 리셋
-    const elements = [
+    const elements: (HTMLElement | null)[] = [
       containerRef.current,
       titleRef.current,
       subtitleRef.current,
@@ -55,7 +56,7 @@ const ComplexInteractionPage = () => {
           element.style.transform = "translateX(-10px)";
         } else if (
           [card1Ref.current, card2Ref.current, card3Ref.current].includes(
-            element
+            element as HTMLDivElement
           )
         ) {
           element.style.opacity = "0";
@@ -90,141 +91,129 @@ const ComplexInteractionPage = () => {
 
     setIsAnimationRunning(true);
 
-    // 1단계: 컨테이너가 아래에서 위로 슬라이드업
-    const containerSlideUp = Rally(
-      containerRef.current,
-      1,
-      AnimationPresets.slide("up"),
-      AnimationEndBehavior.MAINTAIN
-    );
-
-    // 2단계: 제목이 페이드인과 함께 스케일업
-    const titleAnimation = Rally(
-      titleRef.current!,
-      1,
-      AnimationPresets.scale("in"),
-      AnimationEndBehavior.MAINTAIN
-    );
-
-    // 3단계: 부제목이 슬라이드인
-    const subtitleAnimation = Rally(
-      subtitleRef.current!,
-      1,
-      AnimationPresets.slide("left"),
-      AnimationEndBehavior.MAINTAIN
-    );
-
-    // 4단계: 카드들이 순차적으로 나타남 (stagger)
-    const card1Animation = Rally(
-      card1Ref.current!,
-      1,
-      [
-        {
-          duration: 0.5,
-          easing: "ease-out",
-          opacity: { from: 0, to: 1 },
-          scale: { from: 0.8, to: 1 },
-          translateY: { from: 20, to: 0 },
-        },
-      ],
-      AnimationEndBehavior.MAINTAIN
-    );
-
-    const card2Animation = Rally(
-      card2Ref.current!,
-      1,
-      [
-        {
-          duration: 0.5,
-          easing: "ease-out",
-          opacity: { from: 0, to: 1 },
-          scale: { from: 0.8, to: 1 },
-          translateY: { from: 20, to: 0 },
-        },
-      ],
-      AnimationEndBehavior.MAINTAIN
-    );
-
-    const card3Animation = Rally(
-      card3Ref.current!,
-      1,
-      [
-        {
-          duration: 0.5,
-          easing: "ease-out",
-          opacity: { from: 0, to: 1 },
-          scale: { from: 0.8, to: 1 },
-          translateY: { from: 20, to: 0 },
-        },
-      ],
-      AnimationEndBehavior.MAINTAIN
-    );
-
-    // 5단계: 버튼이 바운스하며 나타남
-    const buttonAnimation = Rally(
-      buttonRef.current!,
-      1,
-      AnimationPresets.scale("bounce"),
-      AnimationEndBehavior.MAINTAIN
-    );
-
-    // 6단계: 모든 카드들이 wiggle 효과
-    const wiggleAnimation = Rally(
-      card1Ref.current!,
-      1,
-      AnimationEffects.wiggle(),
-      AnimationEndBehavior.MAINTAIN
-    );
-
-    const wiggleAnimation2 = Rally(
-      card2Ref.current!,
-      1,
-      AnimationEffects.wiggle(),
-      AnimationEndBehavior.MAINTAIN
-    );
-
-    const wiggleAnimation3 = Rally(
-      card3Ref.current!,
-      1,
-      AnimationEffects.wiggle(),
-      AnimationEndBehavior.MAINTAIN
-    );
-
-    // 7단계: 모든 요소들이 페이드아웃하며 사라짐
-    const fadeOutAnimation = Rally(
-      containerRef.current,
-      1,
-      [
-        {
-          duration: 0.8,
-          easing: "ease-in",
-          opacity: { from: 1, to: 0 },
-          scale: { from: 1, to: 0.9 },
-          translateY: { from: 0, to: -20 },
-        },
-      ],
-      AnimationEndBehavior.MAINTAIN
-    );
-
-    // 타임라인으로 순차 실행
-    const timeline = Timeline(
-      [
-        containerSlideUp,
-        titleAnimation,
-        subtitleAnimation,
-        card1Animation,
-        card2Animation,
-        card3Animation,
-        buttonAnimation,
-        wiggleAnimation,
-        wiggleAnimation2,
-        wiggleAnimation3,
-        fadeOutAnimation,
-      ],
-      TimelineMode.SERIAL
-    );
-
     try {
+      // Timeline을 사용하여 순차적 애니메이션 실행
+      const timeline = Timeline(
+        [
+          // 1단계: 컨테이너가 아래에서 위로 슬라이드업
+          Rally(
+            containerRef.current,
+            1,
+            AnimationPresets.slide("up"),
+            AnimationEndBehavior.MAINTAIN
+          ),
+
+          // 2단계: 제목이 페이드인과 함께 스케일업
+          Rally(
+            titleRef.current!,
+            1,
+            AnimationPresets.scale("in"),
+            AnimationEndBehavior.MAINTAIN
+          ),
+
+          // 3단계: 부제목이 슬라이드인
+          Rally(
+            subtitleRef.current!,
+            1,
+            AnimationPresets.slide("left"),
+            AnimationEndBehavior.MAINTAIN
+          ),
+
+          // 4단계: 카드들이 순차적으로 나타남 (stagger)
+          Rally(
+            card1Ref.current!,
+            1,
+            [
+              {
+                duration: 0.5,
+                easing: EasingType.EASE_OUT,
+                opacity: { from: 0, to: 1 },
+                scale: { from: 0.8, to: 1 },
+                translateY: { from: 20, to: 0 },
+              },
+            ],
+            AnimationEndBehavior.MAINTAIN
+          ),
+
+          Rally(
+            card2Ref.current!,
+            1,
+            [
+              {
+                duration: 0.5,
+                easing: EasingType.EASE_OUT,
+                opacity: { from: 0, to: 1 },
+                scale: { from: 0.8, to: 1 },
+                translateY: { from: 20, to: 0 },
+              },
+            ],
+            AnimationEndBehavior.MAINTAIN
+          ),
+
+          Rally(
+            card3Ref.current!,
+            1,
+            [
+              {
+                duration: 0.5,
+                easing: EasingType.EASE_OUT,
+                opacity: { from: 0, to: 1 },
+                scale: { from: 0.8, to: 1 },
+                translateY: { from: 20, to: 0 },
+              },
+            ],
+            AnimationEndBehavior.MAINTAIN
+          ),
+
+          // 5단계: 버튼이 바운스하며 나타남
+          Rally(
+            buttonRef.current!,
+            1,
+            AnimationPresets.scale("bounce"),
+            AnimationEndBehavior.MAINTAIN
+          ),
+
+          // 6단계: 모든 카드들이 wiggle 효과
+          Rally(
+            card1Ref.current!,
+            1,
+            AnimationEffects.wiggle(),
+            AnimationEndBehavior.MAINTAIN
+          ),
+
+          Rally(
+            card2Ref.current!,
+            1,
+            AnimationEffects.wiggle(),
+            AnimationEndBehavior.MAINTAIN
+          ),
+
+          Rally(
+            card3Ref.current!,
+            1,
+            AnimationEffects.wiggle(),
+            AnimationEndBehavior.MAINTAIN
+          ),
+
+          // 7단계: 모든 요소들이 페이드아웃하며 사라짐
+          Rally(
+            containerRef.current,
+            1,
+            [
+              {
+                duration: 0.8,
+                easing: EasingType.EASE_IN,
+                opacity: { from: 1, to: 0 },
+                scale: { from: 1, to: 0.9 },
+                translateY: { from: 0, to: -20 },
+              },
+            ],
+            AnimationEndBehavior.MAINTAIN
+          ),
+        ],
+        TimelineMode.SERIAL
+      );
+
       await timeline.play();
     } catch (error) {
       console.error("애니메이션 실행 중 오류 발생:", error);
@@ -235,7 +224,9 @@ const ComplexInteractionPage = () => {
   };
 
   // 개별 요소 애니메이션들
-  const playCardWiggle = async (cardRef: React.RefObject<HTMLDivElement>) => {
+  const playCardWiggle = async (
+    cardRef: React.RefObject<HTMLDivElement | null>
+  ) => {
     if (!cardRef.current || isAnimationRunning) return;
 
     try {
@@ -251,7 +242,9 @@ const ComplexInteractionPage = () => {
     }
   };
 
-  const playCardBounce = async (cardRef: React.RefObject<HTMLDivElement>) => {
+  const playCardBounce = async (
+    cardRef: React.RefObject<HTMLDivElement | null>
+  ) => {
     if (!cardRef.current || isAnimationRunning) return;
 
     try {
@@ -267,7 +260,9 @@ const ComplexInteractionPage = () => {
     }
   };
 
-  const playCardFloat = async (cardRef: React.RefObject<HTMLDivElement>) => {
+  const playCardFloat = async (
+    cardRef: React.RefObject<HTMLDivElement | null>
+  ) => {
     if (!cardRef.current || isAnimationRunning) return;
 
     try {

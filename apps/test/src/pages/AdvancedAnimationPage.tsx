@@ -1,13 +1,5 @@
-import React, { useRef, useState } from "react";
-import {
-  Rally,
-  Timeline,
-  AnimationPresets,
-  AnimationEffects,
-  AnimationEndBehavior,
-  TimelineMode,
-  EasingType,
-} from "@acme/react";
+import { useRef, useState } from "react";
+import { Rally, AnimationEndBehavior, EasingType } from "@acme/react";
 
 export default function AdvancedAnimationPage() {
   // 고급 애니메이션 refs
@@ -36,7 +28,6 @@ export default function AdvancedAnimationPage() {
             duration: 0.8,
             easing: EasingType.EASE_IN_OUT,
             scale: { from: 1, to: 1.2 },
-            borderRadius: { from: "12px", to: "50%" },
             backgroundColor: { from: "#3B82F6", to: "#EF4444" },
           },
           // 사각형으로 복원
@@ -44,7 +35,6 @@ export default function AdvancedAnimationPage() {
             duration: 0.8,
             easing: EasingType.EASE_IN_OUT,
             scale: { from: 1.2, to: 1 },
-            borderRadius: { from: "50%", to: "12px" },
             backgroundColor: { from: "#EF4444", to: "#10B981" },
           },
           // 다이아몬드로 변형
@@ -52,7 +42,6 @@ export default function AdvancedAnimationPage() {
             duration: 0.8,
             easing: EasingType.EASE_IN_OUT,
             rotate: { from: 0, to: 45 },
-            borderRadius: { from: "12px", to: "0px" },
             backgroundColor: { from: "#10B981", to: "#8B5CF6" },
           },
           // 원래대로 복원
@@ -60,7 +49,6 @@ export default function AdvancedAnimationPage() {
             duration: 0.8,
             easing: EasingType.EASE_IN_OUT,
             rotate: { from: 45, to: 0 },
-            borderRadius: { from: "0px", to: "12px" },
             backgroundColor: { from: "#8B5CF6", to: "#3B82F6" },
           },
         ],

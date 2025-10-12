@@ -1,14 +1,9 @@
 import { useRef } from "react";
 import {
   Rally,
-  Timeline,
-  EasingType,
-  TimelineMode,
   AnimationEndBehavior,
   AnimationPresets,
   AnimationEffects,
-  AnimationPreset,
-  AnimationEffect,
 } from "@acme/react";
 
 export default function PresetAnimationPage() {

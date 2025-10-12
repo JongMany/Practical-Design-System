@@ -23,7 +23,8 @@ export type AnimationProperty =
   | "translateY"
   | "rotate"
   | "scaleX"
-  | "scaleY";
+  | "scaleY"
+  | "borderRadius";
 
 // 스프링 설정
 export interface SpringConfig {
