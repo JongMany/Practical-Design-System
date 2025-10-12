@@ -6,12 +6,12 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type {
   AnimationController,
-  AnimationState,
   MotionSpec,
   RallySpec,
   TimelineSpec,
   UseAnimationOptions,
 } from "./types";
+import { AnimationState, TimelineMode } from "./enums";
 import { rallyEngine } from "./engine";
 
 // useAnimation 훅 - 기본 애니메이션 제어
@@ -19,7 +19,7 @@ export function useAnimation(
   spec: MotionSpec | RallySpec | TimelineSpec,
   options: UseAnimationOptions = {}
 ): AnimationController {
-  const [state, setState] = useState<AnimationState>("idle");
+  const [state, setState] = useState<AnimationState>(AnimationState.IDLE);
   const animationRef = useRef<any>(null);
   const {
     autoPlay = false,
@@ -49,27 +49,27 @@ export function useAnimation(
     const animation = animationRef.current;
     if (animation) {
       animation.on("start", () => {
-        setState("running");
+        setState(AnimationState.RUNNING);
         onStart?.();
       });
 
       animation.on("end", () => {
-        setState("finished");
+        setState(AnimationState.FINISHED);
         onComplete?.();
       });
 
       animation.on("pause", () => {
-        setState("paused");
+        setState(AnimationState.PAUSED);
         onPause?.();
       });
 
       animation.on("resume", () => {
-        setState("running");
+        setState(AnimationState.RUNNING);
         onResume?.();
       });
 
       animation.on("cancel", () => {
-        setState("idle");
+        setState(AnimationState.IDLE);
         onCancel?.();
       });
     }
@@ -202,7 +202,7 @@ export function useAnimationParallel(
         };
       }
     }),
-    playback: "parallel",
+    playback: TimelineMode.PARALLEL,
   };
 
   return useTimeline(timelineSpec, options);
@@ -285,32 +285,34 @@ export function useAnimationLoop(
 }
 
 // useAnimationState 훅 - 애니메이션 상태 관리
-export function useAnimationState(initialState: AnimationState = "idle") {
+export function useAnimationState(
+  initialState: AnimationState = AnimationState.IDLE
+) {
   const [state, setState] = useState<AnimationState>(initialState);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [isFinished, setIsFinished] = useState(false);
 
   useEffect(() => {
-    setIsPlaying(state === "running");
-    setIsPaused(state === "paused");
-    setIsFinished(state === "finished");
+    setIsPlaying(state === AnimationState.RUNNING);
+    setIsPaused(state === AnimationState.PAUSED);
+    setIsFinished(state === AnimationState.FINISHED);
   }, [state]);
 
   const play = useCallback(() => {
-    setState("running");
+    setState(AnimationState.RUNNING);
   }, []);
 
   const pause = useCallback(() => {
-    setState("paused");
+    setState(AnimationState.PAUSED);
   }, []);
 
   const stop = useCallback(() => {
-    setState("idle");
+    setState(AnimationState.IDLE);
   }, []);
 
   const finish = useCallback(() => {
-    setState("finished");
+    setState(AnimationState.FINISHED);
   }, []);
 
   return {

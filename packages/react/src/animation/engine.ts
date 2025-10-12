@@ -7,7 +7,6 @@ import React from "react";
 import type {
   AnimationEngine,
   AnimationEvent,
-  AnimationState,
   Motion,
   MotionSpec,
   Rally,
@@ -17,7 +16,7 @@ import type {
   RallyFunction,
   TimelineFunction,
 } from "./types";
-import { getEasingConfig } from "./presets";
+import { AnimationEndBehavior, AnimationState } from "./enums";
 
 // 이벤트 리스너 타입
 type EventListener = (event: AnimationEvent) => void;
@@ -55,7 +54,7 @@ class EventManager {
 // Toss 스타일 모션 구현 클래스
 class MotionImpl implements Motion {
   public spec: MotionSpec;
-  public state: AnimationState = "idle";
+  public state: AnimationState = AnimationState.IDLE;
   private eventManager = new EventManager();
   private animationId: number | null = null;
   private startTime: number = 0;
@@ -143,16 +142,16 @@ class MotionImpl implements Motion {
   }
 
   async start(): Promise<void> {
-    if (this.state === "running") return;
+    if (this.state === AnimationState.RUNNING) return;
 
-    this.state = "running";
+    this.state = AnimationState.RUNNING;
     this.startTime = performance.now();
 
     this.emit({ type: "start", timestamp: this.startTime });
 
     if (!this.element) {
       console.warn("No target element found for motion");
-      this.state = "finished";
+      this.state = AnimationState.FINISHED;
       this.emit({ type: "end", timestamp: performance.now() });
       return;
     }
@@ -161,9 +160,9 @@ class MotionImpl implements Motion {
   }
 
   pause(): void {
-    if (this.state !== "running") return;
+    if (this.state !== AnimationState.RUNNING) return;
 
-    this.state = "paused";
+    this.state = AnimationState.PAUSED;
     this.pausedTime = performance.now();
 
     if (this.animationId) {
@@ -175,9 +174,9 @@ class MotionImpl implements Motion {
   }
 
   resume(): void {
-    if (this.state !== "paused") return;
+    if (this.state !== AnimationState.PAUSED) return;
 
-    this.state = "running";
+    this.state = AnimationState.RUNNING;
     const pauseDuration = performance.now() - this.pausedTime;
     this.startTime += pauseDuration;
 
@@ -186,9 +185,9 @@ class MotionImpl implements Motion {
   }
 
   stop(): void {
-    if (this.state === "idle") return;
+    if (this.state === AnimationState.IDLE) return;
 
-    this.state = "idle";
+    this.state = AnimationState.IDLE;
 
     if (this.animationId) {
       cancelAnimationFrame(this.animationId);
@@ -223,7 +222,7 @@ class MotionImpl implements Motion {
 
     return new Promise((resolve) => {
       const animate = (currentTime: number) => {
-        if (this.state !== "running") {
+        if (this.state !== AnimationState.RUNNING) {
           resolve();
           return;
         }
@@ -242,7 +241,7 @@ class MotionImpl implements Motion {
         this.updateElementTossStyle(easedProgress);
 
         if (progress >= 1) {
-          this.state = "finished";
+          this.state = AnimationState.FINISHED;
           this.emit({ type: "end", timestamp: currentTime });
           resolve();
         } else {
@@ -258,13 +257,8 @@ class MotionImpl implements Motion {
     const easing = this.spec.easing;
 
     if (typeof easing === "string") {
-      try {
-        const easingConfig = getEasingConfig(easing);
-        return this.applyEasing(progress, easingConfig);
-      } catch {
-        // 기본 이징 사용
-        return progress;
-      }
+      // 기본 이징 사용
+      return this.applyEasing(progress, { type: easing as any });
     } else {
       return this.applyEasing(progress, easing);
     }
@@ -597,7 +591,7 @@ class MotionImpl implements Motion {
 // Toss 스타일 랠리 구현 클래스
 class RallyImpl implements Rally {
   public spec: RallySpec;
-  public state: AnimationState = "idle";
+  public state: AnimationState = AnimationState.IDLE;
   public motions: Motion[] = [];
   private eventManager = new EventManager();
   private element: HTMLElement | null = null;
@@ -639,14 +633,14 @@ class RallyImpl implements Rally {
   }
 
   async start(): Promise<void> {
-    if (this.state === "running") return;
+    if (this.state === AnimationState.RUNNING) return;
 
-    this.state = "running";
+    this.state = AnimationState.RUNNING;
     this.emit({ type: "start", timestamp: performance.now() });
 
     if (!this.element) {
       console.warn("No target element found for rally");
-      this.state = "finished";
+      this.state = AnimationState.FINISHED;
       this.emit({ type: "end", timestamp: performance.now() });
       return;
     }
@@ -676,44 +670,44 @@ class RallyImpl implements Rally {
       }
     }
 
-    this.state = "finished";
+    this.state = AnimationState.FINISHED;
     this.emit({ type: "end", timestamp: performance.now() });
 
     // endBehavior 처리
-    const endBehavior = this.spec.endBehavior || "maintain";
-    if (endBehavior === "reset") {
+    const endBehavior = this.spec.endBehavior || AnimationEndBehavior.MAINTAIN;
+    if (endBehavior === AnimationEndBehavior.RESET) {
       // 즉시 초기 상태로 리셋 (애니메이션 없이)
       this.resetToInitialState();
-    } else if (endBehavior === "reverse") {
+    } else if (endBehavior === AnimationEndBehavior.REVERSE) {
       // 역재생 애니메이션으로 초기 상태로 되돌아가기
       // 상태를 다시 running으로 변경
-      this.state = "running";
+      this.state = AnimationState.RUNNING;
       await this.reverseAnimation();
-      this.state = "finished";
+      this.state = AnimationState.FINISHED;
     }
     // "maintain"은 기본값이므로 별도 처리 불필요
   }
 
   pause(): void {
-    if (this.state !== "running") return;
+    if (this.state !== AnimationState.RUNNING) return;
 
-    this.state = "paused";
+    this.state = AnimationState.PAUSED;
     this.motions.forEach((motion) => motion.pause());
     this.emit({ type: "pause", timestamp: performance.now() });
   }
 
   resume(): void {
-    if (this.state !== "paused") return;
+    if (this.state !== AnimationState.PAUSED) return;
 
-    this.state = "running";
+    this.state = AnimationState.RUNNING;
     this.motions.forEach((motion) => motion.resume());
     this.emit({ type: "resume", timestamp: performance.now() });
   }
 
   stop(): void {
-    if (this.state === "idle") return;
+    if (this.state === AnimationState.IDLE) return;
 
-    this.state = "idle";
+    this.state = AnimationState.IDLE;
     this.motions.forEach((motion) => motion.stop());
     this.emit({ type: "cancel", timestamp: performance.now() });
   }
@@ -872,7 +866,7 @@ class RallyImpl implements Rally {
     const reversedSpec: RallySpec = {
       target: this.element, // target을 현재 element로 설정
       playCount: 1, // 한 번만 실행
-      endBehavior: "maintain", // reverse는 maintain으로 설정 (무한 루프 방지)
+      endBehavior: AnimationEndBehavior.MAINTAIN, // reverse는 maintain으로 설정 (무한 루프 방지)
       motions: this.spec.motions
         .slice()
         .reverse()
@@ -960,7 +954,7 @@ class RallyImpl implements Rally {
 // Toss 스타일 타임라인 구현 클래스
 class TimelineImpl implements Timeline {
   public spec: TimelineSpec;
-  public state: AnimationState = "idle";
+  public state: AnimationState = AnimationState.IDLE;
   public rallies: (Rally | Timeline)[] = [];
   private eventManager = new EventManager();
 
@@ -995,9 +989,9 @@ class TimelineImpl implements Timeline {
   }
 
   async start(): Promise<void> {
-    if (this.state === "running") return;
+    if (this.state === AnimationState.RUNNING) return;
 
-    this.state = "running";
+    this.state = AnimationState.RUNNING;
     this.emit({ type: "start", timestamp: performance.now() });
 
     switch (this.spec.playback) {
@@ -1058,30 +1052,30 @@ class TimelineImpl implements Timeline {
         break;
     }
 
-    this.state = "finished";
+    this.state = AnimationState.FINISHED;
     this.emit({ type: "end", timestamp: performance.now() });
   }
 
   pause(): void {
-    if (this.state !== "running") return;
+    if (this.state !== AnimationState.RUNNING) return;
 
-    this.state = "paused";
+    this.state = AnimationState.PAUSED;
     this.rallies.forEach((rally) => rally.pause());
     this.emit({ type: "pause", timestamp: performance.now() });
   }
 
   resume(): void {
-    if (this.state !== "paused") return;
+    if (this.state !== AnimationState.PAUSED) return;
 
-    this.state = "running";
+    this.state = AnimationState.RUNNING;
     this.rallies.forEach((rally) => rally.resume());
     this.emit({ type: "resume", timestamp: performance.now() });
   }
 
   stop(): void {
-    if (this.state === "idle") return;
+    if (this.state === AnimationState.IDLE) return;
 
-    this.state = "idle";
+    this.state = AnimationState.IDLE;
     this.rallies.forEach((rally) => rally.stop());
     this.emit({ type: "cancel", timestamp: performance.now() });
   }

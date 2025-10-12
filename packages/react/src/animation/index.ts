@@ -3,7 +3,12 @@
  * 토스의 Rally 시스템을 기반으로 한 React 애니메이션 라이브러리
  */
 
-import type { EasingType } from "./types";
+import {
+  EasingType,
+  TimelineMode,
+  AnimationEndBehavior,
+  AnimationState,
+} from "./enums";
 
 // 타입 exports
 export type {
@@ -11,9 +16,7 @@ export type {
   AnimationEngine,
   AnimationEvent,
   AnimationProperty,
-  AnimationState,
   EasingConfig,
-  EasingType,
   MotionSpec,
   RallySpec,
   SpringConfig,
@@ -22,12 +25,20 @@ export type {
   UseAnimationOptions,
 } from "./types";
 
+// Enum exports
+export {
+  EasingType,
+  TimelineMode,
+  AnimationEndBehavior,
+  AnimationState,
+} from "./enums";
+
 // 프리셋 exports
 export {
-  EASING_PRESETS,
-  getEasingConfig,
-  hasEasingPreset,
-  getAvailableEasingPresets,
+  AnimationPreset,
+  AnimationEffect,
+  AnimationPresets,
+  AnimationEffects,
 } from "./presets";
 
 // 엔진 exports
@@ -114,9 +125,8 @@ export const RallyUtils = {
   createTimeline: (
     rallies: any[],
     playback:
-      | "serial"
-      | "parallel"
-      | { type: "stagger"; staggerDelay: number } = "serial"
+      | TimelineMode
+      | { type: "stagger"; staggerDelay: number } = TimelineMode.SERIAL
   ) => ({
     playback,
     rallies,
@@ -124,13 +134,13 @@ export const RallyUtils = {
 
   // 애니메이션 체이닝
   chain: (...specs: any[]) => ({
-    playback: "serial" as const,
+    playback: TimelineMode.SERIAL,
     rallies: specs,
   }),
 
   // 애니메이션 병렬 실행
   parallel: (...specs: any[]) => ({
-    playback: "parallel" as const,
+    playback: TimelineMode.PARALLEL,
     rallies: specs,
   }),
 
@@ -141,81 +151,99 @@ export const RallyUtils = {
   }),
 };
 
-// Toss 스타일 애니메이션 프리셋들
+// Toss 스타일 애니메이션 프리셋들 (새로운 시스템과 호환)
 export const RallyPresets = {
   // 페이드 애니메이션
-  fadeIn: (duration = 0.3, easing: EasingType = "spring.quick") => ({
+  fadeIn: (duration = 0.3, easing: EasingType = EasingType.SPRING_QUICK) => ({
     duration,
     easing,
     opacity: { from: 0, to: 1 },
   }),
 
-  fadeOut: (duration = 0.3, easing: EasingType = "spring.quick") => ({
+  fadeOut: (duration = 0.3, easing: EasingType = EasingType.SPRING_QUICK) => ({
     duration,
     easing,
     opacity: { from: 1, to: 0 },
   }),
 
   // 슬라이드 애니메이션
-  slideUp: (duration = 0.3, easing: EasingType = "spring.quick") => ({
+  slideUp: (duration = 0.3, easing: EasingType = EasingType.SPRING_QUICK) => ({
     duration,
     easing,
     translateY: { from: 20, to: 0 },
   }),
 
-  slideDown: (duration = 0.3, easing: EasingType = "spring.quick") => ({
+  slideDown: (
+    duration = 0.3,
+    easing: EasingType = EasingType.SPRING_QUICK
+  ) => ({
     duration,
     easing,
     translateY: { from: -20, to: 0 },
   }),
 
-  slideLeft: (duration = 0.3, easing: EasingType = "spring.quick") => ({
+  slideLeft: (
+    duration = 0.3,
+    easing: EasingType = EasingType.SPRING_QUICK
+  ) => ({
     duration,
     easing,
     translateX: { from: 20, to: 0 },
   }),
 
-  slideRight: (duration = 0.3, easing: EasingType = "spring.quick") => ({
+  slideRight: (
+    duration = 0.3,
+    easing: EasingType = EasingType.SPRING_QUICK
+  ) => ({
     duration,
     easing,
     translateX: { from: -20, to: 0 },
   }),
 
   // 스케일 애니메이션
-  scaleIn: (duration = 0.3, easing: EasingType = "spring.quick") => ({
+  scaleIn: (duration = 0.3, easing: EasingType = EasingType.SPRING_QUICK) => ({
     duration,
     easing,
     scale: { from: 0.8, to: 1 },
   }),
 
-  scaleOut: (duration = 0.3, easing: EasingType = "spring.quick") => ({
+  scaleOut: (duration = 0.3, easing: EasingType = EasingType.SPRING_QUICK) => ({
     duration,
     easing,
     scale: { from: 1, to: 0.8 },
   }),
 
   // 회전 애니메이션
-  rotateIn: (duration = 0.4, easing: EasingType = "spring.basic") => ({
+  rotateIn: (duration = 0.4, easing: EasingType = EasingType.SPRING_BASIC) => ({
     duration,
     easing,
     rotate: { from: -180, to: 0 },
   }),
 
-  rotateOut: (duration = 0.4, easing: EasingType = "spring.basic") => ({
+  rotateOut: (
+    duration = 0.4,
+    easing: EasingType = EasingType.SPRING_BASIC
+  ) => ({
     duration,
     easing,
     rotate: { from: 0, to: 180 },
   }),
 
   // 복합 애니메이션
-  slideUpFadeIn: (duration = 0.3, easing: EasingType = "spring.quick") => ({
+  slideUpFadeIn: (
+    duration = 0.3,
+    easing: EasingType = EasingType.SPRING_QUICK
+  ) => ({
     duration,
     easing,
     opacity: { from: 0, to: 1 },
     translateY: { from: 20, to: 0 },
   }),
 
-  scaleInFadeIn: (duration = 0.3, easing: EasingType = "spring.quick") => ({
+  scaleInFadeIn: (
+    duration = 0.3,
+    easing: EasingType = EasingType.SPRING_QUICK
+  ) => ({
     duration,
     easing,
     opacity: { from: 0, to: 1 },

@@ -3,6 +3,13 @@
  * 토스의 Rally 시스템을 기반으로 한 애니메이션 타입 정의
  */
 
+import {
+  EasingType,
+  TimelineMode,
+  AnimationEndBehavior,
+  AnimationState,
+} from "./enums";
+
 // 기본 애니메이션 속성 타입
 export type AnimationProperty =
   | "opacity"
@@ -17,20 +24,6 @@ export type AnimationProperty =
   | "rotate"
   | "scaleX"
   | "scaleY";
-
-// Toss 스타일 이징 함수 타입
-export type EasingType =
-  | "linear"
-  | "ease"
-  | "ease-in"
-  | "ease-out"
-  | "ease-in-out"
-  | "spring.basic"
-  | "spring.large"
-  | "spring.quick"
-  | "bezier.out"
-  | "bezier.in"
-  | "bezier.in-out";
 
 // 스프링 설정
 export interface SpringConfig {
@@ -81,11 +74,7 @@ export interface MotionSpec {
   height?: { from?: number; to: number };
 }
 
-// 애니메이션 종료 시 동작 타입
-export type AnimationEndBehavior =
-  | "maintain" // 최종 상태 유지
-  | "reset" // 초기 상태로 리셋
-  | "reverse"; // 역재생으로 되돌아가기
+// 애니메이션 종료 시 동작 타입 (enum에서 import)
 
 // Toss 스타일 랠리 스펙
 export interface RallySpec {
@@ -102,7 +91,7 @@ export interface RallySpec {
 // Toss 스타일 타임라인 스펙
 export interface TimelineSpec {
   /** 재생 방식 */
-  playback: "serial" | "parallel" | { type: "stagger"; staggerDelay: number };
+  playback: TimelineMode | { type: "stagger"; staggerDelay: number };
   /** 실행할 랠리들 (중첩된 Timeline 지원) */
   rallies: (RallySpec | TimelineSpec)[];
 }
@@ -141,13 +130,7 @@ export interface ConditionalMotionSpec {
   fallbackMotion?: MotionSpec;
 }
 
-// 애니메이션 상태
-export type AnimationState =
-  | "idle"
-  | "running"
-  | "paused"
-  | "finished"
-  | "cancelled";
+// 애니메이션 상태 (enum에서 import)
 
 // 애니메이션 이벤트
 export interface AnimationEvent {

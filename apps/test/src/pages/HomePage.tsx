@@ -257,6 +257,12 @@ export default function HomePage() {
           >
             애니메이션 시작하기
           </Link>
+          <Link
+            to="/preset-animation"
+            className="bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
+          >
+            프리셋 애니메이션
+          </Link>
         </div>
       </div>
     </div>

@@ -16,6 +16,7 @@ import FormPage from "./pages/FormPage";
 import TypographyPage from "./pages/TypographyPage";
 import AnimationPage from "./pages/AnimationPage";
 import AdvancedAnimationPage from "./pages/AdvancedAnimationPage";
+import PresetAnimationPage from "./pages/PresetAnimationPage";
 import InteractiveAnimationPage from "./pages/InteractiveAnimationPage";
 import TimelineAnimationPage from "./pages/TimelineAnimationPage";
 import ChainedAnimationPage from "./pages/ChainedAnimationPage";
@@ -114,6 +115,13 @@ const chainedAnimationRoute = createRoute({
   component: ChainedAnimationPage,
 });
 
+// 프리셋 애니메이션 페이지 라우트
+const presetAnimationRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/preset-animation",
+  component: PresetAnimationPage,
+});
+
 // 인터랙션 대기 타임라인 페이지 라우트
 const interactiveTimelineRoute = createRoute({
   getParentRoute: () => rootRoute,
@@ -132,6 +140,7 @@ const routeTree = rootRoute.addChildren([
   typographyRoute,
   animationRoute,
   advancedAnimationRoute,
+  presetAnimationRoute,
   interactiveAnimationRoute,
   timelineAnimationRoute,
   chainedAnimationRoute,

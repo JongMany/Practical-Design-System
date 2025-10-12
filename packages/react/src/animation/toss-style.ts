@@ -3,7 +3,14 @@
  * 선언적이고 체이닝 가능한 애니메이션 시스템
  */
 
-import type { EasingType } from "./types";
+import {
+  EasingType,
+  TimelineMode,
+  AnimationEndBehavior,
+  TimelineModeMap,
+  AnimationEndBehaviorMap,
+  EasingMap,
+} from "./enums";
 import { rallyEngine } from "./engine";
 
 // Toss 스타일 Motion 클래스
@@ -122,7 +129,7 @@ export class TossMotion {
   toSpec() {
     return {
       duration: this.spec.duration || 0.3,
-      easing: this.spec.easing || "ease-out",
+      easing: this.spec.easing ? EasingMap[this.spec.easing] : "ease-out",
       delay: this.spec.delay,
       ...this.spec,
     };
@@ -133,13 +140,13 @@ export class TossMotion {
 export class TossRally {
   private target: string | HTMLElement;
   private playCount: number | "infinite";
-  private endBehavior: "maintain" | "reset" | "reverse";
+  private endBehavior: AnimationEndBehavior;
   private motions: TossMotion[] = [];
 
   constructor(
     target: string | HTMLElement,
     playCount: number | "infinite" = 1,
-    endBehavior: "maintain" | "reset" | "reverse" = "maintain"
+    endBehavior: AnimationEndBehavior = AnimationEndBehavior.MAINTAIN
   ) {
     this.target = target;
     this.playCount = playCount;
@@ -163,7 +170,7 @@ export class TossRally {
     return {
       target: this.target,
       playCount: this.playCount,
-      endBehavior: this.endBehavior,
+      endBehavior: AnimationEndBehaviorMap[this.endBehavior],
       motions: this.motions.map((motion) => motion.toSpec()),
     };
   }
@@ -344,14 +351,11 @@ export class TossTimelineBackward {
 
 // Toss 스타일 Timeline 클래스
 export class TossTimeline {
-  private playback:
-    | "serial"
-    | "parallel"
-    | { type: "stagger"; staggerDelay: number };
+  private playback: TimelineMode | { type: "stagger"; staggerDelay: number };
   public rallies: (TossRally | TossTimeline)[] = [];
 
   constructor(
-    playback: "serial" | "parallel" | { type: "stagger"; staggerDelay: number }
+    playback: TimelineMode | { type: "stagger"; staggerDelay: number }
   ) {
     this.playback = playback;
   }
@@ -378,8 +382,22 @@ export class TossTimeline {
 
   // 스펙 반환
   toSpec(): any {
+    // TimelineMode를 문자열로 변환
+    let playback: string | { type: "stagger"; staggerDelay: number };
+    if (typeof this.playback === "string") {
+      playback = this.playback;
+    } else if (
+      this.playback &&
+      typeof this.playback === "object" &&
+      "type" in this.playback
+    ) {
+      playback = this.playback;
+    } else {
+      playback = TimelineModeMap[this.playback as TimelineMode];
+    }
+
     return {
-      playback: this.playback,
+      playback,
       rallies: this.rallies.map((item) => {
         if (item instanceof TossRally) {
           return item.toSpec();
@@ -422,7 +440,7 @@ export function Rally(
     width?: { from?: number; to: number };
     height?: { from?: number; to: number };
   }>,
-  endBehavior: "maintain" | "reset" | "reverse" = "maintain"
+  endBehavior: AnimationEndBehavior = AnimationEndBehavior.MAINTAIN
 ): TossRally {
   const rally = new TossRally(target, playCount, endBehavior);
 
@@ -453,7 +471,7 @@ export function Rally(
 
 // Rally React 스타일 Timeline API - Rally들을 속성으로 받는 방식
 export function Timeline(
-  playback: "serial" | "parallel" | { type: "stagger"; staggerDelay: number },
+  playback: TimelineMode | { type: "stagger"; staggerDelay: number },
   rallies?: (TossRally | TossTimeline)[]
 ): TossTimeline {
   const timeline = new TossTimeline(playback);
@@ -472,26 +490,26 @@ export function Motion(duration?: number, easing?: EasingType): TossMotion {
 
 // 이징 상수들
 export const Bezier = {
-  out: "bezier.out" as EasingType,
-  in: "bezier.in" as EasingType,
-  inOut: "bezier.in-out" as EasingType,
+  out: EasingType.BEZIER_OUT,
+  in: EasingType.BEZIER_IN,
+  inOut: EasingType.BEZIER_IN_OUT,
 };
 
 export const Spring = {
-  basic: "spring.basic" as EasingType,
-  large: "spring.large" as EasingType,
-  quick: "spring.quick" as EasingType,
-  gentle: "spring.gentle" as EasingType,
-  wobbly: "spring.wobbly" as EasingType,
-  stiff: "spring.stiff" as EasingType,
+  basic: EasingType.SPRING_BASIC,
+  large: EasingType.SPRING_LARGE,
+  quick: EasingType.SPRING_QUICK,
+  gentle: EasingType.SPRING_GENTLE,
+  wobbly: EasingType.SPRING_WOBBLY,
+  stiff: EasingType.SPRING_STIFF,
 };
 
 export const Ease = {
-  linear: "linear" as EasingType,
-  ease: "ease" as EasingType,
-  easeIn: "ease-in" as EasingType,
-  easeOut: "ease-out" as EasingType,
-  easeInOut: "ease-in-out" as EasingType,
+  linear: EasingType.LINEAR,
+  ease: EasingType.EASE,
+  easeIn: EasingType.EASE_IN,
+  easeOut: EasingType.EASE_OUT,
+  easeInOut: EasingType.EASE_IN_OUT,
 };
 
 // Stagger delay 상수들

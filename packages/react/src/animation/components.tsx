@@ -16,6 +16,7 @@ import type {
   TimelineSpec,
   UseAnimationOptions,
 } from "./types";
+import { TimelineMode } from "./enums";
 import { useMotion, useRally, useTimeline, useAnimationRef } from "./hooks";
 
 // 애니메이션 컴포넌트의 ref 타입
@@ -86,7 +87,7 @@ export interface TimelineProps extends UseAnimationOptions {
   /** 애니메이션 완료 후 콜백 (onComplete의 별칭) */
   onEnd?: () => void;
   /** 재생 방식 */
-  playback: "serial" | "parallel" | { type: "stagger"; staggerDelay: number };
+  playback: TimelineMode | { type: "stagger"; staggerDelay: number };
   /** 실행할 랠리들 */
   rallies: RallySpec[];
   /** 자동 실행 여부 */
