@@ -23,60 +23,52 @@ const ComplexInteractionPage = () => {
   const [isAnimationRunning, setIsAnimationRunning] = React.useState(false);
   const [isResetting, setIsResetting] = React.useState(false);
 
+  // Timeline 인스턴스를 ref로 관리
+  const timelineRef = useRef<ReturnType<typeof Timeline> | null>(null);
+
   // 애니메이션 리셋
   const resetAnimation = () => {
     if (isResetting) return; // 이미 리셋 중이면 무시
 
     setIsResetting(true);
 
-    // CSS transition을 일시적으로 비활성화하여 즉시 리셋
-    const elements: (HTMLElement | null)[] = [
-      containerRef.current,
-      titleRef.current,
-      subtitleRef.current,
-      card1Ref.current,
-      card2Ref.current,
-      card3Ref.current,
-      buttonRef.current,
-    ];
-
-    elements.forEach((element) => {
-      if (element) {
-        const originalTransition = element.style.transition;
-        element.style.transition = "none";
-
-        if (element === containerRef.current) {
-          element.style.opacity = "0";
-          element.style.transform = "translateY(20px)";
-        } else if (element === titleRef.current) {
-          element.style.opacity = "0";
-          element.style.transform = "scale(0.75)";
-        } else if (element === subtitleRef.current) {
-          element.style.opacity = "0";
-          element.style.transform = "translateX(-10px)";
-        } else if (
-          [card1Ref.current, card2Ref.current, card3Ref.current].includes(
-            element as HTMLDivElement
-          )
-        ) {
-          element.style.opacity = "0";
-          element.style.transform = "scale(0.75) translateY(5px)";
-        } else if (element === buttonRef.current) {
-          element.style.opacity = "0";
-          element.style.transform = "scale(0.5)";
-        }
-
-        // 강제 리플로우
-        void element.offsetHeight;
-
-        // transition 복원
-        element.style.transition = originalTransition;
+    try {
+      // 현재 실행 중인 Timeline이 있다면 중지하고 리셋
+      if (timelineRef.current) {
+        // Timeline의 reset API를 호출하면 내부적으로 모든 Rally가 리셋됩니다
+        timelineRef.current.reset();
+        timelineRef.current = null;
       }
-    });
 
-    // 상태 리셋
-    setIsAnimationRunning(false);
-    setIsResetting(false);
+      // 개별 Rally들도 중지하고 리셋 (메인 Timeline에 포함되지 않은 개별 카드 애니메이션들)
+      // 주의: 메인 Timeline의 reset()은 Timeline 내부의 Rally들만 리셋하므로,
+      // 별도로 실행된 개별 카드 애니메이션들은 별도로 리셋해야 합니다.
+      const rallyRefs = [
+        card1WiggleRef,
+        card1BounceRef,
+        card2WiggleRef,
+        card2FloatRef,
+        card3BounceRef,
+        card3FloatRef,
+      ];
+
+      rallyRefs.forEach((rallyRef) => {
+        if (rallyRef.current) {
+          // Rally의 reset API를 호출하면 애니메이션이 완전히 중지되고 초기 상태로 리셋됩니다
+          rallyRef.current.reset();
+          rallyRef.current = null;
+        }
+      });
+
+      // DOM 요소들은 Rally의 reset API가 내부적으로 처리하므로 별도 처리 불필요
+      // Rally.reset()이 호출되면 각 Rally가 자신의 타겟 요소를 초기 상태로 복원합니다
+    } catch (error) {
+      console.error("애니메이션 리셋 중 오류 발생:", error);
+    } finally {
+      // 상태 리셋
+      setIsAnimationRunning(false);
+      setIsResetting(false);
+    }
   };
 
   // 복합 인터랙션 애니메이션 실행
@@ -214,18 +206,31 @@ const ComplexInteractionPage = () => {
         TimelineMode.SERIAL
       );
 
+      // Timeline을 ref에 저장하여 나중에 리셋할 수 있도록 함
+      timelineRef.current = timeline;
+
       await timeline.play();
     } catch (error) {
       console.error("애니메이션 실행 중 오류 발생:", error);
     } finally {
       // 애니메이션 완료 후 상태 리셋
       setIsAnimationRunning(false);
+      timelineRef.current = null;
     }
   };
 
+  // 개별 요소 애니메이션들을 ref로 관리
+  const card1WiggleRef = useRef<ReturnType<typeof Rally> | null>(null);
+  const card1BounceRef = useRef<ReturnType<typeof Rally> | null>(null);
+  const card2WiggleRef = useRef<ReturnType<typeof Rally> | null>(null);
+  const card2FloatRef = useRef<ReturnType<typeof Rally> | null>(null);
+  const card3BounceRef = useRef<ReturnType<typeof Rally> | null>(null);
+  const card3FloatRef = useRef<ReturnType<typeof Rally> | null>(null);
+
   // 개별 요소 애니메이션들
   const playCardWiggle = async (
-    cardRef: React.RefObject<HTMLDivElement | null>
+    cardRef: React.RefObject<HTMLDivElement | null>,
+    rallyRef: React.RefObject<ReturnType<typeof Rally> | null>
   ) => {
     if (!cardRef.current || isAnimationRunning) return;
 
@@ -236,14 +241,18 @@ const ComplexInteractionPage = () => {
         AnimationEffects.wiggle(),
         AnimationEndBehavior.MAINTAIN
       );
+      rallyRef.current = wiggle;
       await wiggle.play();
     } catch (error) {
       console.error("Wiggle 애니메이션 실행 중 오류:", error);
+    } finally {
+      rallyRef.current = null;
     }
   };
 
   const playCardBounce = async (
-    cardRef: React.RefObject<HTMLDivElement | null>
+    cardRef: React.RefObject<HTMLDivElement | null>,
+    rallyRef: React.RefObject<ReturnType<typeof Rally> | null>
   ) => {
     if (!cardRef.current || isAnimationRunning) return;
 
@@ -254,14 +263,18 @@ const ComplexInteractionPage = () => {
         AnimationEffects.bounce(),
         AnimationEndBehavior.MAINTAIN
       );
+      rallyRef.current = bounce;
       await bounce.play();
     } catch (error) {
       console.error("Bounce 애니메이션 실행 중 오류:", error);
+    } finally {
+      rallyRef.current = null;
     }
   };
 
   const playCardFloat = async (
-    cardRef: React.RefObject<HTMLDivElement | null>
+    cardRef: React.RefObject<HTMLDivElement | null>,
+    rallyRef: React.RefObject<ReturnType<typeof Rally> | null>
   ) => {
     if (!cardRef.current || isAnimationRunning) return;
 
@@ -272,9 +285,12 @@ const ComplexInteractionPage = () => {
         AnimationEffects.float(),
         AnimationEndBehavior.MAINTAIN
       );
+      rallyRef.current = float;
       await float.play();
     } catch (error) {
       console.error("Float 애니메이션 실행 중 오류:", error);
+    } finally {
+      rallyRef.current = null;
     }
   };
 
@@ -349,13 +365,13 @@ const ComplexInteractionPage = () => {
             </p>
             <div className="mt-4 flex gap-2">
               <button
-                onClick={() => playCardWiggle(card1Ref)}
+                onClick={() => playCardWiggle(card1Ref, card1WiggleRef)}
                 className="bg-white/20 hover:bg-white/30 px-3 py-1 rounded text-sm transition-colors"
               >
                 Wiggle
               </button>
               <button
-                onClick={() => playCardBounce(card1Ref)}
+                onClick={() => playCardBounce(card1Ref, card1BounceRef)}
                 className="bg-white/20 hover:bg-white/30 px-3 py-1 rounded text-sm transition-colors"
               >
                 Bounce
@@ -375,13 +391,13 @@ const ComplexInteractionPage = () => {
             </p>
             <div className="mt-4 flex gap-2">
               <button
-                onClick={() => playCardWiggle(card2Ref)}
+                onClick={() => playCardWiggle(card2Ref, card2WiggleRef)}
                 className="bg-white/20 hover:bg-white/30 px-3 py-1 rounded text-sm transition-colors"
               >
                 Wiggle
               </button>
               <button
-                onClick={() => playCardFloat(card2Ref)}
+                onClick={() => playCardFloat(card2Ref, card2FloatRef)}
                 className="bg-white/20 hover:bg-white/30 px-3 py-1 rounded text-sm transition-colors"
               >
                 Float
@@ -401,13 +417,13 @@ const ComplexInteractionPage = () => {
             </p>
             <div className="mt-4 flex gap-2">
               <button
-                onClick={() => playCardBounce(card3Ref)}
+                onClick={() => playCardBounce(card3Ref, card3BounceRef)}
                 className="bg-white/20 hover:bg-white/30 px-3 py-1 rounded text-sm transition-colors"
               >
                 Bounce
               </button>
               <button
-                onClick={() => playCardFloat(card3Ref)}
+                onClick={() => playCardFloat(card3Ref, card3FloatRef)}
                 className="bg-white/20 hover:bg-white/30 px-3 py-1 rounded text-sm transition-colors"
               >
                 Float

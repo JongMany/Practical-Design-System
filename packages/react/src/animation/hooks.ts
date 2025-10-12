@@ -118,6 +118,12 @@ export function useAnimation(
     }
   }, []);
 
+  const reset = useCallback(() => {
+    if (animationRef.current) {
+      animationRef.current.reset();
+    }
+  }, []);
+
   const restart = useCallback(async () => {
     if (animationRef.current) {
       animationRef.current.stop();
@@ -132,6 +138,7 @@ export function useAnimation(
     resume,
     stop,
     cancel,
+    reset,
     restart,
   };
 }

@@ -26,6 +26,7 @@ export interface AnimationRef {
   resume: () => void;
   stop: () => void;
   cancel: () => void;
+  reset: () => void;
   restart: () => Promise<void>;
 }
 
@@ -148,6 +149,7 @@ export const Motion = forwardRef<AnimationRef, MotionProps>(
       resume: () => motion.resume(),
       stop: () => motion.stop(),
       cancel: () => motion.cancel(),
+      reset: () => motion.reset(),
       restart: async () => {
         motion.stop();
         await motion.play();
@@ -206,6 +208,7 @@ export const Rally = forwardRef<AnimationRef, RallyProps>(
       resume: () => rally.resume(),
       stop: () => rally.stop(),
       cancel: () => rally.cancel(),
+      reset: () => rally.reset(),
       restart: async () => {
         rally.stop();
         await rally.play();
@@ -262,6 +265,7 @@ export const Timeline = forwardRef<AnimationRef, TimelineProps>(
       resume: () => timeline.resume(),
       stop: () => timeline.stop(),
       cancel: () => timeline.cancel(),
+      reset: () => timeline.reset(),
       restart: async () => {
         timeline.stop();
         await timeline.play();

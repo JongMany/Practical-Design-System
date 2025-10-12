@@ -137,7 +137,7 @@ export interface ConditionalMotionSpec {
 
 // 애니메이션 이벤트
 export interface AnimationEvent {
-  type: "start" | "end" | "pause" | "resume" | "cancel";
+  type: "start" | "end" | "pause" | "resume" | "cancel" | "reset";
   timestamp: number;
   target?: string;
 }
@@ -160,6 +160,8 @@ export interface AnimationEngine {
   stop(timeline: Timeline): void;
   /** 타임라인 취소 */
   cancel(timeline: Timeline): void;
+  /** 타임라인 리셋 */
+  reset(timeline: Timeline): void;
 }
 
 // 모션 인스턴스
@@ -185,6 +187,7 @@ export interface Rally {
   resume(): void;
   stop(): void;
   cancel(): void;
+  reset(): void;
   backward(): Rally;
   on(event: string, callback: (event: AnimationEvent) => void): void;
   off(event: string, callback: (event: AnimationEvent) => void): void;
@@ -200,6 +203,7 @@ export interface Timeline {
   resume(): void;
   stop(): void;
   cancel(): void;
+  reset(): void;
   backward(): Timeline;
   on(event: string, callback: (event: AnimationEvent) => void): void;
   off(event: string, callback: (event: AnimationEvent) => void): void;
@@ -239,6 +243,8 @@ export interface AnimationController {
   stop(): void;
   /** 애니메이션 취소 */
   cancel(): void;
+  /** 애니메이션 리셋 */
+  reset(): void;
   /** 애니메이션 재시작 */
   restart(): Promise<void>;
 }

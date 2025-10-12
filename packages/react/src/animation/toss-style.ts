@@ -154,6 +154,7 @@ export class TossRally {
   private playCount: number | "infinite";
   private endBehavior: AnimationEndBehavior;
   private motions: TossMotion[] = [];
+  private currentRally: import("./types").Rally | null = null; // 현재 실행 중인 Rally 인스턴스 추적
 
   constructor(
     target: string | HTMLElement,
@@ -189,8 +190,30 @@ export class TossRally {
 
   // 애니메이션 실행
   async play() {
-    const rally = rallyEngine.createRally(this.toSpec());
-    return await rally.start();
+    // 기존 Rally가 있다면 중지
+    if (this.currentRally) {
+      this.currentRally.stop();
+    }
+
+    // 새로운 Rally 생성 및 실행
+    this.currentRally = rallyEngine.createRally(this.toSpec());
+    return await this.currentRally.start();
+  }
+
+  // 애니메이션 중지
+  stop() {
+    if (this.currentRally) {
+      this.currentRally.stop();
+      this.currentRally = null;
+    }
+  }
+
+  // 애니메이션 리셋
+  reset() {
+    if (this.currentRally) {
+      this.currentRally.reset();
+      this.currentRally = null;
+    }
   }
 
   // 역방향 애니메이션
@@ -365,6 +388,7 @@ export class TossTimelineBackward {
 export class TossTimeline {
   private playback: TimelineMode | { type: "stagger"; staggerDelay: number };
   public rallies: (TossRally | TossTimeline)[] = [];
+  private currentTimeline: import("./types").Timeline | null = null; // 현재 실행 중인 Timeline 인스턴스 추적
 
   constructor(
     playback: TimelineMode | { type: "stagger"; staggerDelay: number }
@@ -423,8 +447,30 @@ export class TossTimeline {
 
   // 애니메이션 실행
   async play() {
-    const timeline = rallyEngine.createTimeline(this.toSpec());
-    return await timeline.start();
+    // 기존 Timeline이 있다면 중지
+    if (this.currentTimeline) {
+      this.currentTimeline.stop();
+    }
+
+    // 새로운 Timeline 생성 및 실행
+    this.currentTimeline = rallyEngine.createTimeline(this.toSpec());
+    return await this.currentTimeline.start();
+  }
+
+  // 애니메이션 중지
+  stop() {
+    if (this.currentTimeline) {
+      this.currentTimeline.stop();
+      this.currentTimeline = null;
+    }
+  }
+
+  // 애니메이션 리셋
+  reset() {
+    if (this.currentTimeline) {
+      this.currentTimeline.reset();
+      this.currentTimeline = null;
+    }
   }
 
   // 역방향 애니메이션

@@ -614,6 +614,7 @@ class RallyImpl implements Rally {
   public motions: Motion[] = [];
   private eventManager = new EventManager();
   private element: HTMLElement | null = null;
+  private initialStyles: Record<string, string> = {}; // 초기 스타일 상태 저장
 
   constructor(spec: RallySpec) {
     this.spec = spec;
@@ -628,6 +629,11 @@ class RallyImpl implements Rally {
       }
     } else {
       this.element = spec.target;
+    }
+
+    // 초기 스타일 상태 저장
+    if (this.element) {
+      this.saveInitialStyles();
     }
 
     // 모션들 생성 (안전성 검사 추가)
@@ -706,7 +712,7 @@ class RallyImpl implements Rally {
     const endBehavior = this.spec.endBehavior || AnimationEndBehavior.MAINTAIN;
     if (endBehavior === AnimationEndBehavior.RESET) {
       // 즉시 초기 상태로 리셋 (애니메이션 없이)
-      this.resetToInitialState();
+      this.reset();
     } else if (endBehavior === AnimationEndBehavior.REVERSE) {
       // 역재생 애니메이션으로 초기 상태로 되돌아가기
       // 상태를 다시 running으로 변경
@@ -809,84 +815,57 @@ class RallyImpl implements Rally {
     this.eventManager.emit(event);
   }
 
-  // 초기 상태로 리셋
-  private resetToInitialState(): void {
+  // 초기 스타일 상태 저장
+  private saveInitialStyles(): void {
+    if (!this.element) return;
+
+    const computedStyle = window.getComputedStyle(this.element);
+    this.initialStyles = {
+      opacity: computedStyle.opacity,
+      transform: computedStyle.transform,
+      backgroundColor: computedStyle.backgroundColor,
+      color: computedStyle.color,
+      width: computedStyle.width,
+      height: computedStyle.height,
+      borderRadius: computedStyle.borderRadius,
+      transition: this.element.style.transition || "",
+    };
+  }
+
+  // 초기 스타일 상태로 복원
+  private restoreInitialStyles(): void {
     if (!this.element) return;
 
     // transition을 일시적으로 비활성화하여 즉시 리셋
+    const originalTransition = this.element.style.transition;
     this.element.style.transition = "none";
 
-    // 모든 애니메이션 속성을 초기값으로 리셋
-    const transforms: string[] = [];
-    let hasTransform = false;
-
-    if (this.spec.motions) {
-      for (const motion of this.spec.motions) {
-        // opacity 리셋
-        if (motion.opacity) {
-          this.element.style.opacity = motion.opacity.from?.toString() || "1";
-        }
-
-        // transform 속성들 수집
-        if (motion.translateX) {
-          transforms.push(`translateX(${motion.translateX.from || 0}px)`);
-          hasTransform = true;
-        }
-        if (motion.translateY) {
-          transforms.push(`translateY(${motion.translateY.from || 0}px)`);
-          hasTransform = true;
-        }
-        if (motion.scale) {
-          transforms.push(`scale(${motion.scale.from || 1})`);
-          hasTransform = true;
-        }
-        if (motion.rotate) {
-          transforms.push(`rotate(${motion.rotate.from || 0}deg)`);
-          hasTransform = true;
-        }
-
-        // backgroundColor 리셋
-        if (motion.backgroundColor) {
-          this.element.style.backgroundColor =
-            motion.backgroundColor.from || "";
-        }
-
-        // color 리셋
-        if (motion.color) {
-          this.element.style.color = motion.color.from || "";
-        }
-
-        // width 리셋
-        if (motion.width) {
-          this.element.style.width = motion.width.from
-            ? `${motion.width.from}px`
-            : "";
-        }
-
-        // height 리셋
-        if (motion.height) {
-          this.element.style.height = motion.height.from
-            ? `${motion.height.from}px`
-            : "";
-        }
-
-        // borderRadius 리셋
-        if (motion.borderRadius) {
-          this.element.style.borderRadius = motion.borderRadius.from || "0px";
-        }
-      }
-    }
-
-    // transform 적용
-    if (hasTransform) {
-      this.element.style.transform = transforms.join(" ");
-    }
+    // 저장된 초기 스타일로 복원
+    Object.entries(this.initialStyles).forEach(([property, value]) => {
+      if (property === "transition") return; // transition은 나중에 복원
+      (this.element!.style as any)[property] = value;
+    });
 
     // 강제 리플로우
-    void (this.element as HTMLElement).offsetHeight;
+    void this.element.offsetHeight;
 
     // transition 복원
-    this.element.style.transition = "";
+    this.element.style.transition = originalTransition;
+  }
+
+  // 초기 상태로 리셋
+  reset(): void {
+    if (!this.element) return;
+
+    // 1. 먼저 현재 실행 중인 애니메이션을 완전히 중지
+    this.stop();
+
+    // 2. 저장된 초기 스타일로 완전히 복원
+    this.restoreInitialStyles();
+
+    // 3. 상태를 IDLE로 리셋하고 reset 이벤트 발생
+    this.state = AnimationState.IDLE;
+    this.emit({ type: "reset", timestamp: performance.now() });
   }
 
   // 역방향 애니메이션 실행
@@ -1135,6 +1114,20 @@ class TimelineImpl implements Timeline {
     this.stop();
   }
 
+  reset(): void {
+    // 1. 먼저 현재 실행 중인 Timeline을 완전히 중지
+    this.stop();
+
+    // 2. 모든 Rally와 Timeline을 리셋 (이미 stop이 호출되었으므로 각각의 reset만 호출)
+    this.rallies.forEach((rally) => {
+      rally.reset();
+    });
+
+    // 3. Timeline 상태를 IDLE로 리셋하고 reset 이벤트 발생
+    this.state = AnimationState.IDLE;
+    this.emit({ type: "reset", timestamp: performance.now() });
+  }
+
   backward(): Timeline {
     // 역방향 애니메이션을 위한 새로운 Timeline 인스턴스 생성
     const reversedSpec = {
@@ -1246,6 +1239,10 @@ export class RallyAnimationEngine implements AnimationEngine {
 
   cancel(timeline: Timeline): void {
     timeline.cancel();
+  }
+
+  reset(timeline: Timeline): void {
+    timeline.reset();
   }
 
   // Toss 스타일 API 함수들
