@@ -6,8 +6,23 @@ import {
   AnimationEffects,
   AnimationEndBehavior,
   TimelineMode,
+  TimelineEndBehavior,
   EasingType,
 } from "@acme/react";
+
+// 애니메이션 상수 정의 - 매직 넘버 제거
+const ANIMATION_DURATION = {
+  FAST: 0.3,
+  NORMAL: 0.5,
+  SLOW: 0.8,
+} as const;
+
+// ANIMATION_DELAY는 향후 사용을 위해 보존
+// const ANIMATION_DELAY = {
+//   NONE: 0,
+//   FAST: 0.1,
+//   NORMAL: 0.2,
+// } as const;
 
 const ComplexInteractionPage = () => {
   // 컨테이너와 내부 요소들에 대한 ref
@@ -117,7 +132,7 @@ const ComplexInteractionPage = () => {
             1,
             [
               {
-                duration: 0.5,
+                duration: ANIMATION_DURATION.NORMAL,
                 easing: EasingType.EASE_OUT,
                 opacity: { from: 0, to: 1 },
                 scale: { from: 0.8, to: 1 },
@@ -132,7 +147,7 @@ const ComplexInteractionPage = () => {
             1,
             [
               {
-                duration: 0.5,
+                duration: ANIMATION_DURATION.NORMAL,
                 easing: EasingType.EASE_OUT,
                 opacity: { from: 0, to: 1 },
                 scale: { from: 0.8, to: 1 },
@@ -147,7 +162,7 @@ const ComplexInteractionPage = () => {
             1,
             [
               {
-                duration: 0.5,
+                duration: ANIMATION_DURATION.NORMAL,
                 easing: EasingType.EASE_OUT,
                 opacity: { from: 0, to: 1 },
                 scale: { from: 0.8, to: 1 },
@@ -193,7 +208,7 @@ const ComplexInteractionPage = () => {
             1,
             [
               {
-                duration: 0.8,
+                duration: ANIMATION_DURATION.SLOW,
                 easing: EasingType.EASE_IN,
                 opacity: { from: 1, to: 0 },
                 scale: { from: 1, to: 0.9 },
@@ -203,7 +218,17 @@ const ComplexInteractionPage = () => {
             AnimationEndBehavior.MAINTAIN
           ),
         ],
-        TimelineMode.SERIAL
+        TimelineMode.SERIAL,
+        {
+          endBehavior: TimelineEndBehavior.FADE_OUT_AND_RESET,
+          fadeOutDuration: ANIMATION_DURATION.SLOW,
+          fadeOutEasing: EasingType.EASE_IN,
+          onComplete: () => {
+            console.log(
+              "🎬 Timeline 완료! 부드럽게 페이드아웃 후 리셋되었습니다."
+            );
+          },
+        }
       );
 
       // Timeline을 ref에 저장하여 나중에 리셋할 수 있도록 함
@@ -227,71 +252,66 @@ const ComplexInteractionPage = () => {
   const card3BounceRef = useRef<ReturnType<typeof Rally> | null>(null);
   const card3FloatRef = useRef<ReturnType<typeof Rally> | null>(null);
 
-  // 개별 요소 애니메이션들
-  const playCardWiggle = async (
+  // 공통 애니메이션 함수 - 중복 코드 제거
+  const playCardAnimation = async (
     cardRef: React.RefObject<HTMLDivElement | null>,
-    rallyRef: React.RefObject<ReturnType<typeof Rally> | null>
+    rallyRef: React.RefObject<ReturnType<typeof Rally> | null>,
+    animationEffect: ReturnType<typeof AnimationEffects.wiggle>,
+    animationName: string
   ) => {
     if (!cardRef.current || isAnimationRunning) return;
 
     try {
-      const wiggle = Rally(
+      const animation = Rally(
         cardRef.current,
         1,
-        AnimationEffects.wiggle(),
+        animationEffect,
         AnimationEndBehavior.MAINTAIN
       );
-      rallyRef.current = wiggle;
-      await wiggle.play();
+      rallyRef.current = animation;
+      await animation.play();
     } catch (error) {
-      console.error("Wiggle 애니메이션 실행 중 오류:", error);
+      console.error(`${animationName} 애니메이션 실행 중 오류:`, error);
     } finally {
       rallyRef.current = null;
     }
+  };
+
+  // 개별 애니메이션 함수들 - 공통 함수 사용
+  const playCardWiggle = async (
+    cardRef: React.RefObject<HTMLDivElement | null>,
+    rallyRef: React.RefObject<ReturnType<typeof Rally> | null>
+  ) => {
+    await playCardAnimation(
+      cardRef,
+      rallyRef,
+      AnimationEffects.wiggle(),
+      "Wiggle"
+    );
   };
 
   const playCardBounce = async (
     cardRef: React.RefObject<HTMLDivElement | null>,
     rallyRef: React.RefObject<ReturnType<typeof Rally> | null>
   ) => {
-    if (!cardRef.current || isAnimationRunning) return;
-
-    try {
-      const bounce = Rally(
-        cardRef.current,
-        1,
-        AnimationEffects.bounce(),
-        AnimationEndBehavior.MAINTAIN
-      );
-      rallyRef.current = bounce;
-      await bounce.play();
-    } catch (error) {
-      console.error("Bounce 애니메이션 실행 중 오류:", error);
-    } finally {
-      rallyRef.current = null;
-    }
+    await playCardAnimation(
+      cardRef,
+      rallyRef,
+      AnimationEffects.bounce(),
+      "Bounce"
+    );
   };
 
   const playCardFloat = async (
     cardRef: React.RefObject<HTMLDivElement | null>,
     rallyRef: React.RefObject<ReturnType<typeof Rally> | null>
   ) => {
-    if (!cardRef.current || isAnimationRunning) return;
-
-    try {
-      const float = Rally(
-        cardRef.current,
-        1,
-        AnimationEffects.float(),
-        AnimationEndBehavior.MAINTAIN
-      );
-      rallyRef.current = float;
-      await float.play();
-    } catch (error) {
-      console.error("Float 애니메이션 실행 중 오류:", error);
-    } finally {
-      rallyRef.current = null;
-    }
+    await playCardAnimation(
+      cardRef,
+      rallyRef,
+      AnimationEffects.float(),
+      "Float"
+    );
   };
 
   return (

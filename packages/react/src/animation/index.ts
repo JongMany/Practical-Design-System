@@ -22,6 +22,7 @@ export type {
   SpringConfig,
   BezierConfig,
   TimelineSpec,
+  TimelineOptions,
   UseAnimationOptions,
 } from "./types";
 
@@ -32,6 +33,9 @@ export {
   AnimationEndBehavior,
   AnimationState,
 } from "./enums";
+
+// TimelineEndBehavior export
+export { TimelineEndBehavior } from "./types";
 
 // 프리셋 exports
 export {

@@ -26,6 +26,39 @@ export type AnimationProperty =
   | "scaleY"
   | "borderRadius";
 
+// 애니메이션 속성 값 타입 정의
+export type AnimationPropertyValue = number | string;
+
+// 애니메이션 속성 정의를 위한 제네릭 타입
+export interface AnimationPropertySpec<
+  T extends AnimationPropertyValue = AnimationPropertyValue,
+> {
+  from?: T;
+  to: T;
+}
+
+// 숫자형 애니메이션 속성
+export type NumericAnimationProperty =
+  | "translateX"
+  | "translateY"
+  | "scale"
+  | "opacity"
+  | "rotate"
+  | "width"
+  | "height";
+
+// 문자열형 애니메이션 속성
+export type StringAnimationProperty =
+  | "backgroundColor"
+  | "color"
+  | "borderRadius";
+
+// 숫자형 속성 스펙
+export type NumericPropertySpec = AnimationPropertySpec<number>;
+
+// 문자열형 속성 스펙
+export type StringPropertySpec = AnimationPropertySpec<string>;
+
 // 스프링 설정
 export interface SpringConfig {
   type: "spring";
@@ -43,7 +76,7 @@ export interface BezierConfig {
 // 이징 설정
 export type EasingConfig = SpringConfig | BezierConfig | { type: EasingType };
 
-// Toss 스타일 모션 스펙
+// Toss 스타일 모션 스펙 - 타입 안전성 강화
 export interface MotionSpec {
   /** 지속 시간 (초) */
   duration: number;
@@ -54,27 +87,29 @@ export interface MotionSpec {
   /** CSS transition 속성 */
   transition?: string;
 
-  // 개별 속성들
+  // 숫자형 속성들 - 타입 안전성 강화
   /** X축 이동 */
-  translateX?: { from?: number; to: number };
+  translateX?: NumericPropertySpec;
   /** Y축 이동 */
-  translateY?: { from?: number; to: number };
+  translateY?: NumericPropertySpec;
   /** 스케일 */
-  scale?: { from?: number; to: number };
+  scale?: NumericPropertySpec;
   /** 투명도 */
-  opacity?: { from?: number; to: number };
+  opacity?: NumericPropertySpec;
   /** 회전 */
-  rotate?: { from?: number; to: number };
-  /** 배경색 */
-  backgroundColor?: { from?: string; to: string };
-  /** 색상 */
-  color?: { from?: string; to: string };
+  rotate?: NumericPropertySpec;
   /** 너비 */
-  width?: { from?: number; to: number };
+  width?: NumericPropertySpec;
   /** 높이 */
-  height?: { from?: number; to: number };
+  height?: NumericPropertySpec;
+
+  // 문자열형 속성들 - 타입 안전성 강화
+  /** 배경색 */
+  backgroundColor?: StringPropertySpec;
+  /** 색상 */
+  color?: StringPropertySpec;
   /** 테두리 반지름 */
-  borderRadius?: { from?: string; to: string };
+  borderRadius?: StringPropertySpec;
 }
 
 // 애니메이션 종료 시 동작 타입 (enum에서 import)
@@ -91,12 +126,40 @@ export interface RallySpec {
   endBehavior?: AnimationEndBehavior;
 }
 
+// Timeline 완료 후 동작 옵션
+export enum TimelineEndBehavior {
+  /** 모든 Rally를 초기 상태로 리셋 */
+  RESET = "reset",
+  /** 모든 Rally를 현재 상태로 유지 */
+  MAINTAIN = "maintain",
+  /** 부드럽게 페이드아웃 후 리셋 */
+  FADE_OUT_AND_RESET = "fadeOutAndReset",
+  /** 부드럽게 페이드아웃 후 유지 */
+  FADE_OUT_AND_MAINTAIN = "fadeOutAndMaintain",
+}
+
+// Timeline 옵션
+export interface TimelineOptions {
+  /** Timeline 완료 후 동작 */
+  endBehavior?: TimelineEndBehavior;
+  /** 페이드아웃 애니메이션 지속시간 (초) */
+  fadeOutDuration?: number;
+  /** 페이드아웃 애니메이션 이징 */
+  fadeOutEasing?: EasingType;
+  /** Timeline 완료 후 콜백 */
+  onComplete?: () => void;
+  /** Timeline 시작 시 콜백 */
+  onStart?: () => void;
+}
+
 // Toss 스타일 타임라인 스펙
 export interface TimelineSpec {
   /** 재생 방식 */
   playback: TimelineMode | { type: "stagger"; staggerDelay: number };
   /** 실행할 랠리들 (중첩된 Timeline 지원) */
   rallies: (RallySpec | TimelineSpec)[];
+  /** Timeline 옵션 */
+  options?: TimelineOptions;
 }
 
 // Toss 스타일 API 함수들
@@ -205,6 +268,10 @@ export interface Timeline {
   cancel(): void;
   reset(): void;
   backward(): Timeline;
+  /** Timeline 완료 후 동작 실행 */
+  executeEndBehavior(): Promise<void>;
+  /** 부드러운 페이드아웃 애니메이션 실행 */
+  fadeOut(duration?: number, easing?: EasingType): Promise<void>;
   on(event: string, callback: (event: AnimationEvent) => void): void;
   off(event: string, callback: (event: AnimationEvent) => void): void;
 }
@@ -350,3 +417,18 @@ export interface InteractiveTimelineSpec {
     interactionType: InteractionType
   ) => void;
 }
+
+// 애니메이션 속성 역방향 변환을 위한 유틸리티 타입
+export type ReversedPropertySpec<T extends AnimationPropertySpec> = {
+  from: T["to"];
+  to: T["from"] extends undefined
+    ? T["to"] extends number
+      ? 0
+      : ""
+    : T["from"];
+} & AnimationPropertySpec<T["to"] extends number ? number : string>;
+
+// 애니메이션 속성 역방향 변환 함수 타입
+export type ReversePropertyFunction = <T extends AnimationPropertySpec>(
+  property: T | undefined
+) => ReversedPropertySpec<T> | undefined;

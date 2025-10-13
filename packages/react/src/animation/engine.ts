@@ -16,7 +16,15 @@ import type {
   RallyFunction,
   TimelineFunction,
 } from "./types";
-import { AnimationEndBehavior, AnimationState } from "./enums";
+import { AnimationEndBehavior, AnimationState, EasingType } from "./enums";
+import {
+  parseTransform,
+  mergeTransforms,
+  applyCSSProperty,
+  calculateProgress,
+  interpolate,
+  findElement,
+} from "./utils";
 
 // 이벤트 리스너 타입
 type EventListener = (event: AnimationEvent) => void;
@@ -66,16 +74,7 @@ class MotionImpl implements Motion {
     this.spec = spec;
 
     if (target) {
-      if (typeof target === "string") {
-        this.element = document.querySelector(target) as HTMLElement;
-        if (!this.element) {
-          console.warn(
-            `Motion: Target element not found for selector "${target}"`
-          );
-        }
-      } else {
-        this.element = target;
-      }
+      this.element = findElement(target);
 
       if (this.element) {
         try {
@@ -389,7 +388,7 @@ class MotionImpl implements Motion {
     let currentTransform = this.element.style.transform || "";
 
     // 기존 transform 파싱
-    const existingTransforms = this.parseTransform(currentTransform || "");
+    const existingTransforms = parseTransform(currentTransform || "");
     const newTransforms: Record<string, number> = {};
 
     // translateX 처리
@@ -531,80 +530,9 @@ class MotionImpl implements Motion {
     }
   }
 
-  private parseTransform(transform: string): Record<string, number> {
-    const result: Record<string, number> = {};
+  // parseTransform 메서드는 utils.ts의 parseTransform 함수로 대체됨
 
-    if (!transform) return result;
-
-    // translateX 파싱
-    const translateXMatch = transform.match(/translateX\(([^)]+)\)/);
-    if (translateXMatch && translateXMatch[1]) {
-      result.translateX = parseFloat(translateXMatch[1]);
-    }
-
-    // translateY 파싱
-    const translateYMatch = transform.match(/translateY\(([^)]+)\)/);
-    if (translateYMatch && translateYMatch[1]) {
-      result.translateY = parseFloat(translateYMatch[1]);
-    }
-
-    // scale 파싱 (scale(x) 또는 scale(x, y) 형태)
-    const scaleMatch = transform.match(/scale\(([^)]+)\)/);
-    if (scaleMatch && scaleMatch[1]) {
-      const scaleValues = scaleMatch[1]
-        .split(",")
-        .map((v) => parseFloat(v.trim()));
-      result.scale = scaleValues[0] || 1;
-    }
-
-    // rotate 파싱
-    const rotateMatch = transform.match(/rotate\(([^)]+)\)/);
-    if (rotateMatch && rotateMatch[1]) {
-      result.rotate = parseFloat(rotateMatch[1]);
-    }
-
-    return result;
-  }
-
-  // Transform 속성을 안전하게 병합하는 함수
-  private mergeTransforms(
-    existingTransforms: Record<string, number>,
-    newTransforms: Record<string, number>
-  ): Record<string, number> {
-    return {
-      ...existingTransforms,
-      ...newTransforms,
-    };
-  }
-
-  private applyProperty(property: string, value: any): void {
-    if (!this.element) return;
-
-    switch (property) {
-      case "opacity":
-        this.element.style.opacity = value.toString();
-        break;
-      case "transform":
-        this.element.style.transform = value;
-        break;
-      case "backgroundColor":
-        this.element.style.backgroundColor = value;
-        break;
-      case "color":
-        this.element.style.color = value;
-        break;
-      case "width":
-        this.element.style.width =
-          typeof value === "number" ? `${value}px` : value;
-        break;
-      case "height":
-        this.element.style.height =
-          typeof value === "number" ? `${value}px` : value;
-        break;
-      default:
-        (this.element.style as any)[property] = value;
-    }
-  }
+  // mergeTransforms와 applyProperty는 utils.ts의 함수들로 대체됨
 }
 
 // Toss 스타일 랠리 구현 클래스
@@ -1192,6 +1120,22 @@ class TimelineImpl implements Timeline {
     };
 
     return new TimelineImpl(reversedSpec);
+  }
+
+  // Timeline 완료 후 동작 실행
+  async executeEndBehavior(): Promise<void> {
+    const { collectAllRallies, executeTimelineEndBehavior } = await import(
+      "./utils"
+    );
+    const allRallies = collectAllRallies(this.spec);
+    await executeTimelineEndBehavior(allRallies, this.spec.options);
+  }
+
+  // 부드러운 페이드아웃 애니메이션 실행
+  async fadeOut(duration?: number, easing?: EasingType): Promise<void> {
+    const { collectAllRallies, fadeOutRallies } = await import("./utils");
+    const allRallies = collectAllRallies(this.spec);
+    await fadeOutRallies(allRallies, duration, easing);
   }
 
   on(event: string, callback: EventListener): void {
